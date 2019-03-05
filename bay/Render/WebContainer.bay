@@ -1,0 +1,51 @@
+/*!
+ *  Bayrell Runtime Library
+ *
+ *  (c) Copyright 2018 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.bayrell.org/licenses/APACHE-LICENSE-2.0.html
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace RuntimeUI.Render;
+
+use Runtime.CoreStruct;
+use Runtime.Interfaces.ContextInterface;
+use RuntimeUI.Annotations.RouteInfo;
+use RuntimeUI.Http.Request;
+use RuntimeUI.Http.Response;
+use RuntimeUI.Http.Session;
+use RuntimeUI.Http.WebFile;
+
+
+struct WebContainer extends CoreStruct
+{
+	public Request request = null;
+	public Response response = null;
+	public RouteInfo route_info = null;
+	public Collection<Cookie> cookies = null;
+	public Map<string> params = null;	
+	
+	
+	/**
+	 * Render page with layout and return Response
+	 */
+	pure Response responsePage
+	(
+		string layout_class_name, Dict layout_data, 
+		string view_class_name, Dict view_data
+	)
+	{
+		return new Response({ "content": "Response 123" });
+	}
+	
+}
