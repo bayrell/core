@@ -1,0 +1,231 @@
+/*!
+ *  Bayrell Runtime Library
+ *
+ *  (c) Copyright 2018 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.bayrell.org/licenses/APACHE-LICENSE-2.0.html
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace RuntimeUI.Render;
+
+use Runtime.Interfaces.StringInterface;
+
+
+static class RenderHelper 
+{
+	
+	
+	/**
+	 * Returns if tag name is double token
+	 */
+	pure memorize bool isDoubleToken(string tag_name)
+	{
+		Dict tokens = ["img", "meta", "input", "link", "br"];
+		if (tokens.indexOf(tag_name) == -1)  return true;
+		return false;
+	}
+	
+	
+	
+	/**
+	 * Retuns css hash 
+	 * @param string component class name
+	 * @return string hash
+	 */
+	static memorize string getCssHash(string s)
+	{
+		int sz = rs::strlen(s);
+		int h = 0;
+		for (int i=0; i<sz; i++){
+			int ch = rs::ord(s[i]);
+			h = ((h << 2) + (h >> 14) + ch) & 65535;
+		}
+		
+		string arr = "1234567890abcdef";
+		string res = "";
+		while (h != 0){
+			int c = h & 15;
+			h = h >> 4;
+			res ~= arr[c];
+		}
+		
+		return res;
+	}
+	
+	
+	
+	/**
+	 * Returns attrs
+	 */
+	pure string getUIStringAttrs(UIStruct st, string class_name)
+	{
+		if (st == null)
+			return "";
+		
+		if (st.props == null)
+			return "";
+		
+		Map attrs = new Map();
+		Vector keys = st.props.keys();
+		for (int ki=0; ki<keys.count(); ki++)
+		{
+			string key = keys.item(ki);
+			mixed item = st.props.item(key);
+			string value = "";
+			
+			if (rs::strlen(key) == 0)
+				continue;
+			
+			
+			if (key == 'style' and item instanceof Map)
+			{
+				value = item.reduce(
+					string (string res, string key, string value){
+						return res ~ key ~ ':' ~ value ~ ';' ;
+					}, 
+					""
+				);
+			}
+			else if (item implements StringInterface)
+			{
+				value = rtl::toString(item);
+			}
+			else if (rtl::isString(item))
+			{
+				value = rtl::toString(item);
+			}
+			
+			if (key == "@class")
+			{
+				Map css_arr = rs::explode(" ", value);
+				css_arr = css_arr.map
+				(
+					string (string item) use (class_name)
+					{
+						return item ~ "-" ~ static::getCssHash(class_name);
+					}
+				);
+				key = "class";
+				value = rs::implode(" ", css_arr);
+			}
+			else if (key[0] == "@")
+			{
+				continue;
+			}
+			else if (key == 'dangerouslySetInnerHTML')
+			{
+				continue;
+			}
+			
+			else if (key == 'defaultValue') key = 'value';
+			else if (key == 'className') key = 'class';
+			else if (key == 'selected') {
+				if (item == true) value = 'selected';
+				else if (item == false) return;
+				value = 'selected';
+			}
+			else if (key == 'checked') {
+				if (item == true) value = 'checked';
+				else if (item == false) return;
+				value = 'checked';
+			}
+			
+			if (value != "")
+			{
+				if (attrs.has(key))
+				{
+					value = attr.item(key) ~ " " ~ value;
+				}
+				attrs.set(key, value);
+			}
+		}
+		
+		attrs = attrs.map(
+			string (string key, string value)
+			{
+				return key ~ "='" ~ value ~ "'";
+			}
+		);
+		
+		return rs::implode(" ", attrs);
+	}
+	
+	
+	
+	/**
+	 * Convert UI to string
+	 */
+	pure string getUIStringVector(Collection<UIStruct> arr, string class_name)
+	{
+		if (arr == null) 
+			return "";
+			
+		string content = "";
+		for (int i=0; i<arr.count(); i++)
+		{
+			content ~= static::getUIString( arr.item(i), class_name );
+		}
+		return content;
+	}
+	
+	
+	
+	/**
+	 * Convert UI to string
+	 */
+	pure string getUIString(UIStruct st, string class_name)
+	{
+		if (st == null)
+			return "";
+		
+		
+		if (st.isComponent())
+		{
+			fun render = method (st.name, "render");
+			Collection<UIStruct> res = render( st.getModel() );
+			
+			return static::getUIStringVector( res, st.name );
+		}
+		
+		string attrs = static::getUIStringAttrs( st, class_name );
+		string content = "";
+		if ( static::isDoubleToken(st.name) )
+		{
+			content = "<"~st.name ~ (attrs!="" ? " " ~ attrs : "") ~ ">";
+			content ~= static::getUIStringVector( st.children, class_name );
+			content ~= "</"~st.name~">";
+			
+			/*
+			if (element.props and element.props.has("dangerouslySetInnerHTML"))
+			{
+				content ~= element.props.item("dangerouslySetInnerHTML");
+			}
+			else
+			{
+				content ~= static::getUIStringVector( st.children, class_name );
+			}
+			*/
+			
+		}
+		else
+		{
+			content = "<"~st.name ~ (attrs!="" ? " " ~ attrs : "") ~ "/>";
+		}
+		
+		
+		return content;
+	}
+	
+	
+
+}

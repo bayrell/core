@@ -19,12 +19,12 @@
 namespace RuntimeUI.Render;
 
 use Runtime.CoreStruct;
-use Runtime.Interfaces.ContextInterface;
 use RuntimeUI.Annotations.RouteInfo;
 use RuntimeUI.Http.Request;
 use RuntimeUI.Http.Response;
 use RuntimeUI.Http.Session;
 use RuntimeUI.Http.WebFile;
+use RuntimeUI.Render.RenderHelper;
 
 
 struct WebContainer extends CoreStruct
@@ -41,11 +41,44 @@ struct WebContainer extends CoreStruct
 	 */
 	pure Response responsePage
 	(
-		string layout_class_name, Dict layout_data, 
-		string view_class_name, Dict view_data
+		string layout_class_name, mixed layout_data, 
+		string view_class_name, mixed view_data
 	)
 	{
-		return new Response({ "content": "Response 123" });
+		string content = static::render( view_class_name, view_data );
+		return new Response({ "content": content });
+	}
+	
+	
+	
+	/**
+	 * Render class with data
+	 */
+	pure Response render
+	(
+		string class_name, mixed data
+	)
+	{
+		UIStruct st = null;
+		
+		if (data instanceof CoreStruct)
+		{
+			UIStruct st = new UIStruct{
+				"name": class_name,
+				"kind": UIStruct::TYPE_COMPONENT,
+				"model": data,
+			};
+		}
+		else
+		{
+			UIStruct st = new UIStruct{
+				"name": class_name,
+				"kind": UIStruct::TYPE_COMPONENT,
+				"props": data,
+			};
+		}
+		
+		return RenderHelper::getUIString( st, "" );
 	}
 	
 }
