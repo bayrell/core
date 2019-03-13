@@ -53,6 +53,13 @@ struct CoreLayout extends CoreView
 	
 	
 	/**
+	 * Component css
+	 */
+	lambda string css(Dict<string> vars) => "";
+	
+	
+	
+	/**
 	 * Render head
 	 */
 	lambda Template head(CoreLayoutModel data) =>
@@ -68,7 +75,17 @@ struct CoreLayout extends CoreView
 	 */
 	pure Template assetsHeader(CoreLayoutModel data)
 	{
-		return "";
+		string css = RenderHelper::getCSSFromComponents(data.components, data.css_vars);
+		return new UIStruct{
+			"kind": UIStruct::TYPE_ELEMENT,
+			"name": "style",
+			"props": {
+				"type": "text/css",
+			},
+			"children": [
+				rtl::normalizeUI(css),
+			],
+		};
 	}
 	
 	

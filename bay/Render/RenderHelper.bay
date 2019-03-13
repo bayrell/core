@@ -268,24 +268,6 @@ static class RenderHelper
 	
 	
 	/**
-	 * Returns assets
-	 * @param string layout_class_name
-	 * @param string view_class_name
-	 * @return Collection<string>
-	 */
-	pure memorize Collection<string> loadAssets
-	(
-		string layout_class_name, 
-		string view_class_name, 
-		RenderContainer container = null
-	)
-	{
-		return static::loadAssetsFromViews([layout_class_name, view_class_name], container);
-	}
-	
-	
-	
-	/**
 	 * Add unique items to collection
 	 * @param Collection<string> res
 	 * @param Collection<string> items
@@ -345,15 +327,13 @@ static class RenderHelper
 	 * @param Collection<string> views
 	 * @return Collection<string>
 	 */
-	pure Collection<string> loadAssetsFromViews(Collection<string> views, RenderContainer container = null)
+	pure Collection<string> loadAssetsFromComponents(Collection<string> components, RenderContainer container = null)
 	{
-		Collection<string> components = static::getAllComponents(views);
-		
 		/* Add assets from components */
 		Collection<string> res = new Collection();
 		for (int i=0; i<components.count(); i++)
 		{
-			string class_name = views.item(i);
+			string class_name = components.item(i);
 			Collection<string> assets = ( method(class_name, "assets") )();
 			res = static::addUniqueItems(res, assets);
 		}
@@ -398,6 +378,23 @@ static class RenderHelper
 		}
 		
 		return res;
+	}
+	
+	
+	
+	pure memorize string getCSSFromComponents(Collection<string> components, Dict<string> css_vars)
+	{
+		Vector<string> res = new Vector();
+		
+		for (int i=0; i<components.count(); i++)
+		{
+			string component_name = components.item(i);
+			string css = ( method(component_name, "css") )(css_vars);
+			res.push(css);
+		}
+		
+		string s = res.reduce( lambda string (string res, string s) => res ~ s, "" );
+		return s;
 	}
 	
 }

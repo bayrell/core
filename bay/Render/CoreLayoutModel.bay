@@ -29,5 +29,6 @@ struct CoreLayoutModel extends CoreStruct
 	public string content = "";
 	public Collection<string> assets = null;
 	public Collection<string> components = null;
+	public Dict<string> css_vars = null;
 
 }
