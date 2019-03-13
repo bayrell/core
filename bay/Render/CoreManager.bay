@@ -18,13 +18,10 @@
 
 namespace RuntimeUI.Render;
 
-
-use Runtime.CoreStruct;
-use RuntimeUI.Render.WebContainer;
+use Runtime.CoreObject;
 
 
-struct CoreView extends CoreStruct
+class CoreManager extends CoreObject
 {
-	
-	
+
 }

@@ -18,11 +18,45 @@
  
 namespace RuntimeUI.Render;
 
+use Runtime.CoreStruct;
 use Runtime.Interfaces.StringInterface;
 
 
 static class RenderHelper 
 {
+	
+	
+	/**
+	 * Render class with data
+	 */
+	pure string render
+	(
+		string class_name, 
+		mixed data
+	)
+	{
+		UIStruct st = null;
+		
+		if (data instanceof CoreStruct)
+		{
+			UIStruct st = new UIStruct{
+				"name": class_name,
+				"kind": UIStruct::TYPE_COMPONENT,
+				"model": data,
+			};
+		}
+		else
+		{
+			UIStruct st = new UIStruct{
+				"name": class_name,
+				"kind": UIStruct::TYPE_COMPONENT,
+				"props": data,
+			};
+		}
+		
+		return RenderHelper::getUIString( st, "" );
+	}
+	
 	
 	
 	/**
@@ -189,6 +223,11 @@ static class RenderHelper
 			return "";
 		
 		
+		if (st.isString())
+		{
+			return st.content;
+		}
+		
 		if (st.isComponent())
 		{
 			fun render = method (st.name, "render");
@@ -227,5 +266,138 @@ static class RenderHelper
 	}
 	
 	
-
+	
+	/**
+	 * Returns assets
+	 * @param string layout_class_name
+	 * @param string view_class_name
+	 * @return Collection<string>
+	 */
+	pure memorize Collection<string> loadAssets
+	(
+		string layout_class_name, 
+		string view_class_name, 
+		RenderContainer container = null
+	)
+	{
+		return static::loadAssetsFromViews([layout_class_name, view_class_name], container);
+	}
+	
+	
+	
+	/**
+	 * Add unique items to collection
+	 * @param Collection<string> res
+	 * @param Collection<string> items
+	 * @return Collection<string>
+	 */
+	pure Collection<string> addUniqueItems
+	(
+		Collection<string> res, 
+		Collection<string> items
+	)
+	{
+		Vector<string> r = new Vector();
+		for (int i=0; i<items.count(); i++)
+		{
+			string item_name = items.item(i);
+			if (res.indexOf(item_name) == -1)
+			{
+				r.push(item_name);
+			}
+		}
+		return res.appendCollectionIm(r);
+	}
+	
+	
+	
+	/**
+	 * Returns all components
+	 * @param Collection<string> views
+	 * @return Collection<string>
+	 */
+	pure Collection<string> getAllComponents(Collection<string> views)
+	{
+		/* Add components from views */
+		Collection<string> res = new Collection(views);
+		
+		/* Add require components */
+		Collection<string> w = null;
+		while (w != res)
+		{
+			w = res;
+			for (int i=0; i<w.count(); i++)
+			{
+				string class_name = w.item(i);
+				Collection<string> components = ( method(class_name, "components") )();
+				res = static::addUniqueItems(res, components);
+			}
+		}
+		
+		return res;
+	}
+	
+	
+	
+	
+	/**
+	 * Returns assets by views
+	 * @param Collection<string> views
+	 * @return Collection<string>
+	 */
+	pure Collection<string> loadAssetsFromViews(Collection<string> views, RenderContainer container = null)
+	{
+		Collection<string> components = static::getAllComponents(views);
+		
+		/* Add assets from components */
+		Collection<string> res = new Collection();
+		for (int i=0; i<components.count(); i++)
+		{
+			string class_name = views.item(i);
+			Collection<string> assets = ( method(class_name, "assets") )();
+			res = static::addUniqueItems(res, assets);
+		}
+		
+		
+		/* Add require assets */
+		Collection<string> w = null;
+		while (w != res)
+		{
+			w = res;
+			for (int i=0; i<w.count(); i++)
+			{
+				string class_name = w.item(i);
+				Collection<string> assets = ( method(class_name, "getRequiredAssets") )(container);
+				res = static::addUniqueItems(res, assets);
+			}
+		}
+		
+		return res;
+	}
+	
+	
+	
+	/**
+	 * Returns assets
+	 * @param Collection<string> assets
+	 * @return Collection<string>
+	 */
+	pure memorize Collection<string> loadAsyncResources(Collection<string> assets)
+	{
+		Collection<string> res = new Collection();
+		
+		for (int i=0; i<assets.count(); i++)
+		{
+			string assets_name = assets.item(i);
+			Collection<mixed> r = ( method(assets_name, "assetsAsyncLoad") )(null);
+			for (int j=0; j<r.count(); j++)
+			{
+				string arr = r.item(j);
+				res = static::addUniqueItems(res, arr);
+			}
+		}
+		
+		return res;
+	}
+	
 }

@@ -24,6 +24,7 @@ use RuntimeUI.Http.Request;
 use RuntimeUI.Http.Response;
 use RuntimeUI.Http.Session;
 use RuntimeUI.Http.WebFile;
+use RuntimeUI.Render.CoreLayoutModel;
 use RuntimeUI.Render.RenderHelper;
 
 
@@ -36,49 +37,40 @@ struct WebContainer extends CoreStruct
 	public Map<string> params = null;	
 	
 	
+	
 	/**
-	 * Render page with layout and return Response
+	 * Returns assets
+	 * @param string layout_class_name
+	 * @param CoreLayoutModel layout_data
+	 * @param string view_class_name
+	 * @param CoreStruct view_data
+	 * @return Response
 	 */
 	pure Response responsePage
 	(
-		string layout_class_name, mixed layout_data, 
-		string view_class_name, mixed view_data
+		string layout_class_name, CoreLayoutModel layout_data, 
+		string view_class_name, CoreStruct view_data, RenderContainer container = null
 	)
 	{
-		string content = static::render( view_class_name, view_data );
+		/* Render view */
+		string content = RenderHelper::render( view_class_name, view_data );
+		
+		/* Render layout */
+		if (layout_class_name != "" and layout_data != null and layout_data instanceof CoreLayoutModel)
+		{
+			Vector<string> assets = RenderHelper::loadAssets(layout_class_name, view_class_name, container);
+			layout_data = layout_data.copy({
+				"assets": assets,
+				"content": content,
+				"container": container,
+			});
+			content = RenderHelper::render( layout_class_name, layout_data );
+		}
+		
+		/* Return response */
 		return new Response({ "content": content });
 	}
 	
 	
-	
-	/**
-	 * Render class with data
-	 */
-	pure Response render
-	(
-		string class_name, mixed data
-	)
-	{
-		UIStruct st = null;
-		
-		if (data instanceof CoreStruct)
-		{
-			UIStruct st = new UIStruct{
-				"name": class_name,
-				"kind": UIStruct::TYPE_COMPONENT,
-				"model": data,
-			};
-		}
-		else
-		{
-			UIStruct st = new UIStruct{
-				"name": class_name,
-				"kind": UIStruct::TYPE_COMPONENT,
-				"props": data,
-			};
-		}
-		
-		return RenderHelper::getUIString( st, "" );
-	}
 	
 }

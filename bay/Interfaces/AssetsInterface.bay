@@ -18,11 +18,11 @@
  
 namespace RuntimeUI.Interfaces;
 
-use Runtime.Interfaces.ContextInterface;
 use RuntimeUI.Render.RenderContainer;
 
 
-interface AssetsInterface{
+interface AssetsInterface
+{
 	
 	
 	
@@ -30,26 +30,26 @@ interface AssetsInterface{
 	 * Returns required assets
 	 * @return Vector<string>
 	 */	
-	public static Vector<string> getRequiredAssets(ContextInterface context);
+	public static Vector<string> getRequiredAssets(RenderContainer context);
 	
 	
 	
 	/**
 	 * Returns sync loaded files
 	 */		
-	public static Vector<string> assetsSyncLoad(ContextInterface context);
+	public static Vector<string> assetsSyncLoad(RenderContainer context);
 	
 	
 	
 	/**
 	 * Returns async loaded files
 	 */			
-	public static Vector<mixed> assetsAsyncLoad(ContextInterface context);
+	public static Vector<mixed> assetsAsyncLoad(RenderContainer context);
 	
 	
 	
 	/**
 	 * Init render container
 	 */
-	public static void initContainer(RenderContainer container);
+	/*public static RenderContainer initContainer(RenderContainer container);*/
 }

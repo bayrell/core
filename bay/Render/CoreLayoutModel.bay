@@ -20,11 +20,14 @@ namespace RuntimeUI.Render;
 
 
 use Runtime.CoreStruct;
-use RuntimeUI.Render.WebContainer;
 
 
-struct CoreView extends CoreStruct
+struct CoreLayoutModel extends CoreStruct
 {
 	
-	
+	public string title = "";
+	public string content = "";
+	public Collection<string> assets = null;
+	public Collection<string> components = null;
+
 }
