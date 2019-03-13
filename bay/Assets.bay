@@ -118,6 +118,7 @@ class Assets implements AssetsInterface
 				"/assets/bayrell-runtime-ui-es6/Render/CoreManager.js",
 				"/assets/bayrell-runtime-ui-es6/Render/CoreRoute.js",
 				"/assets/bayrell-runtime-ui-es6/Render/CoreView.js",
+				"/assets/bayrell-runtime-ui-es6/Render/RenderContainer.js",
 				"/assets/bayrell-runtime-ui-es6/Render/RenderHelper.js",
 				"/assets/bayrell-runtime-ui-es6/Render/WebContainer.js",
 			],
@@ -125,7 +126,6 @@ class Assets implements AssetsInterface
 				"/assets/bayrell-runtime-ui-es6/Assets.js",
 				"/assets/bayrell-runtime-ui-es6/Http/JsonResponse.js",
 				"/assets/bayrell-runtime-ui-es6/Render/CoreLayout.js",
-				"/assets/bayrell-runtime-ui-es6/Render/CoreLayoutModel.js",
 			]
 		];
 	}

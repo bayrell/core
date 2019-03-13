@@ -22,13 +22,13 @@ namespace RuntimeUI.Render;
 use Runtime.CoreStruct;
 
 
-struct CoreLayoutModel extends CoreStruct
+struct RenderContainer extends CoreStruct
 {
 	
 	public string title = "";
 	public string content = "";
 	public Collection<string> assets = null;
 	public Collection<string> components = null;
-	public Dict<string> css_vars = null;
+	public Dict<string> css_vars = new Dict<string>();
 
 }

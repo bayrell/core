@@ -35,14 +35,14 @@ struct RouteInfo extends CoreStruct
 	
 	
 	/**
-	 * Convert struct
+	 * Init struct data
 	 */
-	pure void convert(Dict obj)
+	protected void initData()
 	{
-		string uri_match = obj.get("uri", "");
+		string uri_match = this.uri;
 		uri_match = re::replace("\\/", "\\/", uri_match);
 		
-		Vector matches = re::matchAll("{(.*?)}", obj.uri);
+		Vector matches = re::matchAll("{(.*?)}", this.uri);
 		if (matches)
 		{
 			Vector<string> params = matches.get(0, null);
@@ -57,15 +57,15 @@ struct RouteInfo extends CoreStruct
 				}
 			);
 			
+			this.assignValue("params", params.toCollection());
 			obj = obj.setIm("params", params.toCollection());
 		}
 		else
 		{
-			obj = obj.setIm("params", null);
+			this.assignValue("params", null);
 		}
 		
-		obj = obj.setIm("uri_match", uri_match);
-		return obj;
+		this.assignValue("uri_match", uri_match);
 	}
 	
 	

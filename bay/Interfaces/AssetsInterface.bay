@@ -25,7 +25,6 @@ interface AssetsInterface
 {
 	
 	
-	
 	/**
 	 * Returns required assets
 	 * @return Vector<string>
@@ -51,5 +50,5 @@ interface AssetsInterface
 	/**
 	 * Init render container
 	 */
-	/*public static RenderContainer initContainer(RenderContainer container);*/
+	public static RenderContainer initContainer(RenderContainer container);
 }

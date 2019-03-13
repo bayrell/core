@@ -24,7 +24,7 @@ use RuntimeUI.Http.Request;
 use RuntimeUI.Http.Response;
 use RuntimeUI.Http.Session;
 use RuntimeUI.Http.WebFile;
-use RuntimeUI.Render.CoreLayoutModel;
+use RuntimeUI.Render.RenderContainer;
 use RuntimeUI.Render.RenderHelper;
 
 
@@ -48,24 +48,23 @@ struct WebContainer extends CoreStruct
 	 */
 	pure Response responsePage
 	(
-		string layout_class_name, CoreLayoutModel layout_data, 
-		string view_class_name, CoreStruct view_data, RenderContainer container = null
+		string layout_class_name, RenderContainer layout_data, 
+		string view_class_name, CoreStruct view_data
 	)
 	{
 		/* Render view */
 		string content = RenderHelper::render( view_class_name, view_data );
 		
 		/* Render layout */
-		if (layout_class_name != "" and layout_data != null and layout_data instanceof CoreLayoutModel)
+		if (layout_class_name != "" and layout_data != null and layout_data instanceof RenderContainer)
 		{
 			Vector<string> components = RenderHelper::getAllComponents([layout_class_name, view_class_name]);
-			Vector<string> assets = RenderHelper::loadAssetsFromComponents(components, container);
+			Vector<string> assets = RenderHelper::loadAssetsFromComponents(components, layout_data);
+			layout_data = RenderHelper::initRenderContainer(layout_data);
 			layout_data = layout_data.copy({
 				"assets": assets,
 				"components": components,
 				"content": content,
-				"container": container,
-				"css_vars": new Dict<string>(),
 			});
 			content = RenderHelper::render( layout_class_name, layout_data );
 		}

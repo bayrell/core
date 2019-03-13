@@ -20,6 +20,7 @@ namespace RuntimeUI.Render;
 
 use Runtime.CoreStruct;
 use Runtime.Interfaces.StringInterface;
+use RuntimeUI.Render.RenderContainer;
 
 
 static class RenderHelper 
@@ -321,7 +322,6 @@ static class RenderHelper
 	
 	
 	
-	
 	/**
 	 * Returns assets by views
 	 * @param Collection<string> views
@@ -331,6 +331,8 @@ static class RenderHelper
 	{
 		/* Add assets from components */
 		Collection<string> res = new Collection();
+		if (components == null) return res;
+		
 		for (int i=0; i<components.count(); i++)
 		{
 			string class_name = components.item(i);
@@ -365,6 +367,7 @@ static class RenderHelper
 	pure memorize Collection<string> loadAsyncResources(Collection<string> assets)
 	{
 		Collection<string> res = new Collection();
+		if (assets == null) return res;
 		
 		for (int i=0; i<assets.count(); i++)
 		{
@@ -382,6 +385,12 @@ static class RenderHelper
 	
 	
 	
+	/**
+	 * Returns css string
+	 * @param Collection<string> components
+	 * @param Dict<string> css_vars
+	 * @return string
+	 */
 	pure memorize string getCSSFromComponents(Collection<string> components, Dict<string> css_vars)
 	{
 		Vector<string> res = new Vector();
@@ -395,6 +404,18 @@ static class RenderHelper
 		
 		string s = res.reduce( lambda string (string res, string s) => res ~ s, "" );
 		return s;
+	}
+	
+	
+	
+	/**
+	 * Init render container
+	 * @param RenderContainer container
+	 * @return RenderContainer
+	 */
+	pure RenderContainer initRenderContainer(RenderContainer container)
+	{
+		return container;
 	}
 	
 }

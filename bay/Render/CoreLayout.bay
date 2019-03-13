@@ -99,13 +99,15 @@ struct CoreLayout extends CoreView
 		Vector<UIStruct> res = new Vector();
 		for (int i=0; i<js.count(); i++)
 		{
-			res.push(new UIStruct{
-				"kind": UIStruct::TYPE_ELEMENT,
-				"name": "script",
-				"props": {
-					"src": js.item(i),
-				},
-			});
+			res.push(
+				new UIStruct{
+					"kind": UIStruct::TYPE_ELEMENT,
+					"name": "script",
+					"props": {
+						"src": js.item(i),
+					},
+				}
+			);
 		}
 		return res.toCollection();
 	}
