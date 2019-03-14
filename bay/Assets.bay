@@ -126,7 +126,7 @@ class Assets implements AssetsInterface
 				"/assets/bayrell-runtime-ui-es6/Assets.js",
 				"/assets/bayrell-runtime-ui-es6/Http/JsonResponse.js",
 				"/assets/bayrell-runtime-ui-es6/Render/CoreLayout.js",
-			]
+			],
 		];
 	}
 	

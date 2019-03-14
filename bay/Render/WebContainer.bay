@@ -65,6 +65,8 @@ struct WebContainer extends CoreStruct
 				"assets": assets,
 				"components": components,
 				"content": content,
+				"view": view_class_name,
+				"model": view_data,
 			});
 			content = RenderHelper::render( layout_class_name, layout_data );
 		}

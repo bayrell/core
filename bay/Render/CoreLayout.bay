@@ -65,7 +65,7 @@ struct CoreLayout extends CoreView
 	lambda Template head(CoreLayoutModel data) =>
 		return 
 			<meta name='Content-Type' content='text/html; charset=utf-8'/>
-			<title>{ data.title }</title>
+			<title>@{ data.title }</title>
 		;
 	
 	
@@ -109,6 +109,15 @@ struct CoreLayout extends CoreView
 				}
 			);
 		}
+		res.push(
+			new UIStruct{
+				"kind": UIStruct::TYPE_ELEMENT,
+				"name": "script",
+				"props": {
+					"src": "/assets/bayrell-runtime-ui-es6/Drivers/RenderDriver.js",
+				},
+			}
+		);
 		return res.toCollection();
 	}
 	
@@ -128,13 +137,15 @@ struct CoreLayout extends CoreView
 		return <!DOCTYPE html>
 			<html>
 			<head>
-				{ static::head( data ) }
-				{ static::assetsHeader( data ) }
+				@{ static::head( data ) }
+				@{ static::assetsHeader( data ) }
 			</head>
 			<body>
 				<div id='root'>@raw{ static::content( data ) }</div>
+				<input id='view' value=@{ data.view } style="display: none;" />
+				<input id='model' value=@{ rtl::json_encode(data.model) } style="display: none;" />
 				<div id='scripts'>
-					{ static::assetsBody( data ) }
+					@{ static::assetsBody( data ) }
 				</div>
 			</body>
 		</html>;

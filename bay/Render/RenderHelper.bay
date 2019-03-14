@@ -55,7 +55,7 @@ static class RenderHelper
 			};
 		}
 		
-		return RenderHelper::getUIString( st, "" );
+		return RenderHelper::getUIString(st);
 	}
 	
 	
@@ -99,18 +99,20 @@ static class RenderHelper
 	
 	
 	
+	
 	/**
 	 * Returns attrs
 	 */
-	pure string getUIStringAttrs(UIStruct st, string class_name)
+	pure Dict<string> getUIAttrs(UIStruct st)
 	{
+		Dict<string> attrs = new Map();
+		
 		if (st == null)
-			return "";
+			return attrs.toDict();
 		
 		if (st.props == null)
-			return "";
+			return attrs.toDict();
 		
-		Map attrs = new Map();
 		Vector keys = st.props.keys();
 		for (int ki=0; ki<keys.count(); ki++)
 		{
@@ -145,9 +147,9 @@ static class RenderHelper
 				Map css_arr = rs::explode(" ", value);
 				css_arr = css_arr.map
 				(
-					string (string item) use (class_name)
+					string (string item) use (st)
 					{
-						return item ~ "-" ~ static::getCssHash(class_name);
+						return item ~ "-" ~ static::getCssHash(st.class_name);
 					}
 				);
 				key = "class";
@@ -185,6 +187,17 @@ static class RenderHelper
 			}
 		}
 		
+		return attrs;
+	}
+	
+	
+	
+	/**
+	 * Returns attrs
+	 */
+	pure string getUIStringAttrs(UIStruct st)
+	{
+		Dict<string> attrs = static::getUIAttrs(st);
 		attrs = attrs.map(
 			string (string key, string value)
 			{
@@ -192,7 +205,7 @@ static class RenderHelper
 			}
 		);
 		
-		return rs::implode(" ", attrs);
+		return rs::implode(" ", attrs.values());
 	}
 	
 	
@@ -200,7 +213,7 @@ static class RenderHelper
 	/**
 	 * Convert UI to string
 	 */
-	pure string getUIStringVector(Collection<UIStruct> arr, string class_name)
+	pure string getUIStringVector(Collection<UIStruct> arr)
 	{
 		if (arr == null) 
 			return "";
@@ -208,7 +221,7 @@ static class RenderHelper
 		string content = "";
 		for (int i=0; i<arr.count(); i++)
 		{
-			content ~= static::getUIString( arr.item(i), class_name );
+			content ~= static::getUIString( arr.item(i) );
 		}
 		return content;
 	}
@@ -218,7 +231,7 @@ static class RenderHelper
 	/**
 	 * Convert UI to string
 	 */
-	pure string getUIString(UIStruct st, string class_name)
+	pure string getUIString(UIStruct st)
 	{
 		if (st == null)
 			return "";
@@ -237,12 +250,12 @@ static class RenderHelper
 			return static::getUIStringVector( res, st.name );
 		}
 		
-		string attrs = static::getUIStringAttrs( st, class_name );
+		string attrs = static::getUIStringAttrs( st );
 		string content = "";
 		if ( static::isDoubleToken(st.name) )
 		{
 			content = "<"~st.name ~ (attrs!="" ? " " ~ attrs : "") ~ ">";
-			content ~= static::getUIStringVector( st.children, class_name );
+			content ~= static::getUIStringVector( st.children );
 			content ~= "</"~st.name~">";
 			
 			/*
