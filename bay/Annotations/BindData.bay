@@ -15,30 +15,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+ 
+namespace RuntimeUI.Annotations;
 
-namespace RuntimeUI.Render;
-
-use Runtime.CoreObject;
+use Runtime.CoreStruct;
 
 
-class CoreManager extends CoreObject
+struct BindData extends CoreStruct
 {
 	
-	/**
-	 * Returns view name
-	 */
-	lambda string viewName() => "";
-	
-	
-	
-	/**
-	 * Append element to control
-	 */
-	public void appendControl(mixed elem, string value)
-	{
-		UIControl control = this.takeValue(value);
-		control.ref = elem;
-	}
-	
+	string model = "";
+	string component = "";
 	
 }

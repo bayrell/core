@@ -27,178 +27,280 @@ RuntimeUI.Drivers.RenderDriver = function()
 	this.model = null;
 	this.template = null;
 	this.animation_id = null;
+	this.managers = {};
 	return this;
 }
 
 
-
-/**
- * Create DOM by UI Struct
- */
-RuntimeUI.Drivers.RenderDriver.setElemProps = function(elem, ui)
-{
-	/* Build attrs */
-	var attrs = RuntimeUI.Render.RenderHelper.getUIAttrs(ui);
-	if (attrs == null)
-	{
-		return;
-	}
+Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 	
-	var is_input = ["INPUT", "SELECT"].indexOf(elem.tagName) >= 0;
-	attrs.each(
-		(key, value) => 
+	
+	
+	/**
+	 * Create DOM by UI Struct
+	 */
+	setElemKeys: function(manager, key_path, elem, ui)
+	{
+		elem._key = key_path;
+		elem._manager = manager;
+		elem._ui_struct = ui;
+		
+		if (elem instanceof HTMLElement)
 		{
-			if (is_input && key == "value") return;
-			elem.setAttribute(key, value);
+			elem.setAttribute("x-key", key_path);
 		}
-	);
+	},
 	
-	if (is_input)
+	
+	
+	/**
+	 * Create DOM by UI Struct
+	 */
+	setElemProps: function(elem, ui)
 	{
-		elem.value = attrs.get("value", "");
-	}
-	
-}
-
-
-
-/**
- * Create DOM by UI Struct
- */
-RuntimeUI.Drivers.RenderDriver.createDOM = function(prev_elem, ui)
-{
-	if (prev_elem == undefined) prev_elem = null;
-	
-	if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
-	{
-		var elem = document.createElement(ui.name);
-		elem.ui_struct = ui;
-		
-		/* Set props */
-		this.setElemProps(elem, ui);
-		
-		/* Update DOM children */
-		if (prev_elem != null)
+		/* Build attrs */
+		var attrs = RuntimeUI.Render.RenderHelper.getUIAttrs(ui);
+		if (attrs == null)
 		{
-			while (prev_elem.childNodes.hasChildNodes()) 
+			return;
+		}
+		
+		var is_input = ["INPUT", "SELECT"].indexOf(elem.tagName) >= 0;
+		attrs.each(
+			(key, value) => 
 			{
-				elem.appendChild(prev_elem.firstChild);
+				if (is_input && key == "value") return;
+				elem.setAttribute(key, value);
+			}
+		);
+		
+		if (is_input)
+		{
+			elem.value = attrs.get("value", "");
+		}
+		
+		if (ui.props != null)
+		{
+			ui.props.each(
+				(key, value) => 
+				{
+					if (key == "@ref")
+					{
+						elem._manager.appendControl(elem, value);
+					}
+				}
+			);
+		}
+		
+	},
+	
+	
+	
+	/**
+	 * Create DOM by UI Struct
+	 */
+	createDOM: function(manager, key_path, prev_elem, ui)
+	{
+		if (prev_elem == undefined) prev_elem = null;
+		
+		if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
+		{
+			var elem = document.createElement(ui.name);
+			this.setElemKeys(manager, key_path, elem, ui);
+			
+			/* Set props */
+			this.setElemProps(elem, ui);
+			
+			/* Update DOM children */
+			if (prev_elem != null)
+			{
+				while (prev_elem.childNodes.hasChildNodes()) 
+				{
+					elem.appendChild(prev_elem.firstChild);
+				}
+			}
+			this.updateDOMChilds(manager, key_path, elem, ui.children);
+			
+			return elem;
+		}
+		else if (ui.kind == Runtime.UIStruct.TYPE_RAW)
+		{
+			var elem = document.createTextNode(ui.content);
+			this.setElemKeys(manager, key_path, elem, ui);
+			return elem;
+		}
+		
+		return null;
+	},
+	
+	
+	
+	/**
+	 * Create Document Object Model
+	 */
+	updateDOM: function(manager, key_path, elem, ui)
+	{
+		if (elem._ui_struct == ui) return elem;
+		
+		/* Create new DOM if different */
+		if (elem._ui_struct != null)
+		{
+			if (elem._ui_struct.kind != ui.kind || elem._ui_struct.name != ui.name)
+			{
+				return this.createDOM(manager, key_path, elem, ui);
 			}
 		}
-		this.updateDOMChilds(elem, ui.children);
 		
-		return elem;
-	}
-	else if (ui.kind == Runtime.UIStruct.TYPE_RAW)
-	{
-		var elem = document.createTextNode(ui.content);
-		elem.ui_struct = ui;
-		return elem;
-	}
-	
-	return null;
-}
-
-
-
-/**
- * Create Document Object Model
- */
-RuntimeUI.Drivers.RenderDriver.updateDOM = function(elem, ui)
-{
-	if (elem.ui_struct == ui) return elem;
-	
-	/* Create new DOM if different */
-	if (elem.ui_struct != null)
-	{
-		if (elem.ui_struct.kind != ui.kind || elem.ui_struct.name != ui.name)
+		this.setElemKeys(manager, key_path, elem, ui);
+		if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
 		{
-			return this.createDOM(elem, ui);
+			/* Set props */
+			this.setElemProps(elem, ui);
+			
+			/* Update DOM children */
+			this.updateDOMChilds(manager, key_path, elem, ui.children);
 		}
-	}
-	
-	elem.ui_struct = ui;
-	if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
-	{
-		/* Set props */
-		this.setElemProps(elem, ui);
-		
-		/* Update DOM children */
-		this.updateDOMChilds(elem, ui.children);
-	}
-	else if (ui.kind == Runtime.UIStruct.TYPE_RAW)
-	{
-		elem.nodeValue = ui.content;
-	}
-	
-	return elem;
-}
-
-
-
-/**
- * Create Document Object Model
- */
-RuntimeUI.Drivers.RenderDriver.updateDOMChilds = function(elem, template)
-{
-	
-	if (template == null)
-	{
-		return;
-	}
-	
-	var append_arr = [];
-	var update_arr = [];
-	var remove_arr = [];
-	var index = 0;
-	
-	while (index < elem.childNodes.length)
-	{
-		var item = elem.childNodes[index];
-		var ui = template.get(index, null);
-		if (ui != null)
+		else if (ui.kind == Runtime.UIStruct.TYPE_RAW)
 		{
-			var new_item = this.updateDOM(item, ui);
-			if (new_item != item)
+			elem.nodeValue = ui.content;
+		}
+		
+		return elem;
+	},
+	
+	
+	
+	/**
+	 * Create Document Object Model
+	 */
+	updateDOMChilds: function(manager, key_path, elem, template)
+	{
+		
+		if (template == null)
+		{
+			return;
+		}
+		
+		
+		var append_arr = [];
+		var update_arr = [];
+		var remove_arr = [];
+		var index_item = 0;
+		var index_template = 0;
+		
+		
+		while (index_template < template.count())
+		{
+			var ui = template.item(index_template);
+			index_template ++;
+			
+			/* if ui is component */
+			if (ui.kind == Runtime.UIStruct.TYPE_COMPONENT)
 			{
-				update_arr.push({"old_item": item, "new_item": new_item});
+				
+				/* Render view */
+				var model = ui.getModel();
+				var f = Runtime.rtl.method( ui.name, "render" );
+				var t = f( model );
+				
+				
+				/* Find manager by path or create new manager if does not exists */
+				var key_manager = ui.getKeyPath(key_path, index_template - 1);
+				var new_manager = null;
+				if (this.managers[key_manager] == undefined)
+				{
+					var manager_name = Runtime.rtl.method( ui.name, "managerName" )();
+					var new_manager = Runtime.rtl.newInstance(manager_name);
+				}
+				else
+				{
+					new_manager = this.managers[key_manager];
+				}
+				new_manager.model = model;
+				
+				
+				/* Normalize ui vector */
+				if (!(t instanceof Runtime.Collection))
+				{
+					t = Runtime.RuntimeUtils.normalizeUIVector(t);
+				}
+				
+				
+				/* Analyze view struct */
+				for (var index_t=0; index_t<t.count(); index_t++)
+				{
+					var t_ui = t.item(index_t);
+					var item = elem.childNodes[index_item];
+					var key_ui = t_ui.getKeyPath(key_manager, index_t);
+					index_item++;
+					
+					if (item == undefined)
+					{
+						var item = this.createDOM(new_manager, key_ui, null, t_ui);
+						if (item != null) append_arr.push(item);
+					}
+					else
+					{
+						var new_item = this.updateDOM(new_manager, key_ui, item, t_ui);
+						if (new_item != item)
+						{
+							update_arr.push({"old_item": item, "new_item": new_item});
+						}
+					}
+				}
+				
 			}
+			
+			/* if ui is element */
+			else
+			{
+				var item = elem.childNodes[index_item];
+				var key_ui = ui.getKeyPath(key_path, index_template - 1);
+				index_item++;
+				
+				if (item == undefined)
+				{
+					var item = this.createDOM(manager, key_ui, null, ui);
+					if (item != null) append_arr.push(item);
+				}
+				else
+				{
+					var new_item = this.updateDOM(manager, key_ui, item, ui);
+					if (new_item != item)
+					{
+						update_arr.push({"old_item": item, "new_item": new_item});
+					}
+				}
+			}
+			
 		}
-		else
+		
+		
+		/* Remove items */
+		while (index_item < elem.childNodes.length)
 		{
+			var item = elem.childNodes[index_item];
 			remove_arr.push(item);
 		}
-		index++;
-	}
-	
-	while (index < template.count())
-	{
-		var ui = template.get(index, null);
-		var item = this.createDOM(null, ui);
-		if (item != null) append_arr.push(item);
-		index++;
-	}
-	
-	
-	/* Apply changes */
-	for (var i=0; i<remove_arr.length; i++)
-	{
-		elem.removeChild( remove_arr[i] );
-	}
-	for (var i=0; i<append_arr.length; i++)
-	{
-		elem.appendChild( append_arr[i] );
-	}
-	for (var i=0; i<update_arr.length; i++)
-	{
-		elem.replaceChild(update_arr[i].new_item, update_arr[i].old_item);
-	}
-	
-}
+		
+		
+		
+		/* Apply changes */
+		for (var i=0; i<remove_arr.length; i++)
+		{
+			elem.removeChild( remove_arr[i] );
+		}
+		for (var i=0; i<append_arr.length; i++)
+		{
+			elem.appendChild( append_arr[i] );
+		}
+		for (var i=0; i<update_arr.length; i++)
+		{
+			elem.replaceChild(update_arr[i].new_item, update_arr[i].old_item);
+		}
+		
+	},
 
-
-
-Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 	
 	
 	/**
@@ -212,9 +314,18 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 		this.selector = selector;
 		this.model = model;
 		
-		var f = Runtime.rtl.method(this.view, "render");
-		this.template = f(model);
-		/*console.log(this.template);*/
+		this.template = new Runtime.Collection( 
+			new Runtime.UIStruct(
+				new Runtime.Dict({
+					"name": this.view,
+					"kind": Runtime.UIStruct.TYPE_COMPONENT,
+					"model": this.model,
+				})
+			)
+		);
+		
+		var root = document.querySelector( this.selector );
+		root._driver = this;
 		
 		this.runAnimation();
 	},
@@ -237,7 +348,7 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 	{
 		this.animation_id = null;
 		var root = document.querySelector( this.selector );
-		RuntimeUI.Drivers.RenderDriver.updateDOMChilds(root, this.template)
+		this.updateDOMChilds(null, "", root, this.template)
 	},
 	
 });
