@@ -24,6 +24,16 @@ if (typeof RuntimeUI.Drivers == 'undefined') RuntimeUI.Drivers = {};
 RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 {
 	
+	/**
+	 * Warning
+	 */
+	warning()
+	{
+		var arr = Array.apply(null, arguments);
+		arr.unshift("[Warning]");
+		console.log.apply(null, arr);
+	}
+	
 	
 	/**
 	 * Init Driver
@@ -34,10 +44,12 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 		
 		this.view = null;
 		this.model = null;
-		this.template = null;
 		this.animation_id = null;
 		this.control = new RuntimeUI.UIController();
-		this.control.signal_out.addMethod(this.modelChanged, new Runtime.Collection("RuntimeUI.Events.ModelChange"));
+		this.control.signal_out.addMethod(
+			this.modelChanged.bind(this), 
+			new Runtime.Collection("RuntimeUI.Events.ModelChange")
+		);
 		this.managers = {};
 	}
 	
@@ -60,7 +72,9 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	 */
 	modelChanged(e)
 	{
-		console.log(e.model);
+		this.model = e.model;
+		this.runAnimation();
+		/*console.log(e.model);*/
 	}
 	
 	
@@ -141,27 +155,34 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 			if (ui.controller != "")
 			{
 				controller = manager.takeValue(ui.controller);
-				controller.ref = elem;
-				if (controller.events != null)
+				if (controller == null)
 				{
-					for (var i=0; i<controller.events.count(); i++)
+					this.warning("Controller '" + ui.controller + "' not found in ", elem);
+				}
+				else
+				{
+					controller.ref = elem;
+					if (controller.events != null)
 					{
-						var class_name = controller.events.item(i);
-						var event_name = Runtime.rtl.find_class(class_name).ES6_EVENT_NAME;
-						
-						if (event_name != "" && event_name != undefined && elem._events[event_name] == undefined)
+						for (var i=0; i<controller.events.count(); i++)
 						{
-							elem.addEventListener(
-								event_name, 
-								(function(controller)
-								{
-									return function(e)
+							var class_name = controller.events.item(i);
+							var event_name = Runtime.rtl.find_class(class_name).ES6_EVENT_NAME;
+							
+							if (event_name != "" && event_name != undefined && elem._events[event_name] == undefined)
+							{
+								elem.addEventListener(
+									event_name, 
+									(function(controller)
 									{
-										e = RuntimeUI.Events.UserEvent.UserEvent.fromEvent(e);
-										controller.signal_out.dispatch(e);
-									}
-								})(controller)
-							);
+										return function(e)
+										{
+											e = RuntimeUI.Events.UserEvent.UserEvent.fromEvent(e);
+											controller.signal_out.dispatch(e);
+										}
+									})(controller)
+								);
+							}
 						}
 					}
 				}
@@ -230,7 +251,7 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 			/* Update DOM children */
 			if (prev_elem != null)
 			{
-				while (prev_elem.childNodes.hasChildNodes()) 
+				while (prev_elem.hasChildNodes()) 
 				{
 					elem.appendChild(prev_elem.firstChild);
 				}
@@ -419,20 +440,6 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 		this.selector = selector;
 		this.model = model;
 		
-		this.template = new Runtime.Collection( 
-			new Runtime.UIStruct(
-				new Runtime.Dict({
-					"name": this.view,
-					"kind": Runtime.UIStruct.TYPE_COMPONENT,
-					"model": this.model,
-					"controller": "control",
-					"props": new Runtime.Dict({
-						"@key": "root",
-					}),
-				})
-			)
-		);
-		
 		var root = document.querySelector( this.selector );
 		root._driver = this;
 		
@@ -456,7 +463,20 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	{
 		this.animation_id = null;
 		var root = document.querySelector( this.selector );
-		this.updateDOMChilds(this, "", root, this.template)
+		var template = new Runtime.Collection( 
+			new Runtime.UIStruct(
+				new Runtime.Dict({
+					"name": this.view,
+					"kind": Runtime.UIStruct.TYPE_COMPONENT,
+					"model": this.model,
+					"controller": "control",
+					"props": new Runtime.Dict({
+						"@key": "root",
+					}),
+				})
+			)
+		);
+		this.updateDOMChilds(this, "", root, template)
 	}
 	
 }
