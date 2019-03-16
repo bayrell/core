@@ -16,12 +16,15 @@
  *  limitations under the License.
  */
 
-namespace RuntimeUI.Events.MouseEvent;
+namespace RuntimeUI.Events;
 
-use RuntimeUI.Events.MouseEvent.MouseEvent;
+use Runtime.CoreEvent;
+use Runtime.CoreStruct;
 
 
-struct MouseDoubleClickEvent extends MouseEvent
+struct ModelChange extends CoreEvent
 {
-	const string ES6_EVENT_NAME = "dblclick";
+	
+	public CoreStruct model = null;
+	
 }

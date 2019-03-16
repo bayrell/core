@@ -21,5 +21,9 @@ namespace RuntimeUI.Events.UserEvent;
 use RuntimeUI.Events.UserEvent.UserEvent;
 
 
-struct FocusEvent extends UserEvent{}
+struct FocusEvent extends UserEvent
+{
+	const string ES6_EVENT_NAME = "focus";
+	
+}
 

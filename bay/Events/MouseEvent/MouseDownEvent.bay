@@ -21,4 +21,7 @@ namespace RuntimeUI.Events.MouseEvent;
 use RuntimeUI.Events.MouseEvent.MouseEvent;
 
 
-struct MouseDownEvent extends MouseEvent{}
+struct MouseDownEvent extends MouseEvent
+{
+	const string ES6_EVENT_NAME = "mousedown";
+}

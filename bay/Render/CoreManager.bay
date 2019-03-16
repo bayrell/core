@@ -19,10 +19,22 @@
 namespace RuntimeUI.Render;
 
 use Runtime.CoreObject;
+use Runtime.Emitter;
+use Runtime.Reference;
+use Runtime.RuntimeUtils;
+use RuntimeUI.Annotations.ControllerAnnotation;
+use RuntimeUI.Events.ModelChange;
 
 
 class CoreManager extends CoreObject
 {
+	
+	public Emitter signal_in = new Emitter();
+	public Emitter signal_out = new Emitter();
+	public string parent_controller_name = "";
+	public CoreManager parent_manager = null;
+	
+	
 	
 	/**
 	 * Returns view name
@@ -32,13 +44,87 @@ class CoreManager extends CoreObject
 	
 	
 	/**
-	 * Append element to control
+	 * Constructor
 	 */
-	public void appendControl(mixed elem, string value)
+	public void constructor()
 	{
-		UIControl control = this.takeValue(value);
-		control.ref = elem;
+		parent();
+		
+		/* Analyze controllers annotaions */
+		Collection<IntrospectionInfo> introspection = RuntimeUtils::getIntrospection( this.getClassName() );
+		introspection.each(
+			void (IntrospectionInfo info)
+			{
+				Collection<CoreObject> annotations = info::filterAnnotations(classof ControllerAnnotation, info);
+				annotations.each(
+					void (ControllerAnnotation annotation) use (info)
+					{
+						this.initAnnotation(info, annotation);
+					}
+				);
+			}
+		);
 	}
 	
+	
+	
+	/**
+	 * Set parent manager
+	 */
+	public void setParentManager(CoreManager parent_manager, string parent_controller_name)
+	{
+		if (this.parent_controller_name != "" and this.parent_manager != null)
+		{
+			UIControl controller = this.parent_manager.takeValue(this.parent_controller_name, null);
+			if (controller != null)
+			{
+				controller.signal_in.removeEmitter( this.signal_in );
+				this.signal_out.removeEmitter( this.parent_manager[ui.control].signal_out );
+			}
+		}
+		
+		this.parent_controller_name = parent_controller_name;
+		this.parent_manager = parent_manager;
+		
+		if (parent_manager != null and parent_controller_name != "")
+		{
+			UIControl parent_controller = parent_manager.takeValue(parent_controller_name, null);
+			if (parent_controller != null)
+			{
+				parent_controller.signal_in.addEmitter( this.signal_in );
+				this.signal_out.addEmitter( parent_controller.signal_out );
+			}
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * Init Annotation
+	 */
+	public void initAnnotation(IntrospectionInfo info, ControllerAnnotation annotation)
+	{
+		if (info.kind != IntrospectionInfo::ITEM_FIELD)
+			return;
+		
+		string field_name = info.name;
+		UIControl controller = this.takeValue(field_name);
+		controller.manager = this;
+		
+		annotation::initController(this, annotation, controller);
+	}
+	
+	
+	
+	/**
+	 * Update current model
+	 * @param Dict map
+	 */
+	public void updateModel(Dict map)
+	{
+		this.model = this.model.copy(map);
+		this.signal_out.dispatch( new ModelChange({ "model": this.model }) );
+	}
 	
 }

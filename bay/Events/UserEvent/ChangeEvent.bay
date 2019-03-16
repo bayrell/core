@@ -21,8 +21,10 @@ namespace RuntimeUI.Events.UserEvent;
 use RuntimeUI.Events.UserEvent.UserEvent;
 
 
-struct ChangeEvent extends UserEvent{
-
+struct ChangeEvent extends UserEvent
+{
+	const string ES6_EVENT_NAME = "change";
+	
 	public string value="";
 	
 	#switch
@@ -30,7 +32,9 @@ struct ChangeEvent extends UserEvent{
 	assignEvent(e)
 	{
 		super.assignEvent(e);
-		this.value = e.currentTarget.value;
+		this.setMap(new Runtime.Dict({
+			"value": e.currentTarget.value,
+		}));
 	}
 	#endswitch
 	

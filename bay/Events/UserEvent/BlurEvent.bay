@@ -21,5 +21,8 @@ namespace RuntimeUI.Events.UserEvent;
 use RuntimeUI.Events.UserEvent.UserEvent;
 
 
-struct BlurEvent extends UserEvent{}
+struct BlurEvent extends UserEvent
+{
+	const string ES6_EVENT_NAME = "blur";
+}
 

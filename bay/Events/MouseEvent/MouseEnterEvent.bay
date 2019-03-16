@@ -21,4 +21,7 @@ namespace RuntimeUI.Events.MouseEvent;
 use RuntimeUI.Events.MouseEvent.MouseEvent;
 
 
-struct MouseEnterEvent extends MouseEvent{}
+struct MouseEnterEvent extends MouseEvent
+{
+	const string ES6_EVENT_NAME = "mouseenter";
+}

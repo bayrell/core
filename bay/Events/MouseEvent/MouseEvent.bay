@@ -53,27 +53,29 @@ struct MouseEvent extends UserEvent
 	assignEvent(e)
 	{
 		super.assignEvent(e);
-		this.altKey = e.altKey;
-		this.button = e.button;
-		this.buttons = e.buttons;
-		this.clientX = e.clientX;
-		this.clientY = e.clientY;
-		this.ctrlKey = e.ctrlKey;
-		this.detail = e.detail;
-		this.layerX = e.layerX;
-		this.layerY = e.layerY;
-		this.metaKey = e.metaKey;
-		this.movementX = e.movementX;
-		this.movementY = e.movementY;
-		this.offsetX = e.offsetX;
-		this.offsetY = e.offsetY;
-		this.pageX = e.pageX;
-		this.pageY = e.pageY;
-		this.screenX = e.screenX;
-		this.screenY = e.screenY;
-		this.shiftKey = e.shiftKey;
-		this.x = e.x;
-		this.y = e.y;
+		this.setMap(new Runtime.Dict({
+			"altKey": e.altKey,
+			"button": e.button,
+			"buttons": e.buttons,
+			"clientX": e.clientX,
+			"clientY": e.clientY,
+			"ctrlKey": e.ctrlKey,
+			"detail": e.detail,
+			"layerX": e.layerX,
+			"layerY": e.layerY,
+			"metaKey": e.metaKey,
+			"movementX": e.movementX,
+			"movementY": e.movementY,
+			"offsetX": e.offsetX,
+			"offsetY": e.offsetY,
+			"pageX": e.pageX,
+			"pageY": e.pageY,
+			"screenX": e.screenX,
+			"screenY": e.screenY,
+			"shiftKey": e.shiftKey,
+			"x": e.x,
+			"y": e.y,
+		}));
 	}
 	
 	#endswitch

@@ -15,13 +15,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+ 
+namespace RuntimeUI.Annotations;
 
-namespace RuntimeUI.Events.MouseEvent;
+use Runtime.CoreStruct;
+use RuntimeUI.UIController;
 
-use RuntimeUI.Events.MouseEvent.MouseEvent;
 
-
-struct MouseDoubleClickEvent extends MouseEvent
+struct ControllerAnnotation extends CoreStruct
 {
-	const string ES6_EVENT_NAME = "dblclick";
+	
+	
+	/**
+	 * Init controller
+	 */
+	static void initController(CoreManager manager, ControllerAnnotation annotation, UIController controller)
+	{
+	}
+	
+	
 }

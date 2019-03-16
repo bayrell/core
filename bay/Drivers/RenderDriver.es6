@@ -21,42 +21,169 @@ if (typeof RuntimeUI == 'undefined') RuntimeUI = {};
 if (typeof RuntimeUI.Drivers == 'undefined') RuntimeUI.Drivers = {};
 
 
-RuntimeUI.Drivers.RenderDriver = function()
+RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 {
-	this.view = null;
-	this.model = null;
-	this.template = null;
-	this.animation_id = null;
-	this.managers = {};
-	return this;
-}
-
-
-Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
+	
+	
+	/**
+	 * Init Driver
+	 */
+	_init()
+	{
+		super._init();
+		
+		this.view = null;
+		this.model = null;
+		this.template = null;
+		this.animation_id = null;
+		this.control = new RuntimeUI.UIController();
+		this.control.signal_out.addMethod(this.modelChanged, new Runtime.Collection("RuntimeUI.Events.ModelChange"));
+		this.managers = {};
+	}
 	
 	
 	
 	/**
-	 * Create DOM by UI Struct
+	 * Returns value by name
 	 */
-	setElemKeys: function(manager, key_path, elem, ui)
+	takeValue(variable_name, default_value)
 	{
-		elem._key = key_path;
+		if (default_value == undefined) default_value = null;
+		if (variable_name == "control") return this.control;
+		return super.takeValue(variable_name, default_value);
+	}
+	
+	
+	
+	/**
+	 * Model changed
+	 */
+	modelChanged(e)
+	{
+		console.log(e.model);
+	}
+	
+	
+	
+	/**
+	 * Returns new manager
+	 */
+	createManager(parent_manager, key_manager, ui, model)
+	{
+		var manager_name = Runtime.rtl.method( ui.name, "managerName" )();
+		var new_manager = null;
+		var is_new = false;
+		if (this.managers[key_manager] != undefined)
+		{
+			new_manager = this.managers[key_manager];
+		}
+		if (new_manager == null) is_new = true;
+		else if (new_manager.getClassName() != manager_name) is_new = true;
+		
+		if (is_new)
+		{
+			/* Clear old link */
+			if (new_manager != null)
+			{
+				new_manager.setParentManager(null, ""); /* Clear controller */
+			}
+			
+			/* Create new manager */
+			new_manager = Runtime.rtl.newInstance(manager_name);
+			new_manager.setParentManager(parent_manager, ui.controller); /* Create link through controller */
+			new_manager.model = model;
+		}
+		
+		return new_manager;
+	}
+	
+	
+	
+	/**
+	 * Returns true if element and ui is different, and element must be recreated
+	 */
+	isElemDifferent(manager, elem, ui)
+	{
+		if (elem._ui == null) return false;
+		if (elem._ui == ui) return false;
+		
+		/* Check if different struct kind or name */
+		if (elem._ui.kind != ui.kind || elem._ui.name != ui.name)
+		{
+			return true;
+		}
+		
+		/* Check if different manager */
+		if (elem._manager != manager)
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	
+	/**
+	 * Update element props
+	 */
+	updateElemProps(manager, key_path, elem, ui)
+	{
+		var ref_name = null;
+		var controller = null;
+		
+		
+		/* Is new element */
+		if (elem._ui == null)
+		{
+			elem._events = {};
+			
+			if (ui.controller != "")
+			{
+				controller = manager.takeValue(ui.controller);
+				controller.ref = elem;
+				if (controller.events != null)
+				{
+					for (var i=0; i<controller.events.count(); i++)
+					{
+						var class_name = controller.events.item(i);
+						var event_name = Runtime.rtl.find_class(class_name).ES6_EVENT_NAME;
+						
+						if (event_name != "" && event_name != undefined && elem._events[event_name] == undefined)
+						{
+							elem.addEventListener(
+								event_name, 
+								(function(controller)
+								{
+									return function(e)
+									{
+										e = RuntimeUI.Events.UserEvent.UserEvent.fromEvent(e);
+										controller.signal_out.dispatch(e);
+									}
+								})(controller)
+							);
+						}
+					}
+				}
+			}
+		}
+		
 		elem._manager = manager;
-		elem._ui_struct = ui;
+		elem._key = key_path;
+		elem._ui = ui;
 		
 		if (elem instanceof HTMLElement)
 		{
 			elem.setAttribute("x-key", key_path);
 		}
-	},
+	}
 	
 	
 	
 	/**
-	 * Create DOM by UI Struct
+	 * Update element attrs
 	 */
-	setElemProps: function(elem, ui)
+	updateElemAttrs(manager, elem, ui)
 	{
 		/* Build attrs */
 		var attrs = RuntimeUI.Render.RenderHelper.getUIAttrs(ui);
@@ -79,37 +206,26 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 			elem.value = attrs.get("value", "");
 		}
 		
-		if (ui.props != null)
-		{
-			ui.props.each(
-				(key, value) => 
-				{
-					if (key == "@ref")
-					{
-						elem._manager.appendControl(elem, value);
-					}
-				}
-			);
-		}
-		
-	},
+	}
 	
 	
 	
 	/**
 	 * Create DOM by UI Struct
 	 */
-	createDOM: function(manager, key_path, prev_elem, ui)
+	createDOM(manager, key_path, prev_elem, ui)
 	{
 		if (prev_elem == undefined) prev_elem = null;
 		
+		
+		/* If is component */
 		if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
 		{
 			var elem = document.createElement(ui.name);
-			this.setElemKeys(manager, key_path, elem, ui);
+			this.updateElemProps(manager, key_path, elem, ui);
 			
-			/* Set props */
-			this.setElemProps(elem, ui);
+			/* Update element props */
+			this.updateElemAttrs(manager, elem, ui);
 			
 			/* Update DOM children */
 			if (prev_elem != null)
@@ -123,39 +239,38 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 			
 			return elem;
 		}
+		
+		/* If is string */
 		else if (ui.kind == Runtime.UIStruct.TYPE_RAW)
 		{
 			var elem = document.createTextNode(ui.content);
-			this.setElemKeys(manager, key_path, elem, ui);
+			this.updateElemProps(manager, key_path, elem, ui);
 			return elem;
 		}
 		
 		return null;
-	},
+	}
 	
 	
 	
 	/**
 	 * Create Document Object Model
 	 */
-	updateDOM: function(manager, key_path, elem, ui)
+	updateDOM(manager, key_path, elem, ui)
 	{
-		if (elem._ui_struct == ui) return elem;
+		if (elem._ui == ui) return elem;
 		
-		/* Create new DOM if different */
-		if (elem._ui_struct != null)
+		/* Create new DOM if elem and ui is different */
+		if (this.isElemDifferent(manager, elem, ui))
 		{
-			if (elem._ui_struct.kind != ui.kind || elem._ui_struct.name != ui.name)
-			{
-				return this.createDOM(manager, key_path, elem, ui);
-			}
+			return this.createDOM(manager, key_path, elem, ui);
 		}
 		
-		this.setElemKeys(manager, key_path, elem, ui);
+		this.updateElemProps(manager, key_path, elem, ui);
 		if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
 		{
 			/* Set props */
-			this.setElemProps(elem, ui);
+			this.updateElemAttrs(manager, elem, ui);
 			
 			/* Update DOM children */
 			this.updateDOMChilds(manager, key_path, elem, ui.children);
@@ -166,14 +281,14 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 		}
 		
 		return elem;
-	},
+	}
 	
 	
 	
 	/**
 	 * Create Document Object Model
 	 */
-	updateDOMChilds: function(manager, key_path, elem, template)
+	updateDOMChilds(manager, key_path, elem, template)
 	{
 		
 		if (template == null)
@@ -199,24 +314,14 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 			{
 				
 				/* Render view */
-				var model = ui.getModel();
+				var model = Runtime.UIStruct.getModel(ui);
 				var f = Runtime.rtl.method( ui.name, "render" );
 				var t = f( model );
 				
 				
 				/* Find manager by path or create new manager if does not exists */
-				var key_manager = ui.getKeyPath(key_path, index_template - 1);
-				var new_manager = null;
-				if (this.managers[key_manager] == undefined)
-				{
-					var manager_name = Runtime.rtl.method( ui.name, "managerName" )();
-					var new_manager = Runtime.rtl.newInstance(manager_name);
-				}
-				else
-				{
-					new_manager = this.managers[key_manager];
-				}
-				new_manager.model = model;
+				var key_manager = Runtime.UIStruct.getKeyPath(ui, key_path, index_template - 1);
+				var new_manager = this.createManager(manager, key_manager, ui, model);
 				
 				
 				/* Normalize ui vector */
@@ -231,7 +336,7 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 				{
 					var t_ui = t.item(index_t);
 					var item = elem.childNodes[index_item];
-					var key_ui = t_ui.getKeyPath(key_manager, index_t);
+					var key_ui = Runtime.UIStruct.getKeyPath(t_ui, key_manager, index_t);
 					index_item++;
 					
 					if (item == undefined)
@@ -255,7 +360,7 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 			else
 			{
 				var item = elem.childNodes[index_item];
-				var key_ui = ui.getKeyPath(key_path, index_template - 1);
+				var key_ui = Runtime.UIStruct.getKeyPath(ui, key_path, index_template - 1);
 				index_item++;
 				
 				if (item == undefined)
@@ -299,14 +404,14 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 			elem.replaceChild(update_arr[i].new_item, update_arr[i].old_item);
 		}
 		
-	},
+	}
 
 	
 	
 	/**
 	 * Run web driver
 	 */
-	run: function(selector, view, model)
+	run(selector, view, model)
 	{
 		model = Runtime.RuntimeUtils.json_decode( model );
 		
@@ -320,6 +425,10 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 					"name": this.view,
 					"kind": Runtime.UIStruct.TYPE_COMPONENT,
 					"model": this.model,
+					"controller": "control",
+					"props": new Runtime.Dict({
+						"@key": "root",
+					}),
 				})
 			)
 		);
@@ -328,16 +437,15 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 		root._driver = this;
 		
 		this.runAnimation();
-	},
+	}
 	
 	
 	/** Animation **/
 	
-	animation_id: null,
-	runAnimation: function()
+	runAnimation()
 	{
 		this.animation_id = requestAnimationFrame( this.animation.bind(this) );
-	},
+	}
 	
 	
 	
@@ -348,10 +456,10 @@ Object.assign( RuntimeUI.Drivers.RenderDriver.prototype, {
 	{
 		this.animation_id = null;
 		var root = document.querySelector( this.selector );
-		this.updateDOMChilds(null, "", root, this.template)
-	},
+		this.updateDOMChilds(this, "", root, this.template)
+	}
 	
-});
+}
 
 
 

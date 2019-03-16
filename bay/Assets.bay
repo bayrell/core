@@ -95,14 +95,16 @@ class Assets implements AssetsInterface
 			[
 				"/assets/bayrell-runtime-es6/DateTime.js",
 				"/assets/bayrell-runtime-es6/IntrospectionInfo.js",
-				"/assets/bayrell-runtime-es6/UIControl.js",
 				"/assets/bayrell-runtime-es6/UIStruct.js",
 				"/assets/bayrell-runtime-es6/VectorStruct.js",
 			],
 			[
+				"/assets/bayrell-runtime-ui-es6/UIController.js",
+				"/assets/bayrell-runtime-ui-es6/Annotations/ControllerAnnotation.js",
 				"/assets/bayrell-runtime-ui-es6/Annotations/RouteInfo.js",
 				"/assets/bayrell-runtime-ui-es6/Events/CommandEvent.js",
 				"/assets/bayrell-runtime-ui-es6/Events/ComponentEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/ModelChange.js",
 				"/assets/bayrell-runtime-ui-es6/Events/UpdateStateEvent.js",
 				"/assets/bayrell-runtime-ui-es6/Events/UserEvent/UserEvent.js",
 				"/assets/bayrell-runtime-ui-es6/Http/ApiRequest.js",
@@ -124,9 +126,26 @@ class Assets implements AssetsInterface
 			],
 			[
 				"/assets/bayrell-runtime-ui-es6/Assets.js",
+				"/assets/bayrell-runtime-ui-es6/Annotations/BindValue.js",
+				"/assets/bayrell-runtime-ui-es6/Events/KeyboardEvent/KeyboardEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/UserEvent/BlurEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/UserEvent/ChangeEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/UserEvent/FocusEvent.js",
 				"/assets/bayrell-runtime-ui-es6/Http/JsonResponse.js",
 				"/assets/bayrell-runtime-ui-es6/Render/CoreLayout.js",
 			],
+			[
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseClickEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseDoubleClickEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseDownEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseEnterEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseLeaveEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseMoveEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseOutEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseOverEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseUpEvent.js",
+			]
 		];
 	}
 	

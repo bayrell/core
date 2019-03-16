@@ -24,7 +24,8 @@ use Runtime.Interfaces.SerializeInterface;
 use RuntimeUI.Events.UserEvent.UserEvent;
 
 
-class KeyboardEvent extends UserEvent implements CloneableInterface, SerializeInterface{
+class KeyboardEvent extends UserEvent implements CloneableInterface, SerializeInterface
+{
 	
 	
 	public serializable cloneable bool altKey = false;
@@ -45,17 +46,19 @@ class KeyboardEvent extends UserEvent implements CloneableInterface, SerializeIn
 	
 	assignEvent(e){
 		super.assignEvent(e);
-		this.altKey = e.altKey;
-		this.charCode = e.charCode;
-		this.code = e.code;
-		this.ctrlKey = e.ctrlKey;
-		this.key = e.key;
-		this.keyCode = e.keyCode;
-		this.locale = e.locale;
-		this.location = e.location;
-		this.repeat = e.repeat;
-		this.shiftKey = e.shiftKey;
-		this.which = e.which;
+		this.setMap(new Runtime.Dict({
+			"altKey": e.altKey,
+			"charCode": e.charCode,
+			"code": e.code,
+			"ctrlKey": e.ctrlKey,
+			"key": e.key,
+			"keyCode": e.keyCode,
+			"locale": e.locale,
+			"location": e.location,
+			"repeat": e.repeat,
+			"shiftKey": e.shiftKey,
+			"which": e.which,
+		}));
 	}
 	
 	#endswitch

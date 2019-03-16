@@ -113,11 +113,13 @@ static class RenderHelper
 		if (st.props == null)
 			return attrs.toDict();
 		
-		Vector keys = st.props.keys();
+		Dict<string> props = UIStruct::getAttrs(st);
+		
+		Vector keys = props.keys();
 		for (int ki=0; ki<keys.count(); ki++)
 		{
 			string key = keys.item(ki);
-			mixed item = st.props.item(key);
+			mixed item = props.item(key);
 			string value = "";
 			
 			if (rs::strlen(key) == 0)
@@ -237,15 +239,15 @@ static class RenderHelper
 			return "";
 		
 		
-		if (st.isString())
+		if (UIStruct::isString(st))
 		{
 			return st.content;
 		}
 		
-		if (st.isComponent())
+		if (UIStruct::isComponent(st))
 		{
 			fun render = method (st.name, "render");
-			Collection<UIStruct> res = render( st.getModel() );
+			Collection<UIStruct> res = render( UIStruct::getModel(st) );
 			
 			return static::getUIStringVector( res, st.name );
 		}

@@ -21,4 +21,7 @@ namespace RuntimeUI.Events.MouseEvent;
 use RuntimeUI.Events.MouseEvent.MouseEvent;
 
 
-struct MouseClickEvent extends MouseEvent{}
+struct MouseClickEvent extends MouseEvent
+{
+	const string ES6_EVENT_NAME = "click";
+}

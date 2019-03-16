@@ -148,8 +148,8 @@ struct CoreLayout extends CoreView
 					@{ static::assetsBody( data ) }
 				</div>
 			</body>
-		</html>;
-		
+		</html>
 	;
+	
 	
 }
