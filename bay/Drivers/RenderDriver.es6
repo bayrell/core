@@ -497,7 +497,6 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	 */
 	animation()
 	{
-		this.managers = {};
 		this.managers_hash = {};
 		this.managers_stack = [];
 		this.animation_id = null;
