@@ -20,13 +20,13 @@ namespace RuntimeUI.Annotations;
 
 use RuntimeUI.Annotations.ControllerAnnotation;
 use RuntimeUI.Events.ModelChange;
-use RuntimeUI.Events.UserEvent.ChangeEvent;
 
 
-struct BindValue extends ControllerAnnotation
+struct BindModel extends ControllerAnnotation
 {
 	
 	string model = "";
+	string component = "";
 	
 	
 	/**
@@ -35,23 +35,7 @@ struct BindValue extends ControllerAnnotation
 	static void initController(CoreManager manager, ControllerAnnotation annotation, UIControl controller)
 	{
 		controller.addSignalOut( static::onChangeModel(manager, annotation, controller), [classof ModelChange] );
-		controller.addSignalOut( static::onChangeValue(manager, annotation, controller), [classof ChangeEvent] );
 	}
-	
-	
-	
-	/**
-	 * On change
-	 */
-	static fun onChangeValue(CoreManager manager, Controller annotation, UIControl controller) => 
-		void (ChangeEvent event)
-		{
-			Map map = new Map();
-			map.set(annotation.model, event.value);
-			
-			/* Set new value */
-			manager.updateModel(map);
-		}
 	
 	
 	
@@ -62,7 +46,7 @@ struct BindValue extends ControllerAnnotation
 		void (ModelChange event)
 		{
 			Map map = new Map();
-			map.set(annotation.model, event.model.takeValue("value", null));
+			map.set(annotation.model, event.model.takeValue(annotation.component, null));
 			
 			/* Set new value */
 			manager.updateModel(map);

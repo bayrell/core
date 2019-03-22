@@ -37,13 +37,6 @@ class CoreManager extends CoreObject
 	
 	
 	/**
-	 * Returns view name
-	 */
-	lambda string viewName() => "";
-	
-	
-	
-	/**
 	 * Constructor
 	 */
 	public void constructor()
@@ -124,7 +117,7 @@ class CoreManager extends CoreObject
 	public void updateModel(Dict map)
 	{
 		this.model = this.model.copy(map);
-		this.signal_out.dispatch( new ModelChange({ "model": this.model }) );
+		this.signal_out.dispatch( new ModelChange{ "model": this.model } );
 	}
 	
 }

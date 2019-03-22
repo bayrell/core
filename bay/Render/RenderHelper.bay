@@ -151,7 +151,7 @@ static class RenderHelper
 				(
 					string (string item) use (st)
 					{
-						return item ~ "-" ~ static::getCssHash(st.class_name);
+						return item ~ "-" ~ st.space;
 					}
 				);
 				key = "class";
@@ -183,7 +183,7 @@ static class RenderHelper
 			{
 				if (attrs.has(key))
 				{
-					value = attr.item(key) ~ " " ~ value;
+					value = attrs.item(key) ~ " " ~ value;
 				}
 				attrs.set(key, value);
 			}
@@ -248,6 +248,12 @@ static class RenderHelper
 		{
 			fun render = method (st.name, "render");
 			Collection<UIStruct> res = render( UIStruct::getModel(st) );
+			
+			/* Normalize ui vector */
+			if (not(res instanceof Collection))
+			{
+				res = rtl::normalizeUIVector(res);
+			}
 			
 			return static::getUIStringVector( res, st.name );
 		}
