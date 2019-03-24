@@ -34,6 +34,7 @@ struct UserEvent extends CoreEvent
 	public int event_phase = 0;
 	public bool is_trusted = true;
 	public UIStruct ui = null;
+	public mixed es6_event = null;
 	public mixed currentElement = null;
 	public mixed target = null;
 	

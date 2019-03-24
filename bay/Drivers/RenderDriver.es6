@@ -200,24 +200,41 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 						for (var i=0; i<controller.events.count(); i++)
 						{
 							var class_name = controller.events.item(i);
-							var event_name = Runtime.rtl.find_class(class_name).ES6_EVENT_NAME;
-							
-							if (event_name != "" && event_name != undefined && elem._events[event_name] == undefined)
+							var f = Runtime.rtl.find_class(class_name);
+							if (f)
 							{
-								elem.addEventListener(
-									event_name, 
-									(function(controller)
-									{
-										return function(e)
+								var event_name = f.ES6_EVENT_NAME;
+								
+								if (
+									event_name != "" && 
+									event_name != undefined && 
+									elem._events[event_name] == undefined
+								)
+								{
+									elem.addEventListener(
+										event_name, 
+										(function(controller)
 										{
-											e = RuntimeUI.Events.UserEvent.UserEvent.fromEvent(e);
-											controller.signal_out.dispatch(e);
-										}
-									})(controller)
-								);
+											return function(e)
+											{
+												e = RuntimeUI.Events.UserEvent.UserEvent.fromEvent(e);
+												controller.signal_out.dispatch(e);
+											}
+										})(controller)
+									);
+								}
 							}
 						}
 					}
+					
+					/* Send mount event */
+					controller.signal_out.dispatch( 
+						new RuntimeUI.Events.MountEvent(new Runtime.Dict({
+							"elem": elem,
+							"ui": ui,
+						})) 
+					);
+					
 				}
 			}
 		}
@@ -443,6 +460,7 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 		{
 			var item = elem.childNodes[index_item];
 			remove_arr.push(item);
+			index_item++;
 		}
 		
 		
@@ -497,6 +515,7 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	 */
 	animation()
 	{
+		Runtime.rtl._memorizeClear();
 		this.managers_hash = {};
 		this.managers_stack = [];
 		this.animation_id = null;
