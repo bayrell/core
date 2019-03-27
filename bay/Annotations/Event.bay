@@ -32,7 +32,11 @@ struct Event extends ControllerAnnotation
 	/**
 	 * Init controller
 	 */
-	static void initController(CoreManager manager, ControllerAnnotation annotation, UIControl controller)
+	static void initController
+	(
+		UIController controller, CoreManager manager,
+		ControllerAnnotation annotation, string controller_name
+	)
 	{
 		controller.addSignalOut( method (manager, annotation.method_name), [annotation.event] );
 	}

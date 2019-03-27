@@ -102,10 +102,10 @@ class CoreManager extends CoreObject
 			return;
 		
 		string field_name = info.name;
-		UIControl controller = this.takeValue(field_name);
+		UIController controller = this.takeValue(field_name);
 		controller.manager = this;
 		
-		annotation::initController(this, annotation, controller);
+		annotation::initController(controller, this, annotation, field_name);
 	}
 	
 	

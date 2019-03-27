@@ -26,15 +26,18 @@ struct BindModel extends ControllerAnnotation
 {
 	
 	string model = "";
-	string component = "";
 	
 	
 	/**
 	 * Init controller
 	 */
-	static void initController(CoreManager manager, ControllerAnnotation annotation, UIControl controller)
+	static void initController
+	(
+		UIController controller, CoreManager manager, 
+		ControllerAnnotation annotation, string controller_name
+	)
 	{
-		controller.addSignalOut( static::onChangeModel(manager, annotation, controller), [classof ModelChange] );
+		controller.addSignalOut( static::onChangeModel(manager, annotation), [classof ModelChange] );
 	}
 	
 	
@@ -42,11 +45,11 @@ struct BindModel extends ControllerAnnotation
 	/**
 	 * On change
 	 */
-	static fun onChangeModel(CoreManager manager, Controller annotation, UIControl controller) => 
+	static fun onChangeModel(CoreManager manager, Controller annotation) => 
 		void (ModelChange event)
 		{
 			Map map = new Map();
-			map.set(annotation.model, event.model.takeValue(annotation.component, null));
+			map.set(annotation.model, event.model);
 			
 			/* Set new value */
 			manager.updateModel(map);

@@ -32,10 +32,14 @@ struct BindValue extends ControllerAnnotation
 	/**
 	 * Init controller
 	 */
-	static void initController(CoreManager manager, ControllerAnnotation annotation, UIControl controller)
+	static void initController
+	(
+		UIController controller, CoreManager manager, 
+		ControllerAnnotation annotation, string controller_name
+	)
 	{
-		controller.addSignalOut( static::onChangeModel(manager, annotation, controller), [classof ModelChange] );
-		controller.addSignalOut( static::onChangeValue(manager, annotation, controller), [classof ChangeEvent] );
+		controller.addSignalOut( static::onChangeModel(manager, annotation), [classof ModelChange] );
+		controller.addSignalOut( static::onChangeValue(manager, annotation), [classof ChangeEvent] );
 	}
 	
 	
@@ -43,7 +47,7 @@ struct BindValue extends ControllerAnnotation
 	/**
 	 * On change
 	 */
-	static fun onChangeValue(CoreManager manager, Controller annotation, UIControl controller) => 
+	static fun onChangeValue(CoreManager manager, Controller annotation) => 
 		void (ChangeEvent event)
 		{
 			Map map = new Map();
@@ -58,7 +62,7 @@ struct BindValue extends ControllerAnnotation
 	/**
 	 * On change
 	 */
-	static fun onChangeModel(CoreManager manager, Controller annotation, UIControl controller) => 
+	static fun onChangeModel(CoreManager manager, Controller annotation) => 
 		void (ModelChange event)
 		{
 			Map map = new Map();

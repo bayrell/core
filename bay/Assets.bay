@@ -96,7 +96,6 @@ class Assets implements AssetsInterface
 				"/assets/bayrell-runtime-es6/DateTime.js",
 				"/assets/bayrell-runtime-es6/IntrospectionInfo.js",
 				"/assets/bayrell-runtime-es6/UIStruct.js",
-				"/assets/bayrell-runtime-es6/VectorStruct.js",
 			],
 			[
 				"/assets/bayrell-runtime-ui-es6/UIController.js",

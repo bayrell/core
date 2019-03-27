@@ -36,11 +36,11 @@ static class RenderHelper
 		mixed data
 	)
 	{
-		UIStruct st = null;
+		UIStruct ui = null;
 		
 		if (data instanceof CoreStruct)
 		{
-			UIStruct st = new UIStruct{
+			UIStruct ui = new UIStruct{
 				"name": class_name,
 				"kind": UIStruct::TYPE_COMPONENT,
 				"model": data,
@@ -48,14 +48,14 @@ static class RenderHelper
 		}
 		else
 		{
-			UIStruct st = new UIStruct{
+			UIStruct ui = new UIStruct{
 				"name": class_name,
 				"kind": UIStruct::TYPE_COMPONENT,
 				"props": data,
 			};
 		}
 		
-		return RenderHelper::getUIString(st);
+		return RenderHelper::getUIString(ui);
 	}
 	
 	
@@ -103,17 +103,17 @@ static class RenderHelper
 	/**
 	 * Returns attrs
 	 */
-	pure Dict<string> getUIAttrs(UIStruct st)
+	pure Dict<string> getUIAttrs(UIStruct ui)
 	{
 		Dict<string> attrs = new Map();
 		
-		if (st == null)
+		if (ui == null)
 			return attrs.toDict();
 		
-		if (st.props == null)
+		if (ui.props == null)
 			return attrs.toDict();
 		
-		Dict<string> props = UIStruct::getAttrs(st);
+		Dict<string> props = UIStruct::getAttrs(ui);
 		
 		Vector keys = props.keys();
 		for (int ki=0; ki<keys.count(); ki++)
@@ -149,9 +149,9 @@ static class RenderHelper
 				Map css_arr = rs::explode(" ", value);
 				css_arr = css_arr.map
 				(
-					string (string item) use (st)
+					string (string item) use (ui)
 					{
-						return item ~ "-" ~ st.space;
+						return item ~ "-" ~ ui.space;
 					}
 				);
 				key = "class";
@@ -197,9 +197,9 @@ static class RenderHelper
 	/**
 	 * Returns attrs
 	 */
-	pure string getUIStringAttrs(UIStruct st)
+	pure string getUIStringAttrs(UIStruct ui)
 	{
-		Dict<string> attrs = static::getUIAttrs(st);
+		Dict<string> attrs = static::getUIAttrs(ui);
 		attrs = attrs.map(
 			string (string key, string value)
 			{
@@ -233,21 +233,21 @@ static class RenderHelper
 	/**
 	 * Convert UI to string
 	 */
-	pure string getUIString(UIStruct st)
+	pure string getUIString(UIStruct ui)
 	{
-		if (st == null)
+		if (ui == null)
 			return "";
 		
 		
-		if (UIStruct::isString(st))
+		if (UIStruct::isString(ui))
 		{
-			return st.content;
+			return ui.content;
 		}
 		
-		if (UIStruct::isComponent(st))
+		if (UIStruct::isComponent(ui))
 		{
-			fun render = method (st.name, "render");
-			Collection<UIStruct> res = render( UIStruct::getModel(st) );
+			fun render = method (ui.name, "render");
+			Collection<UIStruct> res = render( UIStruct::getModel(ui), ui.children, ui.key );
 			
 			/* Normalize ui vector */
 			if (not(res instanceof Collection))
@@ -255,16 +255,16 @@ static class RenderHelper
 				res = rtl::normalizeUIVector(res);
 			}
 			
-			return static::getUIStringVector( res, st.name );
+			return static::getUIStringVector( res, ui.name );
 		}
 		
-		string attrs = static::getUIStringAttrs( st );
+		string attrs = static::getUIStringAttrs( ui );
 		string content = "";
-		if ( static::isDoubleToken(st.name) )
+		if ( static::isDoubleToken(ui.name) )
 		{
-			content = "<"~st.name ~ (attrs!="" ? " " ~ attrs : "") ~ ">";
-			content ~= static::getUIStringVector( st.children );
-			content ~= "</"~st.name~">";
+			content = "<"~ui.name ~ (attrs!="" ? " " ~ attrs : "") ~ ">";
+			content ~= static::getUIStringVector( ui.children );
+			content ~= "</"~ui.name~">";
 			
 			/*
 			if (element.props and element.props.has("dangerouslySetInnerHTML"))
@@ -273,14 +273,14 @@ static class RenderHelper
 			}
 			else
 			{
-				content ~= static::getUIStringVector( st.children, class_name );
+				content ~= static::getUIStringVector( ui.children, class_name );
 			}
 			*/
 			
 		}
 		else
 		{
-			content = "<"~st.name ~ (attrs!="" ? " " ~ attrs : "") ~ "/>";
+			content = "<"~ui.name ~ (attrs!="" ? " " ~ attrs : "") ~ "/>";
 		}
 		
 		

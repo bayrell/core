@@ -52,7 +52,6 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 		);
 		this.managers = {};
 		this.managers_hash = {};
-		this.managers_stack = [];
 	}
 	
 	
@@ -82,38 +81,79 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	
 	
 	/**
+	 * Save manager
+	 */
+	saveManager(class_name, key_manager, manager)
+	{
+		if (this.managers_hash[key_manager] == undefined) this.managers_hash[key_manager] = {};
+		this.managers_hash[key_manager][class_name] = manager;
+	}
+	
+	
+	
+	/**
+	 * Search manager
+	 */
+	searchManager(key_path, class_name)
+	{
+		var keys = key_path.split(".");
+		
+		while (keys.length != 0)
+		{
+			var key = keys.join(".");
+			if (this.managers_hash[key] != undefined)
+			{
+				if (this.managers_hash[key][class_name] != undefined)
+				{
+					return this.managers_hash[key][class_name];
+				}
+			}
+			keys.pop();
+		}
+		
+		return this;
+	}
+	
+	
+	
+	/**
 	 * Find managers
 	 */
-	findManager(ui)
+	findManager(item)
 	{
-		var class_name = (ui.kind == "component") ? ui.name : ui.class_name;
-		return (this.managers_hash[class_name] != undefined) ? this.managers_hash[class_name] : null;
-	}
-	pushManager(ui, manager)
+		var class_name = item.ui.class_name;
+		var key_path = item.key_ui;
+		var manager = this.searchManager(key_path, class_name);
+		
+		/* console.log(key_path, class_name, manager); */
+		
+		return manager;
+	}	
+	
+	
+	
+	/**
+	 * Find parent managers
+	 */
+	findParentManager(item)
 	{
-		var class_name = (ui.kind == "component") ? ui.name : ui.class_name;
-		this.managers_hash[class_name] = manager;
-		this.managers_stack.push(manager);
+		var class_name = item.ui.class_name;
+		var key_path = item.key_ui;
+		var keys = key_path.split("."); keys.pop();
+		var manager = this.searchManager(keys.join("."), class_name);
+		
+		/* console.log(key_path, class_name, manager); */
+		
+		return manager;
 	}
-	popManager(ui)
-	{
-		var class_name = (ui.kind == "component") ? ui.name : ui.class_name;
-		this.managers_hash[class_name] = null;
-		this.managers_stack.pop();
-	}
-	lastManager()
-	{
-		if (this.managers_stack.length == 0) return this;
-		return this.managers_stack[this.managers_stack.length - 1];
-	}
+	
 	
 	
 	/**
 	 * Returns new manager
 	 */
-	createManager(ui, model, key_manager)
+	createManager(parent_manager, ui, model, key_manager)
 	{
-		var parent_manager = this.lastManager();
 		var manager_name = Runtime.rtl.method( ui.name, "managerName" )();
 		var new_manager = null;
 		var is_new = false;
@@ -140,6 +180,7 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 			this.managers[key_manager] = new_manager;
 		}
 		
+		this.saveManager(ui.name, key_manager, new_manager);
 		return new_manager;
 	}
 	
@@ -148,19 +189,19 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	/**
 	 * Returns true if element and ui is different, and element must be recreated
 	 */
-	isElemDifferent(elem, ui)
+	isElemDifferent(elem, item)
 	{
 		if (elem._ui == null) return false;
-		if (elem._ui == ui) return false;
+		if (elem._ui == item.ui) return false;
 		
 		/* Check if different struct kind or name */
-		if (elem._ui.kind != ui.kind || elem._ui.name != ui.name)
+		if (elem._ui.kind != item.ui.kind || elem._ui.name != item.ui.name)
 		{
 			return true;
 		}
 		
 		/* Check if different manager */
-		var manager = this.findManager(ui);
+		var manager = this.findManager(item);
 		if (elem._manager != manager)
 		{
 			return true;
@@ -174,18 +215,25 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	/**
 	 * Update element props
 	 */
-	updateElemProps(elem, ui, key_path)
+	updateElemProps(elem, item)
 	{
 		var ref_name = null;
 		var controller = null;
-		var manager = this.findManager(ui);
+		var ui = item.ui;
+		var manager = this.findManager(item);
+		var key_path = item.key_ui;
 		
 		/* Is new element */
-		if (elem._ui == null)
+		if (elem._ui == null && ui.kind == "element")
 		{
 			elem._events = {};
 			
-			if (ui.controller != "")
+			if (manager == null)
+			{
+				this.warning("Manager for item '" + key_path + "' not found in ", elem);
+			}
+			
+			if (ui.controller != "" && manager != null)
 			{
 				controller = manager.takeValue(ui.controller);
 				if (controller == null)
@@ -242,11 +290,6 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 		elem._manager = manager;
 		elem._key = key_path;
 		elem._ui = ui;
-		
-		if (elem instanceof HTMLElement)
-		{
-			elem.setAttribute("x-key", key_path);
-		}
 	}
 	
 	
@@ -254,10 +297,10 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	/**
 	 * Update element attrs
 	 */
-	updateElemAttrs(elem, ui)
+	updateElemAttrs(elem, item)
 	{
 		/* Build attrs */
-		var attrs = RuntimeUI.Render.RenderHelper.getUIAttrs(ui);
+		var attrs = RuntimeUI.Render.RenderHelper.getUIAttrs(item.ui);
 		if (attrs == null)
 		{
 			return;
@@ -277,6 +320,10 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 			elem.value = attrs.get("value", "");
 		}
 		
+		if (elem instanceof HTMLElement)
+		{
+			elem.setAttribute("x-key", item.key_ui);
+		}
 	}
 	
 	
@@ -284,19 +331,18 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	/**
 	 * Create DOM by UI Struct
 	 */
-	createDOM(prev_elem, ui, key_path)
+	createDOM(prev_elem, item)
 	{
 		if (prev_elem == undefined) prev_elem = null;
 		
-		
 		/* If is component */
-		if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
+		if (item.ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
 		{
-			var elem = document.createElement(ui.name);
-			this.updateElemProps(elem, ui, key_path);
+			var elem = document.createElement(item.ui.name);
+			this.updateElemProps(elem, item);
 			
 			/* Update element props */
-			this.updateElemAttrs(elem, ui);
+			this.updateElemAttrs(elem, item);
 			
 			/* Update DOM children */
 			if (prev_elem != null)
@@ -306,16 +352,18 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 					elem.appendChild(prev_elem.firstChild);
 				}
 			}
-			this.updateDOMChilds(elem, ui.children, key_path);
+			
+			var manager = this.findManager(item);
+			this.updateDOMChilds(manager, elem, item.ui.children, item.key_ui);
 			
 			return elem;
 		}
 		
 		/* If is string */
-		else if (ui.kind == Runtime.UIStruct.TYPE_RAW)
+		else if (item.ui.kind == Runtime.UIStruct.TYPE_RAW)
 		{
-			var elem = document.createTextNode(ui.content);
-			this.updateElemProps(elem, ui, key_path);
+			var elem = document.createTextNode(item.ui.content);
+			this.updateElemProps(elem, item);
 			return elem;
 		}
 		
@@ -327,29 +375,30 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	/**
 	 * Create Document Object Model
 	 */
-	updateDOM(elem, ui, key_path)
+	updateDOM(elem, item)
 	{
-		if (elem._ui == ui) return elem;
+		if (elem._ui == item.ui) return elem;
 		
 		/* Create new DOM if elem and ui is different */
-		if (this.isElemDifferent(elem, ui))
+		if (this.isElemDifferent(elem, item))
 		{
-			return this.createDOM(elem, ui, key_path);
+			return this.createDOM(elem, item);
 		}
 		
-		this.updateElemProps(elem, ui, key_path);
-		if (ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
+		this.updateElemProps(elem, item);
+		if (item.ui.kind == Runtime.UIStruct.TYPE_ELEMENT)
 		{
 			/* Set props */
-			this.updateElemAttrs(elem, ui);
+			this.updateElemAttrs(elem, item);
 			
 			/* Update DOM children */
-			this.updateDOMChilds(elem, ui.children, key_path);
+			var manager = this.findManager(item);
+			this.updateDOMChilds(manager, elem, item.ui.children, item.key_ui);
 		}
-		else if (ui.kind == Runtime.UIStruct.TYPE_RAW)
+		else if (item.ui.kind == Runtime.UIStruct.TYPE_RAW)
 		{
-			if (elem.nodeValue != ui.content)
-				elem.nodeValue = ui.content;
+			if (elem.nodeValue != item.ui.content)
+				elem.nodeValue = item.ui.content;
 		}
 		
 		return elem;
@@ -358,111 +407,131 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	
 	
 	/**
-	 * Create Document Object Model
+	 * Unpack components
 	 */
-	updateDOMChilds(elem, template, key_path)
+	unpackComponents(manager, template, key_path)
 	{
-		
-		if (template == null)
+		var index = 0;
+		var arr = new Runtime.Vector();
+		while (index < template.count())
 		{
-			return;
+			var ui = template.item(index);
+			var key_ui = Runtime.UIStruct.getKeyPath(ui, key_path, index);
+			arr.push({ "ui": ui, "key_ui": key_ui + ""  });
+			index++;
 		}
 		
-		
-		var append_arr = [];
-		var update_arr = [];
-		var remove_arr = [];
-		var index_item = 0;
-		var index_template = 0;
-		
-		
-		while (index_template < template.count())
+		var arr2;
+		var has_components = true;
+		while (has_components)
 		{
-			var ui = template.item(index_template);
-			index_template ++;
-			
-			/* if ui is component */
-			if (ui.kind == Runtime.UIStruct.TYPE_COMPONENT)
+			index = 0;
+			has_components = false;
+			arr2 = new Runtime.Vector();
+			while (index < arr.count())
 			{
+				var item = arr.item(index);
+				var ui = item.ui;
+				var key_ui = item.key_ui;
+				index++;
 				
-				/* Render view */
-				var model = Runtime.UIStruct.getModel(ui);
-				var f = Runtime.rtl.method( ui.name, "render" );
-				var t = f( model );
-				
-				
-				/* Find manager by path or create new manager if does not exists */
-				var key_manager = Runtime.UIStruct.getKeyPath(ui, key_path, index_template - 1);
-				var new_manager = this.createManager(ui, model, key_manager);
-				this.pushManager(ui, new_manager);
-				
-				
-				/* Normalize ui vector */
-				if (!(t instanceof Runtime.Collection))
-				{
-					t = Runtime.RuntimeUtils.normalizeUIVector(t);
-				}
-				
-				
-				/* Analyze view struct */
-				for (var index_t=0; index_t<t.count(); index_t++)
-				{
-					var t_ui = t.item(index_t);
-					var item = elem.childNodes[index_item];
-					var key_ui = Runtime.UIStruct.getKeyPath(t_ui, key_manager, index_t);
-					index_item++;
+				/* if ui is component */
+				if (ui.kind == Runtime.UIStruct.TYPE_COMPONENT)
+				{					
+					/* Render view */
+					var model = Runtime.UIStruct.getModel(ui);
+					var f = Runtime.rtl.method( ui.name, "render" );
+					var t = f( model, ui.children, ui.key );
 					
-					if (item == undefined)
+					/* Find manager by path or create new manager if does not exists */
+					var parent_manager = this.findParentManager(item);
+					var new_manager = this.createManager(parent_manager, ui, model, key_ui);
+					
+					/* Normalize ui vector */
+					if (!(t instanceof Runtime.Collection))
 					{
-						var item = this.createDOM(null, t_ui, key_ui);
-						if (item != null) append_arr.push(item);
+						t = Runtime.RuntimeUtils.normalizeUIVector(t);
 					}
-					else
+					
+					/* Analyze manager struct */
+					for (var index_t=0; index_t<t.count(); index_t++)
 					{
-						var new_item = this.updateDOM(item, t_ui, key_ui);
-						if (new_item != item)
+						var t_ui = t.item(index_t);
+						var key_item = Runtime.UIStruct.getKeyPath(t_ui, key_ui, index_t);
+						arr2.push({ "ui": t_ui, "key_ui": key_item, "manager": new_manager, });
+						
+						if (t_ui.kind == Runtime.UIStruct.TYPE_COMPONENT)
 						{
-							update_arr.push({"old_item": item, "new_item": new_item});
+							has_components = true;
 						}
 					}
 				}
 				
-				this.popManager(ui);
+				/* if ui is element */
+				else
+				{
+					arr2.push(item);
+				}
+				
 			}
 			
-			/* if ui is element */
-			else
+			arr = arr2.copy();
+		}
+		
+		return arr;
+	}
+	
+	
+	
+	/**
+	 * Create Document Object Model
+	 */
+	updateDOMChilds(manager, elem, template, key_path)
+	{
+		var append_arr = [];
+		var update_arr = [];
+		var remove_arr = [];
+		var index_elem = 0;
+		
+		/* If has childs */
+		if (template != null)
+		{
+			var items = this.unpackComponents(manager, template, key_path);
+			var index_item = 0;
+			
+			while (index_item < items.count())
 			{
-				var item = elem.childNodes[index_item];
-				var key_ui = Runtime.UIStruct.getKeyPath(ui, key_path, index_template - 1);
+				var e = elem.childNodes[index_elem];
+				var item = items.item(index_item);
 				index_item++;
+				index_elem++;
 				
-				if (item == undefined)
+				if (e == undefined)
 				{
-					var item = this.createDOM(null, ui, key_ui);
-					if (item != null) append_arr.push(item);
+					var e = this.createDOM(null, item);
+					if (e != null) append_arr.push(e);
 				}
 				else
 				{
-					var new_item = this.updateDOM(item, ui, key_ui);
-					if (new_item != item)
+					var new_item = this.updateDOM(e, item);
+					if (new_item != e)
 					{
-						update_arr.push({"old_item": item, "new_item": new_item});
+						update_arr.push({"old_item": e, "new_item": new_item});
 					}
 				}
+				
 			}
 			
 		}
 		
 		
 		/* Remove items */
-		while (index_item < elem.childNodes.length)
+		while (index_elem < elem.childNodes.length)
 		{
-			var item = elem.childNodes[index_item];
-			remove_arr.push(item);
-			index_item++;
+			var e = elem.childNodes[index_elem];
+			remove_arr.push(e);
+			index_elem++;
 		}
-		
 		
 		
 		/* Apply changes */
@@ -517,7 +586,6 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 	{
 		Runtime.rtl._memorizeClear();
 		this.managers_hash = {};
-		this.managers_stack = [];
 		this.animation_id = null;
 		var root = document.querySelector( this.selector );
 		var template = new Runtime.Collection( 
@@ -530,7 +598,7 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 				})
 			)
 		);
-		this.updateDOMChilds(root, template, "")
+		this.updateDOMChilds(this, root, template, "")
 	}
 	
 }
