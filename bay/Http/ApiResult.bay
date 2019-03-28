@@ -53,10 +53,10 @@ struct ApiResult extends CoreStruct
 	 * @param ApiResult res
 	 * @return ApiResult
 	 */
-	pure ApiResult setError(int code, string error = "", ApiResult res)
+	pure ApiResult setError(ApiResult res, int code, string error = "")
 	{
-		bool succes = false;
-		if (code >= RuntimeConstant::ERROR_OK) succes = true;
+		bool success = false;
+		if (code >= RuntimeConstant::ERROR_OK) success = true;
 		return res.copy({ "code": code, "error": error, "success": success });
 	}
 	

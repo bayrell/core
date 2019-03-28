@@ -16,21 +16,15 @@
  *  limitations under the License.
  */
  
-namespace RuntimeUI.Interfaces;
+namespace RuntimeUI.Annotations;
 
-use Runtime.Interfaces.ContextInterface;
+use Runtime.CoreStruct;
 
 
-interface ApiDeclaringInterface
+struct ApiMethod extends CoreStruct
 {
 	
-	
-	/**
-	 * Returns api
-	 * @return Vector<string>
-	 */	
-	public static Collection<string> getApi(ContextInterface context);
-	
-	
+	public string space = "";
+	public string name = "";
 	
 }

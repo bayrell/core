@@ -35,7 +35,7 @@ struct ApiRequest extends CoreStruct
 	 * @param ApiRequest req
 	 * @return ApiRequest
 	 */
-	pure ApiRequest assignData(Request request, ApiRequest req)
+	pure ApiRequest assignRequest(ApiRequest req, Request request)
 	{
 		if (request == null)
 			return;
@@ -55,4 +55,232 @@ struct ApiRequest extends CoreStruct
 	
 	
 	
+	/**
+	 * Call api
+	 * @param string class_name
+	 * @param string method_name
+	 * @param ApiRequest request
+	 * @return mixed The result of the api
+	 */ 
+	declare async static ApiResult callApi(
+		string class_name, string interface_name, string method_name, 
+		Map<mixed> data, ContextInterface context
+	);
+	
+	
+	#switch
+	#case ifcode JAVASCRIPT then
+	
+	static callApi(class_name, interface_name, method_name, data)
+	{
+		method_name = (interface_name != "") ? interface_name + "." + method_name : method_name;
+		return function (ctx){
+			RuntimeUI.Http.ApiRequest.SendApi(
+				class_name,
+				method_name,
+				data,
+				(function (ctx){
+					return function (data){
+						var res = new RuntimeUI.Http.ApiResult( data );
+						return ctx.resolve(res);
+					}
+				})(ctx)
+			);
+			return null;
+		}
+	}
+	
+	#case ifcode PHP then
+	
+	public static function callApi($class_name, $interface_name, $method_name, $data, $context)
+	{
+		$method_name = ($interface_name != "") ? $interface_name . "." . $method_name : $method_name;
+		$request = new \RuntimeUI\Http\ApiRequest( new \Runtime\Dict(["data"=>$data]) );
+		$f = new \Runtime\Callback($class_name, $method_name);
+		return $f($request, $context);
+	}
+	
+	#endswitch
+	
+	
+	
+	#switch
+	#case ifcode ES6 then
+	
+	
+	
+	/**
+	 * Convert data to Native for ajax POST request
+	 * @params serializable data
+	 * @return Vector
+	 */
+	static buildPostData(data)
+	{
+		var res = {
+			"data": [],
+		};
+		data = Runtime.RuntimeUtils.ObjectToNative(data, true);
+		RuntimeUI.Http.ApiRequest.buildPostDataRecursive(res, data, "");
+		return res.data;
+	}
+	
+	
+	
+	/**
+	 * Returns POST data
+	 * @params Object res
+	 * @params var data
+	 */
+	static buildPostDataRecursive(res, data, key)
+	{
+		if (
+			Runtime.rtl.isScalarValue(data) ||
+			data instanceof FileList ||
+			data instanceof File
+		)
+		{
+			if (data != null)
+			{
+				res.data.push({"key": key, "val": data});
+			}
+			else
+			{
+				res.data.push({"key": key, "val": ""});
+			}
+		}
+		else if (Array.isArray(data))
+		{
+			for (var i=0; i<data.length; i++)
+			{
+				RuntimeUI.Http.ApiRequest.buildPostDataRecursive(
+					res, 
+					data[i], 
+					(key == "") ? i : key + "[" + i + "]"
+				);
+			}
+		}
+		else if (typeof data == 'object')
+		{
+			for (var i in data)
+			{
+				RuntimeUI.Http.ApiRequest.buildPostDataRecursive(
+					res, 
+					data[i], 
+					(key == "") ? i : key + "[" + i + "]"
+				);
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * Send api request
+	 * @param string class_name
+	 * @param string method_name
+	 * @param Map<string, mixed> data
+	 * @param callback f
+	 */ 
+	static SendApi(class_name, method_name, data, f)
+	{
+		
+		var post_data = new FormData();
+		
+		/* Build pos data */
+		data = RuntimeUI.Http.ApiRequest.buildPostData(data);
+		
+		/* Add data to post data */
+		for (var i=0; i<data.length; i++)
+		{
+			var obj = data[i];
+			var key = obj.key;
+			var val = obj.val;
+			if (val instanceof FileList)
+			{
+				for (var i=0; i<val.length; i++)
+				{
+					post_data.append(key + "[]", val.item(i), val.item(i).name);
+				}
+			}
+			else if (val instanceof File)
+			{
+				post_data.append(key, val, val.name);
+			}
+			else
+			{
+				post_data.append(key, val);
+			}
+		}
+		
+		/* Add CSRF Token */
+		/*post_data.append("csrf_token", RuntimeUI.Http.ApiRequest.GetCookie("csrf_token"));*/
+		
+		/* Send AJAX Request */
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', '/api/' + class_name + '/' + method_name + '/', true);
+		xhr.send(post_data);
+		xhr.onreadystatechange = (function(xhr, f, class_name, method_name) {
+			return function()
+			{
+				var r = new Runtime.Map({
+					"success": false,
+					"class_name": class_name,
+					"method_name": method_name,
+					"error": 0,
+					"code": 0,
+					"text": xhr.responseText,
+					"result": null,
+				});
+				if (xhr.readyState != 4) return;
+				if (xhr.status == 200)
+				{
+					var data = {};
+					var exists = Runtime.rtl.exists;
+					try
+					{
+						data = JSON.parse(xhr.responseText);
+						if (f != undefined && f != null)
+						{
+							var success = exists(data.success) ? data.success : false;
+							var error = exists(data.error) ? data.error : "Unknown error";
+							var code = exists(data.code) ? data.code : Runtime.RuntimeConstant.ERROR_UNKNOWN;
+							var res = exists(data.result) ? data.result : null;
+							res = Runtime.RuntimeUtils.NativeToObject(res);
+							r.set("success", true)
+								.set("error", error)
+								.set("code", code)
+								.set("result", res)
+							;
+							f(r);
+						}
+					}
+					catch (e)
+					{
+						if (f != undefined && f != null)
+						{
+							r.set("success", false)
+								.set("error", "Json parse error")
+								.set("code", Runtime.RuntimeConstant.ERROR_PARSE_SERIALIZATION_ERROR)
+							;
+							f(r);
+						}
+					}
+				}
+				else
+				{
+					if (f != undefined && f != null)
+					{
+						r.set("success", false)
+							.set("error", "Error code " + xhr.status)
+							.set("code", Runtime.RuntimeConstant.ERROR_RESPONSE)
+						;
+						f(r);
+					}
+				}
+			}
+		})(xhr, f, class_name, method_name);
+	}
+	
+	
+	#endswitch
 }

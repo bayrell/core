@@ -319,11 +319,11 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 		{
 			elem.value = attrs.get("value", "");
 		}
-		
+		/*
 		if (elem instanceof HTMLElement)
 		{
 			elem.setAttribute("x-key", item.key_ui);
-		}
+		}*/
 	}
 	
 	

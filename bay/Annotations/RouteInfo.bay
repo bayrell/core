@@ -58,7 +58,6 @@ struct RouteInfo extends CoreStruct
 			);
 			
 			this.assignValue("params", params.toCollection());
-			obj = obj.setIm("params", params.toCollection());
 		}
 		else
 		{
@@ -74,7 +73,7 @@ struct RouteInfo extends CoreStruct
 	 * Get params
 	 * @return Map<string>
 	 */
-	pure Dict<string> getParams(Vector<string> matches, RouteInfo info)
+	pure memorize Dict<string> getParams(Vector<string> matches, RouteInfo info)
 	{
 		if (info.params == null) 
 			return null;
@@ -93,4 +92,5 @@ struct RouteInfo extends CoreStruct
 		
 		return res.toDict();
 	}
+	
 }

@@ -18,15 +18,16 @@
 
 namespace RuntimeUI.Render;
 
-use Runtime.CoreObject;
+use Runtime.ContextObject;
 use Runtime.Emitter;
 use Runtime.Reference;
 use Runtime.RuntimeUtils;
+use Runtime.Interfaces.ContextInterface;
 use RuntimeUI.Annotations.ControllerAnnotation;
 use RuntimeUI.Events.ModelChange;
 
 
-class CoreManager extends CoreObject
+class CoreManager extends ContextObject
 {
 	
 	public Emitter signal_in = new Emitter();
@@ -39,9 +40,9 @@ class CoreManager extends CoreObject
 	/**
 	 * Constructor
 	 */
-	public void constructor()
+	public void constructor(ContextInterface context = null)
 	{
-		parent();
+		parent(context);
 		
 		/* Analyze controllers annotaions */
 		Collection<IntrospectionInfo> introspection = RuntimeUtils::getIntrospection( this.getClassName() );

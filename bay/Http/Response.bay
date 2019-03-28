@@ -29,4 +29,13 @@ struct Response extends CoreStruct
 	public Dict<Cookie> cookies = null;
 	public Dict<string> headers = null;
 	
+	
+	/**
+	 * Returns content
+	 */
+	public string getContent()
+	{
+		return this.content;
+	}
+	
 }
