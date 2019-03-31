@@ -94,10 +94,8 @@ struct ApiRequest extends CoreStruct
 	
 	public static function callApi($class_name, $interface_name, $method_name, $data, $context)
 	{
-		$method_name = ($interface_name != "") ? $interface_name . "." . $method_name : $method_name;
-		$request = new \RuntimeUI\Http\ApiRequest( new \Runtime\Dict(["data"=>$data]) );
-		$f = new \Runtime\Callback($class_name, $method_name);
-		return $f($request, $context);
+		$app = $context->getValue('default.app');
+		return $app->callApi($class_name, $interface_name, $method_name, $data, $context);
 	}
 	
 	#endswitch
