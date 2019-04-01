@@ -247,7 +247,7 @@ static class RenderHelper
 		if (UIStruct::isComponent(ui))
 		{
 			fun render = method (ui.name, "render");
-			Collection<UIStruct> res = render( UIStruct::getModel(ui), ui.children, ui.key );
+			Collection<UIStruct> res = render( UIStruct::getModel(ui), ui.children, ui.props );
 			
 			/* Normalize ui vector */
 			if (not(res instanceof Collection))
@@ -301,6 +301,8 @@ static class RenderHelper
 		Collection<string> items
 	)
 	{
+		if (items == null) return res;
+		
 		Vector<string> r = new Vector();
 		for (int i=0; i<items.count(); i++)
 		{
@@ -394,16 +396,40 @@ static class RenderHelper
 		{
 			string assets_name = assets.item(i);
 			Collection<mixed> r = ( method(assets_name, "assetsAsyncLoad") )(null);
-			for (int j=0; j<r.count(); j++)
+			if (r != null)
 			{
-				string arr = r.item(j);
-				res = static::addUniqueItems(res, arr);
+				for (int j=0; j<r.count(); j++)
+				{
+					string arr = r.item(j);
+					res = static::addUniqueItems(res, arr);
+				}
 			}
 		}
 		
 		return res;
 	}
 	
+	
+	
+	/**
+	 * Returns assets
+	 * @param Collection<string> assets
+	 * @return Collection<string>
+	 */
+	pure memorize Collection<string> loadSyncResources(Collection<string> assets)
+	{
+		Collection<string> res = new Collection();
+		if (assets == null) return res;
+		
+		for (int i=0; i<assets.count(); i++)
+		{
+			string assets_name = assets.item(i);
+			Collection<mixed> r = ( method(assets_name, "assetsSyncLoad") )(null);
+			res = static::addUniqueItems(res, r);
+		}
+		
+		return res;
+	}
 	
 	
 	/**

@@ -75,17 +75,40 @@ struct CoreLayout extends CoreView
 	 */
 	pure Template assetsHeader(CoreLayoutModel data)
 	{
+		Vector<UIStruct> res = new Vector();
+		
+		/* Add assets */
+		Collection<string> css = RenderHelper::loadSyncResources(data.assets);
+		for (int i=0; i<css.count(); i++)
+		{
+			res.push(
+				new UIStruct{
+					"kind": UIStruct::TYPE_ELEMENT,
+					"name": "link",
+					"props": {
+						"rel": "stylesheet",
+						"href": css.item(i),
+					},
+				}
+			);
+		}
+		
+		/* Add components css */
 		string css = RenderHelper::getCSSFromComponents(data.components, data.css_vars);
-		return new UIStruct{
-			"kind": UIStruct::TYPE_ELEMENT,
-			"name": "style",
-			"props": {
-				"type": "text/css",
-			},
-			"children": [
-				rtl::normalizeUI(css),
-			],
-		};
+		res.push(
+			new UIStruct{
+				"kind": UIStruct::TYPE_ELEMENT,
+				"name": "style",
+				"props": {
+					"type": "text/css",
+				},
+				"children": [
+					rtl::normalizeUI(css),
+				],
+			}
+		);
+		
+		return res.toCollection();
 	}
 	
 	
@@ -137,15 +160,15 @@ struct CoreLayout extends CoreView
 		return <!DOCTYPE html>
 			<html>
 			<head>
-				@{ static::head( data ) }
-				@{ static::assetsHeader( data ) }
+				{ static::head( data ) }
+				{ static::assetsHeader( data ) }
 			</head>
 			<body>
 				<div id='root'>@raw{ static::content( data ) }</div>
-				<input id='view' value=@{ data.view } style="display: none;" />
-				<input id='model' value=@{ rtl::json_encode(data.model) } style="display: none;" />
+				<input id='view' value={ data.view } style="display: none;" />
+				<input id='model' value={ rtl::json_encode(data.model) } style="display: none;" />
 				<div id='scripts'>
-					@{ static::assetsBody( data ) }
+					{ static::assetsBody( data ) }
 				</div>
 			</body>
 		</html>

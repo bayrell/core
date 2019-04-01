@@ -443,7 +443,7 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 					/* Render view */
 					var model = Runtime.UIStruct.getModel(ui);
 					var f = Runtime.rtl.method( ui.name, "render" );
-					var t = f( model, ui.children, ui.key );
+					var t = f( model, ui.children, ui.props );
 					
 					/* Find manager by path or create new manager if does not exists */
 					var parent_manager = this.findParentManager(item);
