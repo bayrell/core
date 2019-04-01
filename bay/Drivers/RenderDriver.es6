@@ -175,10 +175,12 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 			/* Create new manager */
 			new_manager = Runtime.rtl.newInstance(manager_name);
 			new_manager.setParentManager(parent_manager, ui.controller); /* Create link through controller */
-			new_manager.model = model;
 			
 			this.managers[key_manager] = new_manager;
 		}
+		
+		/* Update managers model */
+		new_manager.model = model;
 		
 		this.saveManager(ui.name, key_manager, new_manager);
 		return new_manager;

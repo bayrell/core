@@ -74,7 +74,7 @@ struct ApiRequest extends CoreStruct
 	static callApi(class_name, interface_name, method_name, data)
 	{
 		method_name = (interface_name != "") ? interface_name + "." + method_name : method_name;
-		return function (ctx){
+		return (ctx) => {
 			RuntimeUI.Http.ApiRequest.SendApi(
 				class_name,
 				method_name,
@@ -145,6 +145,18 @@ struct ApiRequest extends CoreStruct
 			{
 				res.data.push({"key": key, "val": ""});
 			}
+		}
+		else if (data instanceof Runtime.Dict)
+		{
+			data.each(
+				(i, item) => {
+					RuntimeUI.Http.ApiRequest.buildPostDataRecursive(
+						res, 
+						item, 
+						(key == "") ? i : key + "[" + i + "]"
+					);
+				}
+			);
 		}
 		else if (Array.isArray(data))
 		{

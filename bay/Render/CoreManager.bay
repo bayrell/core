@@ -121,4 +121,15 @@ class CoreManager extends ContextObject
 		this.signal_out.dispatch( new ModelChange{ "model": this.model } );
 	}
 	
+	
+	
+	/**
+	 * Send output signals
+	 * @param CoreEvent event
+	 */
+	public void signalOut(CoreEvent event)
+	{
+		this.signal_out.dispatch(event);
+	}
+	
 }
