@@ -1,0 +1,135 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace Core.UI.Render;
+
+use Runtime.ContextObject;
+use Runtime.Emitter;
+use Runtime.Reference;
+use Runtime.RuntimeUtils;
+use Runtime.Interfaces.ContextInterface;
+use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Events.ModelChange;
+
+
+class CoreManager extends ContextObject
+{
+	
+	public Emitter signal_in = new Emitter();
+	public Emitter signal_out = new Emitter();
+	public string parent_controller_name = "";
+	public CoreManager parent_manager = null;
+	
+	
+	
+	/**
+	 * Constructor
+	 */
+	public void constructor(ContextInterface context = null)
+	{
+		parent(context);
+		
+		/* Analyze controllers annotaions */
+		Collection<IntrospectionInfo> introspection = RuntimeUtils::getIntrospection( this.getClassName() );
+		introspection.each(
+			void (IntrospectionInfo info)
+			{
+				Collection<CoreObject> annotations = info::filterAnnotations(classof ControllerAnnotation, info);
+				annotations.each(
+					void (ControllerAnnotation annotation) use (info)
+					{
+						this.initAnnotation(info, annotation);
+					}
+				);
+			}
+		);
+	}
+	
+	
+	
+	/**
+	 * Set parent manager
+	 */
+	public void setParentManager(CoreManager parent_manager, string parent_controller_name)
+	{
+		if (this.parent_controller_name != "" and this.parent_manager != null)
+		{
+			UIControl controller = this.parent_manager.takeValue(this.parent_controller_name, null);
+			if (controller != null)
+			{
+				controller.signal_in.removeEmitter( this.signal_in );
+				this.signal_out.removeEmitter( controller.signal_out );
+			}
+		}
+		
+		this.parent_controller_name = parent_controller_name;
+		this.parent_manager = parent_manager;
+		
+		if (parent_manager != null and parent_controller_name != "")
+		{
+			UIControl parent_controller = parent_manager.takeValue(parent_controller_name, null);
+			if (parent_controller != null)
+			{
+				parent_controller.signal_in.addEmitter( this.signal_in );
+				this.signal_out.addEmitter( parent_controller.signal_out );
+			}
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * Init Annotation
+	 */
+	public void initAnnotation(IntrospectionInfo info, ControllerAnnotation annotation)
+	{
+		if (info.kind != IntrospectionInfo::ITEM_FIELD)
+			return;
+		
+		string field_name = info.name;
+		UIController controller = this.takeValue(field_name);
+		controller.manager = this;
+		
+		annotation::initController(controller, this, annotation, field_name);
+	}
+	
+	
+	
+	/**
+	 * Update current model
+	 * @param Dict map
+	 */
+	public void updateModel(Dict map)
+	{
+		this.model = this.model.copy(map);
+		this.signal_out.dispatch( new ModelChange{ "model": this.model } );
+	}
+	
+	
+	
+	/**
+	 * Send output signals
+	 * @param CoreEvent event
+	 */
+	public void signalOut(CoreEvent event)
+	{
+		this.signal_out.dispatch(event);
+	}
+	
+}

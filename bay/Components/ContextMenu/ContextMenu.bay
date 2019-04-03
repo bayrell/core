@@ -1,0 +1,150 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace Core.Components.ContextMenu;
+
+use Runtime.RuntimeUtils;
+use Core.UI.Render.CoreView;
+use Core.UI.Render.RenderHelper;
+use Core.Components.ContextMenu.ContextMenuAssets;
+use Core.Components.ContextMenu.ContextMenuManager;
+use Core.Components.ContextMenu.ContextMenuModel;
+
+
+class ContextMenu extends CoreView
+{
+	
+	/**
+	 * Returns manager name
+	 */
+	lambda string managerName() => classof ContextMenuManager;
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	lambda string modelName() => classof ContextMenuModel;
+	
+	
+	
+	/**
+	 * Required Assets
+	 */
+	lambda Collection<string> assets() =>
+		[
+			classof ContextMenuAssets,
+		]
+	;
+	
+	
+	
+	/**
+	 * Required components
+	 */
+	lambda Collection<string> components() =>
+		[
+		]
+	;
+	
+	
+	
+	/**
+	 * Component css
+	 */
+	lambda string css(Dict<string> vars) => 
+		@css{
+			%contextmenu{
+				position: absolute;
+				background-color: white;
+				border: 1px #ccc solid;
+			}
+			%contextmenu_item{
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-khtml-user-select: none;
+				-ms-user-select: none;
+				cursor: pointer;
+			}
+			%contextmenu_item:hover{
+				background-color: #eaeaea;
+			}
+			%contextmenu_item_icon, %contextmenu_item_label{
+				display: inline-block;
+				vertical-align: top;
+				padding: 5px;
+			}
+			%contextmenu_item_icon{
+				width: 25px;
+				text-align: center;
+			}
+			%contextmenu_item_label{
+				width: calc(100% - 25px);
+			}
+		}
+	;
+	
+	
+	
+	/**
+	 * Component render
+	 * @param ContextMenuModel data
+	 * @param Collection<UIStruct> children
+	 * @param Dict<primitive> props
+	 */
+	pure Collection<UIStruct> render(ContextMenuModel data, Collection<UIStruct> children, Dict<primitive> props)
+	{
+		Dict<string> style = {
+			'display': data.is_active ? 'block' : 'none',
+			'top': data.y ~ 'px',
+			'left': data.x ~ 'px',
+		};
+		return <div @class='contextmenu' @style={ style }>
+			{ static::renderChildren(children) }
+		</div>;
+	}
+	
+	
+	
+	/**
+	 * Component render
+	 * @param ContextMenuModel data
+	 * @param Collection<UIStruct> children
+	 * @param Dict<primitive> props
+	 */
+	pure Collection<UIStruct> renderChildren(Collection<UIStruct> children)
+	{
+		return children.map( 
+			
+			Collection<UIStruct> (UIStruct item)
+			{
+				string tag = item.props ? item.props.get("tag", "") : "";
+				string icon = item.props ? item.props.get("icon", "") : "";
+				return <div @class='contextmenu_item' @control='contextmenu_item' @tag={ tag }  >
+					<div @class='contextmenu_item_icon'>
+						<span class={ item.props ? item.props.get("icon", "") : "" }></span>
+					</div>
+					<div @class='contextmenu_item_label'>{ item.children }</div>
+				</div>;
+			}
+			
+		);
+	}
+	
+	
+}

@@ -15,39 +15,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-namespace Core.Http;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+namespace Core.UI.Events.UserEvent;
+
+use Core.UI.Events.UserEvent.UserEvent;
 
 
-struct JsonResponse extends Response
+struct ChangeEvent extends UserEvent
 {
+	const string ES6_EVENT_NAME = "change";
 	
-	public Dict<primitive> data = null;
+	public string value="";
 	
-	
-	/**
-	 * Init struct data
-	 */
-	protected void initData()
+	#switch
+	#case ifcode ES6 then
+	assignEvent(e)
 	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
+		super.assignEvent(e);
+		this.setMap(new Runtime.Dict({
+			"value": e.currentTarget.value,
+		}));
 	}
-	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
+	#endswitch
 	
 }
+

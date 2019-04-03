@@ -16,38 +16,27 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.UI.Interfaces;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
 use Core.Http.Request;
-use Core.Http.Response;
+use Core.UI.Render.WebContainer;
 
 
-struct JsonResponse extends Response
+interface RoutesInterface
 {
 	
-	public Dict<primitive> data = null;
-	
 	
 	/**
-	 * Init struct data
+	 * Before call method
 	 */
-	protected void initData()
-	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
-	}
+	public static WebContainer before(WebContainer container, string name);
 	
+
 	
 	/**
-	 * Returns content
+	 * Before call method
 	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
+	public static WebContainer after(WebContainer container, string name);
+	
 	
 }

@@ -1,0 +1,96 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace Core.UI.Annotations;
+
+use Runtime.re;
+use Runtime.CoreStruct;
+
+
+struct RouteInfo extends CoreStruct
+{
+	
+	public string uri = "";
+	public string name = "";
+	public string class_name = "";
+	public string method_name = "";
+	public string uri_match = "";
+	public Collection<string> params = null;
+	
+	
+	
+	/**
+	 * Init struct data
+	 */
+	protected void initData()
+	{
+		string uri_match = this.uri;
+		uri_match = re::replace("\\/", "\\/", uri_match);
+		
+		Vector matches = re::matchAll("{(.*?)}", this.uri);
+		if (matches)
+		{
+			Vector<string> params = matches.get(0, null);
+			params.each(
+				void (Vector<string> name) use (uri_match)
+				{
+					uri_match = re::replace(
+						"{" ~ name ~ "}", 
+						"([^\\/]*?)", 
+						uri_match
+					);
+				}
+			);
+			
+			this.assignValue("params", params.toCollection());
+		}
+		else
+		{
+			this.assignValue("params", null);
+		}
+		
+		this.assignValue("uri_match", uri_match);
+	}
+	
+	
+	
+	/**
+	 * Get params
+	 * @return Map<string>
+	 */
+	pure memorize Dict<string> getParams(Vector<string> matches, RouteInfo info)
+	{
+		if (info.params == null) 
+			return null;
+		
+		Map<string> res = new Map();
+		info.params.each(
+			void (string name, int pos) use (matches, res)
+			{
+				string match = matches.get(pos, null);
+				if (match)
+				{
+					res.set(name, match);
+				}
+			}
+		);
+		
+		return res.toDict();
+	}
+	
+}

@@ -16,38 +16,21 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.UI.Interfaces;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Runtime.Interfaces.ContextInterface;
 
 
-struct JsonResponse extends Response
+interface ApiDeclaringInterface
 {
 	
-	public Dict<primitive> data = null;
-	
 	
 	/**
-	 * Init struct data
-	 */
-	protected void initData()
-	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
-	}
+	 * Returns api
+	 * @return Vector<string>
+	 */	
+	public static Collection<string> getApi(ContextInterface context);
 	
 	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
 	
 }

@@ -16,38 +16,36 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.Components.Tabs;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Core.UI.UIController;
+use Core.UI.Annotations.Event;
+use Core.UI.Events.MouseEvent.MouseClickEvent;
+use Core.UI.Render.CoreManager;
+use Core.Components.TabsModel;
 
 
-struct JsonResponse extends Response
+class TabsManager extends CoreManager
 {
 	
-	public Dict<primitive> data = null;
+	public TabsModel model;
+	
+	
+	@Event{ "event": classof MouseClickEvent, "method_name": "onTaskHeaderClick" }
+	public assignable UIController tab_header = new UIController();
 	
 	
 	/**
-	 * Init struct data
+	 * Event click
 	 */
-	protected void initData()
+	public void onTaskHeaderClick(MouseClickEvent event)
 	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
+		/* Set new value */
+		string key = event.ui.props.get("data-tab-key");
+		this.updateModel({
+			"active": key,
+		});
 	}
 	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
 	
 }

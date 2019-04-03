@@ -16,38 +16,43 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.UI.Annotations;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Events.ModelChange;
 
 
-struct JsonResponse extends Response
+struct BindModel extends ControllerAnnotation
 {
 	
-	public Dict<primitive> data = null;
+	string model = "";
 	
 	
 	/**
-	 * Init struct data
+	 * Init controller
 	 */
-	protected void initData()
+	static void initController
+	(
+		UIController controller, CoreManager manager, 
+		ControllerAnnotation annotation, string controller_name
+	)
 	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
+		controller.addSignalOut( static::onChangeModel(manager, annotation), [classof ModelChange] );
 	}
+	
 	
 	
 	/**
-	 * Returns content
+	 * On change
 	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
+	static fun onChangeModel(CoreManager manager, Controller annotation) => 
+		void (ModelChange event)
+		{
+			Map map = new Map();
+			map.set(annotation.model, event.model);
+			
+			/* Set new value */
+			manager.updateModel(map);
+		}
 	
 }

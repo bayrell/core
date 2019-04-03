@@ -1,0 +1,80 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace Core.UI.Render;
+
+use Runtime.CoreStruct;
+use Core.UI.Annotations.RouteInfo;
+use Core.Http.Request;
+use Core.Http.Response;
+use Core.Http.Session;
+use Core.Http.WebFile;
+use Core.UI.Render.RenderContainer;
+use Core.UI.Render.RenderHelper;
+
+
+struct WebContainer extends CoreStruct
+{
+	public Request request = null;
+	public Response response = null;
+	public RouteInfo route_info = null;
+	public Collection<Cookie> cookies = null;
+	public Map<string> params = null;	
+	
+	
+	
+	/**
+	 * Returns assets
+	 * @param string layout_class_name
+	 * @param CoreLayoutModel layout_data
+	 * @param string view_class_name
+	 * @param CoreStruct view_data
+	 * @return Response
+	 */
+	pure Response responsePage
+	(
+		string layout_class_name, RenderContainer layout_data, 
+		string view_class_name, CoreStruct view_data
+	)
+	{
+		/* Render view */
+		string content = RenderHelper::render( view_class_name, view_data );
+		
+		/* Render layout */
+		if (layout_class_name != "" and layout_data != null and layout_data instanceof RenderContainer)
+		{
+			Vector<string> components = RenderHelper::getAllComponents([layout_class_name, view_class_name]);
+			Vector<string> assets = RenderHelper::loadAssetsFromComponents(components, layout_data);
+			layout_data = RenderHelper::initRenderContainer(layout_data);
+			layout_data = layout_data.copy({
+				"assets": assets,
+				"components": components,
+				"content": content,
+				"view": view_class_name,
+				"model": view_data,
+			});
+			content = RenderHelper::render( layout_class_name, layout_data );
+		}
+		
+		/* Return response */
+		return new Response({ "content": content });
+	}
+	
+	
+	
+}

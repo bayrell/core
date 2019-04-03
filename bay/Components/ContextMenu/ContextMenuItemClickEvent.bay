@@ -15,39 +15,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-namespace Core.Http;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+namespace Core.Components.ContextMenu;
+
+use Runtime.CoreEvent;
+use Core.UI.Events.MouseEvent.MouseClickEvent;
 
 
-struct JsonResponse extends Response
+struct ContextMenuItemClickEvent extends CoreEvent
 {
 	
-	public Dict<primitive> data = null;
-	
-	
-	/**
-	 * Init struct data
-	 */
-	protected void initData()
-	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
-	}
-	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
+	public string tag = "";
+	public MouseClickEvent event = null;
 	
 }
+

@@ -1,0 +1,168 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace Core.Components.Tree;
+
+use Runtime.RuntimeUtils;
+use Core.UI.Render.CoreView;
+use Core.UI.Render.RenderHelper;
+use Core.Components.Tree.TreeAssets;
+use Core.Components.Tree.TreeManager;
+use Core.Components.Tree.TreeModel;
+
+
+class Tree extends CoreView
+{
+	
+	/**
+	 * Returns manager name
+	 */
+	lambda string managerName() => classof TreeManager;
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	lambda string modelName() => classof TreeModel;
+	
+	
+	
+	/**
+	 * Required Assets
+	 */
+	lambda Collection<string> assets() =>
+		[
+			classof TreeAssets,
+		]
+	;
+	
+	
+	
+	/**
+	 * Required components
+	 */
+	lambda Collection<string> components() =>
+		[
+		]
+	;
+	
+	
+	
+	/**
+	 * Component css
+	 */
+	lambda string css(Dict<string> vars) => 
+		@css{
+			%tree_item > %tree_items{
+				padding-left: 10px;
+			}
+			%tree_icon, %tree_label{
+				display: inline-block;
+				vertical-align: middle;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-khtml-user-select: none;
+				-ms-user-select: none;
+			}
+			%tree_icon{
+				width: 22px;
+				height: 22px;
+				font-size: 20px;
+			}
+			%tree_label{
+				cursor: pointer;
+				padding: 2px;
+			}
+			%tree_label:hover{
+				background-color: #eaeaea;
+			}
+			%tree_label.active{
+				background-color: blue;
+				color: white;
+			}
+		}
+	;
+	
+	
+	
+	/**
+	 * Component render
+	 */
+	lambda Template render(TreeModel data, Collection<UIStruct> children, Dict<primitive> props) =>
+		
+		<div @class='tree'>
+			{ static::renderItems(data, data.items, "", props) }
+		</div>
+		
+	;
+	
+	
+	
+	/**
+	 * Tree render items
+	 */
+	lambda Collection<UIStruct> renderItems
+	(
+		TreeModel data, 
+		Collection<TreeItem> items, 
+		string path, 
+		Dict<primitive> props
+	) =>
+	
+		(items != null) ? 
+			items.map( 
+				lambda Collection<UIStruct> (TreeItem item, int index) use (data, path, props) => 
+					static::renderItem(data, item, (path !== "") ? path ~ "." ~ index : rtl::toString(index), props)
+			) 
+		: ""
+		
+	;
+	
+	
+	
+	/**
+	 * Tree render item
+	 */
+	lambda Template renderItem(TreeModel data, TreeItem item, string path, Dict<primitive> props) =>
+		
+		<div @class='tree_item'>
+			<div @class='tree_item_name'>
+				<div @class='tree_icon'>{ static::renderIcon(data, item, props) }</div>
+				<div @class='tree_label' data-path={ path } @control="tree_item_label"
+					class={ data.selected === path ? "active" : "" }
+				>{ item.name }</div>
+			</div>
+			<div @class='tree_items'>{ static::renderItems(data, item.items, path, props) }</div>
+		</div>
+		
+	;
+	
+	
+	/**
+	 * Tree render icon
+	 */
+	pure Collection<UIStruct> renderIcon(TreeModel data, TreeItem item, Dict<primitive> props)
+	{
+		string icons = "";
+		callback get_icon = props.get("get_icon", null);
+		if (get_icon != null) icons = get_icon(item);
+		return <span class={ icons }></span>;
+	}
+	
+}

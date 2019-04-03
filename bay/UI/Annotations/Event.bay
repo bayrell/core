@@ -16,38 +16,30 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.UI.Annotations;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Events.UserEvent.ChangeEvent;
 
 
-struct JsonResponse extends Response
+struct Event extends ControllerAnnotation
 {
 	
-	public Dict<primitive> data = null;
+	string event = "";
+	string method_name = "";
 	
 	
 	/**
-	 * Init struct data
+	 * Init controller
 	 */
-	protected void initData()
+	static void initController
+	(
+		UIController controller, CoreManager manager,
+		ControllerAnnotation annotation, string controller_name
+	)
 	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
+		controller.addSignalOut( method (manager, annotation.method_name), [annotation.event] );
 	}
 	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
 	
 }

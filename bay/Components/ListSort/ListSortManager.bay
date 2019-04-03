@@ -16,38 +16,27 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.Components.ListSort;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Core.UI.UIController;
+use Core.UI.Annotations.BindValue;
+use Core.UI.Render.CoreManager;
+use Core.Components.ListSortModel;
 
 
-struct JsonResponse extends Response
+class ListSortManager extends CoreManager
 {
 	
-	public Dict<primitive> data = null;
+	public ListSortModel model;
 	
-	
-	/**
-	 * Init struct data
-	 */
-	protected void initData()
-	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
-	}
 	
 	
 	/**
-	 * Returns content
+	 * Input controller
 	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
+	@BindValue{ "model": "value" }
+	public assignable UIController input = new UIController();
+	
+	
 	
 }

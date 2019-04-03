@@ -16,38 +16,24 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.UI.Animations;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Events.ModelChange;
 
 
-struct JsonResponse extends Response
+struct FadeOut extends ControllerAnnotation
 {
 	
-	public Dict<primitive> data = null;
+	int speed = 0;
 	
 	
 	/**
-	 * Init struct data
+	 * Init controller
 	 */
-	protected void initData()
+	static void initController(CoreManager manager, ControllerAnnotation annotation, UIControl controller)
 	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
 	}
 	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
 	
 }

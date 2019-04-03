@@ -1,0 +1,178 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace Core.Components.Tabs;
+
+use Runtime.RuntimeUtils;
+use Core.UI.Render.CoreView;
+use Core.Components.Tabs.TabsAssets;
+use Core.Components.Tabs.TabsManager;
+use Core.Components.Tabs.TabsModel;
+
+
+struct Tabs extends CoreView
+{
+	
+	/**
+	 * Returns manager name
+	 */
+	lambda string managerName() => classof TabsManager;
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	lambda string modelName() => classof TabsModel;
+	
+	
+	
+	/**
+	 * Required Assets
+	 */
+	lambda Collection<string> assets() =>
+		[
+			classof TabsAssets,
+		]
+	;
+	
+	
+	
+	/**
+	 * Required components
+	 */
+	lambda Collection<string> components() =>
+		[
+		]
+	;
+	
+	
+	
+	/**
+	 * Component css
+	 */
+	lambda string css(Dict<string> vars) => 
+		@css{
+			%tabs{
+			}
+			%tabs_header{
+				display: inline-block;
+				vertical-align: top;
+			}
+			%tabs_header.active{
+				background-color: yellow;
+			}
+			%tabs_content{
+				display: none;
+			}
+			%tabs_content.active{
+				display: block;
+			}
+		}
+	;
+	
+	
+	
+	/**
+	 * Header render
+	 */
+	pure Template renderTab(UIStruct item, string active)
+	{
+		string key = "";
+		string title = "";
+		string class_name = "";
+		if (item.props)
+		{
+			key = item.props.get("key", "");
+			title = item.props.get("title", "");
+		}
+		if (key == active) class_name = "active";
+		return new UIStruct{
+			"space": RuntimeUtils::getCssHash(classof Tabs),
+			"class_name": static::getCurrentClassName(), 
+			"kind": "element",
+			"name": "div",
+			"props": {
+				"@class": "tab_header",
+				"class": class_name,
+				"@key": key,
+				"@control": "tab_header",
+				"data-tab-key": key,
+			},
+			"children": [
+				RuntimeUtils::normalizeUI(title),
+			],
+		};
+	}
+	
+	
+	
+	/**
+	 * Tab render
+	 */
+	pure Template renderContent(UIStruct item, string active)
+	{
+		string key = "";
+		string class_name = "";
+		if (item.props) key = item.props.get("key", "");
+		if (key == active) class_name = "active";
+		return new UIStruct{
+			"space": RuntimeUtils::getCssHash(classof Tabs),
+			"class_name": static::getCurrentClassName(), 
+			"kind": "element",
+			"name": "div",
+			"props": {
+				"@class": "tab_content",
+				"class": class_name,
+				"@key": key,
+				"data-tab-key": key,
+			},
+			"children": item.children,
+		};
+	}
+	
+	
+	
+	/**
+	 * Component render
+	 */
+	lambda Template render(TabsModel data, Collection<UIStruct> children, string key) =>
+		
+		<div @class='tabs' @key={ key }>
+			<div @class='tabs_header' data-active={ data.active }>
+				{ 
+					children != null ? 
+						children.map( 
+							lambda UIStruct (UIStruct item) use (data) => static::renderTab(item, data.active) 
+						) : ""
+				}
+			</div>
+			
+			<div @class='tabs_content' data-active={ data.active }>
+				{
+					children != null ? 
+						children.map( 
+							lambda UIStruct (UIStruct item) use (data) => static::renderContent(item, data.active) 
+						) : "" 
+				}
+			</div>
+		</div>
+		
+	;
+	
+}

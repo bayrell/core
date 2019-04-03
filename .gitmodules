@@ -1,9 +1,9 @@
 [submodule "es6"]
 	path = es6
-	url = https://github.com/bayrell/runtime_web_es6
+	url = https://github.com/bayrell/core_es6
 [submodule "php"]
 	path = php
-	url = https://github.com/bayrell/runtime_web_php
+	url = https://github.com/bayrell/core_php
 [submodule "nodejs"]
 	path = nodejs
-	url = https://github.com/bayrell/runtime_web_nodejs
+	url = https://github.com/bayrell/core_nodejs

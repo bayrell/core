@@ -1,13 +1,13 @@
 /*!
- *  Bayrell Runtime Library
+ *  Bayrell Core Library
  *
- *  (c) Copyright 2018 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      https://www.bayrell.org/licenses/APACHE-LICENSE-2.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,10 @@
  *  limitations under the License.
  */
  
-namespace RuntimeUI.Http;
+namespace Core.Http;
 
 use Runtime.CoreStruct;
-use RuntimeUI.Http.Request;
+use Core.Http.Request;
 
 
 struct ApiRequest extends CoreStruct
@@ -75,13 +75,13 @@ struct ApiRequest extends CoreStruct
 	{
 		method_name = (interface_name != "") ? interface_name + "." + method_name : method_name;
 		return (ctx) => {
-			RuntimeUI.Http.ApiRequest.SendApi(
+			Core.Http.ApiRequest.SendApi(
 				class_name,
 				method_name,
 				data,
 				(function (ctx){
 					return function (data){
-						var res = new RuntimeUI.Http.ApiResult( data );
+						var res = new Core.Http.ApiResult( data );
 						return ctx.resolve(res);
 					}
 				})(ctx)
@@ -118,7 +118,7 @@ struct ApiRequest extends CoreStruct
 			"data": [],
 		};
 		data = Runtime.RuntimeUtils.ObjectToNative(data, true);
-		RuntimeUI.Http.ApiRequest.buildPostDataRecursive(res, data, "");
+		Core.Http.ApiRequest.buildPostDataRecursive(res, data, "");
 		return res.data;
 	}
 	
@@ -150,7 +150,7 @@ struct ApiRequest extends CoreStruct
 		{
 			data.each(
 				(i, item) => {
-					RuntimeUI.Http.ApiRequest.buildPostDataRecursive(
+					Core.Http.ApiRequest.buildPostDataRecursive(
 						res, 
 						item, 
 						(key == "") ? i : key + "[" + i + "]"
@@ -162,7 +162,7 @@ struct ApiRequest extends CoreStruct
 		{
 			for (var i=0; i<data.length; i++)
 			{
-				RuntimeUI.Http.ApiRequest.buildPostDataRecursive(
+				Core.Http.ApiRequest.buildPostDataRecursive(
 					res, 
 					data[i], 
 					(key == "") ? i : key + "[" + i + "]"
@@ -173,7 +173,7 @@ struct ApiRequest extends CoreStruct
 		{
 			for (var i in data)
 			{
-				RuntimeUI.Http.ApiRequest.buildPostDataRecursive(
+				Core.Http.ApiRequest.buildPostDataRecursive(
 					res, 
 					data[i], 
 					(key == "") ? i : key + "[" + i + "]"
@@ -197,7 +197,7 @@ struct ApiRequest extends CoreStruct
 		var post_data = new FormData();
 		
 		/* Build pos data */
-		data = RuntimeUI.Http.ApiRequest.buildPostData(data);
+		data = Core.Http.ApiRequest.buildPostData(data);
 		
 		/* Add data to post data */
 		for (var i=0; i<data.length; i++)
@@ -223,7 +223,7 @@ struct ApiRequest extends CoreStruct
 		}
 		
 		/* Add CSRF Token */
-		/*post_data.append("csrf_token", RuntimeUI.Http.ApiRequest.GetCookie("csrf_token"));*/
+		/*post_data.append("csrf_token", Core.Http.ApiRequest.GetCookie("csrf_token"));*/
 		
 		/* Send AJAX Request */
 		var xhr = new XMLHttpRequest();

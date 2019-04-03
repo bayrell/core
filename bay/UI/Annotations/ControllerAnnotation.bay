@@ -16,38 +16,22 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
+namespace Core.UI.Annotations;
 
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Runtime.CoreStruct;
+use Core.UI.UIController;
 
 
-struct JsonResponse extends Response
+struct ControllerAnnotation extends CoreStruct
 {
 	
-	public Dict<primitive> data = null;
-	
 	
 	/**
-	 * Init struct data
+	 * Init controller
 	 */
-	protected void initData()
+	static void initController(CoreManager manager, ControllerAnnotation annotation, UIController controller)
 	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
 	}
 	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
 	
 }

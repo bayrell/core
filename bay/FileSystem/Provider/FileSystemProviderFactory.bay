@@ -15,39 +15,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-namespace Core.Http;
+
+namespace Core.FileSystem.Provider;
 
 use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Runtime.ContextObject;
+use Runtime.Interfaces.ContextInterface;
+use Runtime.Interfaces.FactoryInterface;
+use Core.FileSystem.Provider.FileSystemProvider;
 
 
-struct JsonResponse extends Response
+class FileSystemProviderFactory extends ContextObject implements FactoryInterface
 {
 	
-	public Dict<primitive> data = null;
-	
-	
 	/**
-	 * Init struct data
+	 * Returns new Instance
 	 */
-	protected void initData()
-	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
+	public FileSystemProvider newInstance(ContextInterface context = null, Map<mixed> params = null)
+	{	
+		FileSystemProvider obj = new FileSystemProvider(context);
+		return obj;
 	}
-	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
-	
+
 }

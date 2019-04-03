@@ -15,39 +15,35 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-namespace Core.Http;
+
+namespace Core.UI.Render;
+
 
 use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+use Core.UI.Interfaces.RoutesInterface;
+use Core.UI.Render.WebContainer;
 
 
-struct JsonResponse extends Response
+class CoreRoute extends CoreObject implements RoutesInterface
 {
 	
-	public Dict<primitive> data = null;
-	
-	
 	/**
-	 * Init struct data
+	 * Before call method
 	 */
-	protected void initData()
+	public static async WebContainer before(WebContainer container, string name)
 	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
+		return container;
 	}
 	
 	
+	
 	/**
-	 * Returns content
+	 * Before call method
 	 */
-	public string getContent()
+	public static async WebContainer after(WebContainer container, string name)
 	{
-		return rtl::json_encode(this.data);
+		return container;
 	}
+	
 	
 }

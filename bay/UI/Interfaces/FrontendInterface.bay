@@ -16,38 +16,18 @@
  *  limitations under the License.
  */
  
-namespace Core.Http;
-
-use Runtime.CoreObject;
-use Runtime.RuntimeUtils;
-use Core.Http.Request;
-use Core.Http.Response;
+namespace Core.UI.Interfaces;
 
 
-struct JsonResponse extends Response
+interface FrontendInterface
 {
 	
-	public Dict<primitive> data = null;
-	
 	
 	/**
-	 * Init struct data
+	 * Returns module name
+	 * @return string
 	 */
-	protected void initData()
-	{
-		Dict<string> headers = this.headers;
-		if (headers == null) headers = new Dict<string>();
-		headers = headers.setIm("Content-Type", "application/json");
-		this.assignValue("headers", headers);
-	}
+	public static string getName();
 	
-	
-	/**
-	 * Returns content
-	 */
-	public string getContent()
-	{
-		return rtl::json_encode(this.data);
-	}
 	
 }

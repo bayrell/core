@@ -1,0 +1,224 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace Core.FileSystem.Provider;
+
+use Runtime.ContextObject;
+use Core.FileSystem.FileSystemInterface;
+
+
+#switch
+#case ifcode NODEJS then
+var fsModule = require('fs');
+var shellModule = require('shelljs');
+var upathModule = require('upath');
+var pathModule = require('path');
+#endswitch
+
+
+class FileSystemProvider extends ContextObject implements FileSystemInterface{
+	
+	
+	
+	/**
+	 * Returns files and folders from directory
+	 * @param string basedir
+	 * @return Vector<string> res - Result
+	 */
+	public Vector<string> getDirectoryListing(string basedir=""){
+		#switch
+		#case ifcode PHP then
+		$arr = scandir($basedir, SCANDIR_SORT_ASCENDING);
+		$res = new Vector();
+		$res->_assignArr($arr);
+		$res->removeValue(".");
+		$res->removeValue("..");
+		return $res;
+		#case ifcode NODEJS then
+		var res = new Vector();
+		var arr = fsModule.readdirSync(basedir);
+		arr = arr.sort();
+		arr.forEach(function(s){
+			res.push( s );
+		});
+		return res;
+		#endswitch
+	}
+	
+	
+	
+	/**
+	 * Returns recursive files and folders from directory
+	 * @param string basedir
+	 * @param Vector<string> res - Result
+	 */
+	public Vector<string> readDirectoryRecursive(string basedir=""){
+		
+		Vector<string> res = new Vector();
+		Vector<string> arr = this.getDirectoryListing(basedir);
+		
+		arr.each(void (string path) use (res, basedir){
+			string path = basedir ~ "/" ~ path;
+			res.push(path);			
+			if (this.isDir(path)){
+				res.appendVector( this.getDirectoryListing(path) );
+			}
+		});
+		
+		delete arr;
+		return res;
+	}
+	
+	
+	
+	/**
+	 * Returns recursive only files from directory
+	 * @param string basedir
+	 * @param Vector<string> res - Result
+	 */
+	public Vector<string> getFilesRecursive(string basedir=""){
+		
+		Vector<string> res = new Vector();
+		Vector<string> arr = this.getDirectoryListing(basedir);
+		
+		arr.each(void (string path) use (res, basedir){
+			string path = basedir ~ "/" ~ path;
+			if (this.isDir(path)){
+				res.appendVector( this.getFilesRecursive(path) );
+			}
+			else{
+				res.push(path);
+			}
+		});
+		
+		delete arr;
+		return res;
+	}
+	
+
+	
+	/**
+	 * Returns content of the file
+	 * @param string filepath
+	 * @param string charset
+	 * @return string
+	 */
+	public string readFile(string filepath="", string charset="utf8"){
+		#switch
+		#case ifcode PHP then
+		return file_get_contents($filepath);
+		#case ifcode NODEJS then
+		return fsModule.readFileSync(filepath, {encoding : charset}).toString();
+		#endswitch
+		return "";
+	}
+	
+	
+	
+	/**
+	 * Save file content
+	 * @param string filepath
+	 * @param string content
+	 * @param string charset
+	 */
+	public void saveFile(string filepath="", string content="", string charset="utf8"){
+		#switch
+		#case ifcode PHP then
+		file_put_contents($filepath, $content);
+		#case ifcode NODEJS then
+		fsModule.writeFileSync(filepath, content, {encoding : 'utf8'});
+		#endswitch
+	}
+	
+	
+	
+	/**
+	 * Open file
+	 * @param string filepath
+	 * @param string mode
+	 * @return FileInterface
+	 */
+	public FileInterface openFile(string filepath="", string mode=""){
+	}
+	
+	
+	
+	/**
+	 * Make dir
+	 * @param string dirpath
+	 * @param boolean create_parent. Default is true
+	 */
+	public void fileExists(string filepath=""){
+		#switch
+		#case ifcode PHP then
+		return file_exists($filepath);
+		#case ifcode NODEJS then
+		if (fsModule.existsSync(filepath))
+			return true;
+		return false;
+		#endswitch
+	}
+	
+	
+	
+	/**
+	 * Make dir
+	 * @param string dirpath
+	 * @param boolean create_parent. Default is true
+	 */
+	public void makeDir(string dirpath="", bool create_parent=false){
+		#switch
+		#case ifcode PHP then
+		if (file_exists($dirpath)){
+			mkdir($dirpath, 0755, true);
+		}
+		#case ifcode NODEJS then
+		if (fsModule.existsSync(dirpath))
+			return true;
+		shellModule.mkdir('-p', dirpath);
+		#endswitch
+	}
+	
+	
+	
+	/**
+	 * Return true if path is folder
+	 * @param string path
+	 * @param boolean 
+	 */
+	public void isDir(string path){
+		#switch
+		#case ifcode PHP then
+		return is_dir($path);
+		#case ifcode NODEJS then
+		return fsModule.lstatSync(path).isDirectory();
+		#endswitch
+	}
+	
+	
+	
+	/**
+	 * Return true if path is file
+	 * @param string path
+	 * @param boolean 
+	 */
+	public void isFile(string path){
+		return !this.isDir(path);
+	}
+	
+}
