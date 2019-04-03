@@ -142,6 +142,7 @@ class Assets implements AssetsInterface
 			],
 			[
 				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseClickEvent.js",
+				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseContextMenuEvent.js",
 				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseDoubleClickEvent.js",
 				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseDownEvent.js",
 				"/assets/bayrell-runtime-ui-es6/Events/MouseEvent/MouseEnterEvent.js",

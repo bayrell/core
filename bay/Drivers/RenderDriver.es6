@@ -263,17 +263,19 @@ RuntimeUI.Drivers.RenderDriver = class extends RuntimeUI.Render.CoreManager
 								{
 									elem.addEventListener(
 										event_name, 
-										(function(controller)
+										(e) =>
 										{
-											return function(e)
+											e = RuntimeUI.Events.UserEvent.UserEvent.fromEvent(e);
+											controller.signal_out.dispatch(e);
+											if (e.es6_event.defaultPrevented)
 											{
-												e = RuntimeUI.Events.UserEvent.UserEvent.fromEvent(e);
-												controller.signal_out.dispatch(e);
+												return false;
 											}
-										})(controller)
+										}
 									);
 								}
 							}
+							/*console.log(elem);*/
 						}
 					}
 					

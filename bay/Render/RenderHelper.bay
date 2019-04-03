@@ -126,14 +126,22 @@ static class RenderHelper
 				continue;
 			
 			
-			if (key == 'style' and item instanceof Map)
+			if (key == '@style')
 			{
-				value = item.reduce(
-					string (string res, string key, string value){
-						return res ~ key ~ ':' ~ value ~ ';' ;
-					}, 
-					""
-				);
+				if (item instanceof Dict)
+				{
+					key = "style";
+					value = item.reduce(
+						string (string res, string key, string value){
+							return res ~ key ~ ':' ~ value ~ ';' ;
+						}, 
+						""
+					);
+				}
+				else
+				{
+					continue;
+				}
 			}
 			else if (item implements StringInterface)
 			{
@@ -183,7 +191,14 @@ static class RenderHelper
 			{
 				if (attrs.has(key))
 				{
-					value = attrs.item(key) ~ " " ~ value;
+					if (key == 'style')
+					{
+						value = attrs.item(key) ~ "" ~ value;
+					}
+					else
+					{
+						value = attrs.item(key) ~ " " ~ value;
+					}
 				}
 				attrs.set(key, value);
 			}

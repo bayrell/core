@@ -71,6 +71,7 @@ struct UserEvent extends CoreEvent
 		
 		if (e.type == "click") obj = new RuntimeUI.Events.MouseEvent.MouseClickEvent();
 		else if (e.type == "dblclick") obj = new RuntimeUI.Events.MouseEvent.MouseDoubleClickEvent();
+		else if (e.type == "contextmenu") obj = new RuntimeUI.Events.MouseEvent.MouseContextMenuEvent();
 		else if (e.type == "mousedown") obj = new RuntimeUI.Events.MouseEvent.MouseDownEvent();
 		else if (e.type == "mouseenter") obj = new RuntimeUI.Events.MouseEvent.MouseEnterEvent();
 		else if (e.type == "mouseleave") obj = new RuntimeUI.Events.MouseEvent.MouseLeaveEvent();
@@ -97,11 +98,9 @@ struct UserEvent extends CoreEvent
 	 */
 	void preventDefault()
 	{
-		
-		this.defaultPrevented = true;
-		
 		#switch
 		#case ifcode ES6 then
+		this.assignValue('preventDefault', true);
 		this.es6_event.preventDefault();
 		#endswitch
 	}
@@ -125,8 +124,11 @@ struct UserEvent extends CoreEvent
 	{
 		#switch
 		#case ifcode ES6 then
+		this.assignValue('cancelBubble', true);
+		this.assignValue('preventDefault', true);
 		this.es6_event.cancelBubble = true;
 		this.es6_event.stopPropagation();
+		this.es6_event.preventDefault();
 		#endswitch
 	}
 }

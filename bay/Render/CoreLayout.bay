@@ -55,7 +55,11 @@ struct CoreLayout extends CoreView
 	/**
 	 * Component css
 	 */
-	lambda string css(Dict<string> vars) => "";
+	lambda string css(Dict<string> vars) => 
+		@css{
+			*{box-sizing: border-box;}body{margin:0;padding:0;}
+		}
+	;
 	
 	
 	
