@@ -32,4 +32,77 @@ interface FileTransferInterface
 	
 	
 	
+	/**
+	 * Returns files stat
+	 * @param Collection<string> items
+	 * @return Collection<FileStat>
+	 */
+	public Collection<FileStat> stat();
+	
+	
+	
+	/**
+	 * Create new node
+	 * @param string path
+	 * @param string name
+	 * @param string kind
+	 * @return bool
+	 */
+	public bool createNode();
+	
+	
+	
+	/**
+	 * Clear file
+	 * @param string path
+	 * @return bool
+	 */
+	public bool clearFile();
+	
+	
+	
+	/**
+	 * Read file
+	 * @param string path
+	 * @param int offset
+	 * @param int count
+	 * @param string charset
+	 * @return FileIOResult
+	 */
+	public FileIOResult readString();
+	
+	
+	
+	/**
+	 * Write file
+	 * @param string path
+	 * @param string content
+	 * @param int offset
+	 * @param string charset
+	 * @return FileIOResult
+	 */
+	public FileIOResult writeString();
+	
+	
+	
+	/**
+	 * Read file
+	 * @param string path
+	 * @param int offset
+	 * @param int count
+	 * @return FileIOResult
+	 */
+	public FileIOResult readBlock();
+	
+	
+	
+	/**
+	 * Write file
+	 * @param string path
+	 * @param Collection<byte> content
+	 * @param int offset
+	 * @return FileIOResult
+	 */
+	public FileIOResult writeBlock();
+	
 } 

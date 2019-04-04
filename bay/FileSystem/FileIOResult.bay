@@ -16,14 +16,25 @@
  *  limitations under the License.
  */
  
-namespace Core.Components.Tree;
+namespace Core.FileSystem;
 
 use Runtime.CoreStruct;
 
 
-struct TreeItem extends CoreStruct
+struct FileIOResult extends CoreStruct
 {
+	const string KIND_READ_STRING = "rs";
+	const string KIND_READ_BINARY = "rb";
+	const string KIND_WRITE_STRING = "ws";
+	const string KIND_WRITE_BINARY = "wb";
+	
 	public string name = "";
 	public string kind = "";
-	public Collection<TreeItem> items = null;
+	public string content = "";
+	public Collection<byte> bytes = null;
+	public int offset = 0;
+	public int count = 0;
+	public int size = 0;
+	public bool eof = false;
+	
 }

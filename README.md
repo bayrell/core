@@ -1,3 +1,3 @@
 # Description
 
-Bayrell Web Runtime Library
+Bayrell Core Library

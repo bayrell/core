@@ -16,14 +16,24 @@
  *  limitations under the License.
  */
  
-namespace Core.Components.Tree;
+namespace Core.FileSystem;
 
 use Runtime.CoreStruct;
+use Core.FileSystem.FileNode;
 
 
-struct TreeItem extends CoreStruct
+struct FileStat extends FileNode
 {
-	public string name = "";
-	public string kind = "";
-	public Collection<TreeItem> items = null;
+	public bool exists = false;
+	public string mode = "";
+	public string user = "";
+	public string group = "";
+	public int size = 0;
+	public int atime = 0;
+	public int ctime = 0;
+	public int mtime = 0;
+	public string mime = "";
+	public string charset = "";
+	public string download_url = "";
+}
 }

@@ -31,7 +31,8 @@ var pathModule = require('path');
 #endswitch
 
 
-class FileSystemProvider extends ContextObject implements FileSystemInterface{
+class FileSystemProvider extends ContextObject implements FileSystemInterface
+{
 	
 	
 	

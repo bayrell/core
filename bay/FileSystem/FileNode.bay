@@ -29,6 +29,5 @@ struct FileNode extends CoreStruct
 	
 	public string name = "";
 	public string kind = "";
-	public Collection<FileNode> items = null;
-	
+	public Collection<FileNode> items = null;	
 }
