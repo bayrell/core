@@ -28,7 +28,7 @@ interface FileTransferInterface
 	 * @param string path
 	 * @return Collection<FileNode>
 	 */
-	public Collection<FileNode> getDirectoryListing();
+	public static async Collection<FileNode> getDirectoryListing();
 	
 	
 	
@@ -37,7 +37,7 @@ interface FileTransferInterface
 	 * @param Collection<string> items
 	 * @return Collection<FileStat>
 	 */
-	public Collection<FileStat> stat();
+	public static async Collection<FileStat> stat();
 	
 	
 	
@@ -48,7 +48,7 @@ interface FileTransferInterface
 	 * @param string kind
 	 * @return bool
 	 */
-	public bool createNode();
+	public static async bool createNode();
 	
 	
 	
@@ -57,7 +57,7 @@ interface FileTransferInterface
 	 * @param string path
 	 * @return bool
 	 */
-	public bool clearFile();
+	public static async bool clearFile();
 	
 	
 	
@@ -69,7 +69,7 @@ interface FileTransferInterface
 	 * @param string charset
 	 * @return FileIOResult
 	 */
-	public FileIOResult readString();
+	public static async FileIOResult readString();
 	
 	
 	
@@ -81,7 +81,7 @@ interface FileTransferInterface
 	 * @param string charset
 	 * @return FileIOResult
 	 */
-	public FileIOResult writeString();
+	public static async FileIOResult writeString();
 	
 	
 	
@@ -92,7 +92,7 @@ interface FileTransferInterface
 	 * @param int count
 	 * @return FileIOResult
 	 */
-	public FileIOResult readBlock();
+	public static async FileIOResult readBlock();
 	
 	
 	
@@ -103,6 +103,6 @@ interface FileTransferInterface
 	 * @param int offset
 	 * @return FileIOResult
 	 */
-	public FileIOResult writeBlock();
+	public static async FileIOResult writeBlock();
 	
 } 

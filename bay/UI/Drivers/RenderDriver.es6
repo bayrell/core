@@ -76,7 +76,17 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	{
 		this.model = e.model;
 		this.runAnimation();
-		/*console.log(e.model);*/
+	}
+	
+	
+	
+	/**
+	 * Update DOM by manager. Return true if manager should update, or false if update should by driver
+	 * @return bool
+	 */
+	updateDOM(elem, ui)
+	{
+		return false;
 	}
 	
 	
@@ -181,10 +191,33 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		}
 		
 		/* Update managers model */
-		new_manager.model = model;
+		new_manager.setNewModel(model);
 		
 		this.saveManager(ui.name, key_manager, new_manager);
 		return new_manager;
+	}
+	
+	
+	
+	/**
+	 * Return true if driver should update DOM of the elem
+	 */
+	shouldUpdateElem(elem, item)
+	{
+		if (elem._ui == null || elem._ui == undefined)
+		{
+			return true;
+		}
+		var manager = this.findManager(item);
+		if (manager == null)
+		{
+			return true;
+		}
+		if (!manager.isModelUpdated())
+		{
+			return false;
+		}
+		return !manager.updateDOM(elem, item.ui);
 	}
 	
 	
@@ -336,7 +369,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	/**
 	 * Create DOM by UI Struct
 	 */
-	createDOM(prev_elem, item)
+	createElem(prev_elem, item)
 	{
 		if (prev_elem == undefined) prev_elem = null;
 		
@@ -380,14 +413,20 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	/**
 	 * Create Document Object Model
 	 */
-	updateDOM(elem, item)
+	updateElem(elem, item)
 	{
 		if (elem._ui == item.ui) return elem;
+		
+		/* Can update item DOM */
+		if (!this.shouldUpdateElem(elem, item))
+		{
+			return elem;
+		}
 		
 		/* Create new DOM if elem and ui is different */
 		if (this.isElemDifferent(elem, item))
 		{
-			return this.createDOM(elem, item);
+			return this.createElem(elem, item);
 		}
 		
 		this.updateElemProps(elem, item);
@@ -513,12 +552,12 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				
 				if (e == undefined)
 				{
-					var e = this.createDOM(null, item);
+					var e = this.createElem(null, item);
 					if (e != null) append_arr.push(e);
 				}
 				else
 				{
-					var new_item = this.updateDOM(e, item);
+					var new_item = this.updateElem(e, item);
 					if (new_item != e)
 					{
 						update_arr.push({"old_item": e, "new_item": new_item});
@@ -579,7 +618,10 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	
 	runAnimation()
 	{
-		this.animation_id = requestAnimationFrame( this.animation.bind(this) );
+		if (this.animation_id == null)
+		{
+			this.animation_id = requestAnimationFrame( this.animation.bind(this) );
+		}
 	}
 	
 	
@@ -603,7 +645,13 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				})
 			)
 		);
-		this.updateDOMChilds(this, root, template, "")
+		this.updateDOMChilds(this, root, template, "");
+		
+		for (var key in this.managers)
+		{
+			this.managers[key]._model_updated = false;
+		}
+		
 	}
 	
 }

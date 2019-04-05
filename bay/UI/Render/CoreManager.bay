@@ -29,7 +29,8 @@ use Core.UI.Events.ModelChange;
 
 class CoreManager extends ContextObject
 {
-	
+	public CoreModel model = null;
+	public bool _model_updated = true;
 	public Emitter signal_in = new Emitter();
 	public Emitter signal_out = new Emitter();
 	public string parent_controller_name = "";
@@ -117,7 +118,7 @@ class CoreManager extends ContextObject
 	 */
 	public void updateModel(Dict map)
 	{
-		this.model = this.model.copy(map);
+		this.setNewModel( this.model.copy(map) );
 		this.signal_out.dispatch( new ModelChange{ "model": this.model } );
 	}
 	
@@ -130,6 +131,42 @@ class CoreManager extends ContextObject
 	public void signalOut(CoreEvent event)
 	{
 		this.signal_out.dispatch(event);
+	}
+	
+	
+	
+	/**
+	 * Returns true if model is update by Driver
+	 * @return bool
+	 */
+	public bool isModelUpdated()
+	{
+		return this._model_updated;
+	}
+	
+	
+	
+	/**
+	 * Set new manager's model
+	 */
+	public void setNewModel(CoreModel model)
+	{
+		if (this.model != model)
+		{
+			this.model = model;
+			this._model_updated = true;
+		}
+	}
+	
+	
+	
+	/**
+	 * Update DOM by manager. Return true if manager should update, or false if update should by driver
+	 * @return bool
+	 */
+	public bool updateDOM(mixed elem, UIStruct ui)
+	{
+		return false;
 	}
 	
 }
