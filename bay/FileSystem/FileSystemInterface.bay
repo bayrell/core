@@ -96,4 +96,15 @@ interface FileSystemInterface
 	 */
 	public void isDir(string path);
 	
+	
+	
+	/**
+	 * Read string from file
+	 * @param string filepath
+	 * @param int offset
+	 * @param int count
+	 * @return FileIOResult
+	 */
+	public async FileIOResult readBlock(string filepath, int offset, int count = -1);
+	
 } 

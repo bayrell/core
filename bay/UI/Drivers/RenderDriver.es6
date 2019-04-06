@@ -192,6 +192,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		
 		/* Update managers model */
 		new_manager.setNewModel(model);
+		new_manager.updateManager();
 		
 		this.saveManager(ui.name, key_manager, new_manager);
 		return new_manager;

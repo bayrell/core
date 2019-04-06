@@ -23,15 +23,13 @@ use Runtime.CoreStruct;
 
 struct FileIOResult extends CoreStruct
 {
-	const string KIND_READ_STRING = "rs";
 	const string KIND_READ_BINARY = "rb";
-	const string KIND_WRITE_STRING = "ws";
 	const string KIND_WRITE_BINARY = "wb";
 	
 	public string name = "";
 	public string kind = "";
 	public string content = "";
-	public Collection<byte> bytes = null;
+	public Collection<mixed> bytes = null;
 	public int offset = 0;
 	public int count = 0;
 	public int size = 0;

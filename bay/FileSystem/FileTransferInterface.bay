@@ -66,30 +66,6 @@ interface FileTransferInterface
 	 * @param string path
 	 * @param int offset
 	 * @param int count
-	 * @param string charset
-	 * @return FileIOResult
-	 */
-	public static async FileIOResult readString();
-	
-	
-	
-	/**
-	 * Write file
-	 * @param string path
-	 * @param string content
-	 * @param int offset
-	 * @param string charset
-	 * @return FileIOResult
-	 */
-	public static async FileIOResult writeString();
-	
-	
-	
-	/**
-	 * Read file
-	 * @param string path
-	 * @param int offset
-	 * @param int count
 	 * @return FileIOResult
 	 */
 	public static async FileIOResult readBlock();

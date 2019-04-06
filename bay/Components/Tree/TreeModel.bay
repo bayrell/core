@@ -31,9 +31,32 @@ struct TreeModel extends TreeItem
 	
 	
 	/**
+	 * Split path
+	 */
+	pure Collection<int> splitPath(string path)
+	{
+		Collection<string> path = rs::explode(".", path);
+		return path.map( method rtl::toInt );
+	}
+	
+	
+	
+	/**
+	 * Return name path
+	 */
+	pure Collection<int> getNamePath(TreeModel model, Collection<int> path, string ch = "/", string attr = "name")
+	{
+		Collection<TreeItem> items = static::getTreePathItems(model, path);
+		string path_str = rs::implode(ch, items.map( lambda string (TreeItem item) use (attr) => item.takeValue(attr) ));
+		return path_str;
+	}
+	
+	
+	
+	/**
 	 * Returns tree items by path
 	 */
-	pure Collection<TreeItem> getTreePath(TreeModel model, Collection<int> path)
+	pure Collection<TreeItem> getTreePathItems(TreeModel model, Collection<int> path)
 	{
 		TreeItem item = model;
 		Vector<TreeItem> items = new Vector();

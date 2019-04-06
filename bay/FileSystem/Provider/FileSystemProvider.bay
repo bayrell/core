@@ -19,6 +19,8 @@
 namespace Core.FileSystem.Provider;
 
 use Runtime.ContextObject;
+use Core.FileSystem.FileIOResult;
+use Core.FileSystem.FileNode;
 use Core.FileSystem.FileSystemInterface;
 
 
@@ -33,7 +35,6 @@ var pathModule = require('path');
 
 class FileSystemProvider extends ContextObject implements FileSystemInterface
 {
-	
 	
 	
 	/**
@@ -111,7 +112,7 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 		return res;
 	}
 	
-
+	
 	
 	/**
 	 * Returns content of the file
@@ -220,6 +221,134 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 */
 	public void isFile(string path){
 		return !this.isDir(path);
+	}
+	
+	
+	
+	/**
+	 * Create new node
+	 * @param string filepath
+	 * @param string kind
+	 * @param Dict options
+	 * @return bool
+	 */
+	public async bool createNode(string filepath, string kind, Dict options = null)
+	{
+		bool res = false;
+		bool clear = false;
+		if (options)
+		{
+			clear = options.get("clear", false, "bool");
+		}
+		
+		if (kind == FileNode::KIND_FILE)
+		{
+			#switch
+			#case ifcode PHP then
+			$mode = "a";
+			if ($clear) $mode = "w";
+			$f = fopen($filepath, $mode);
+			if ($f)
+			{
+				$res = true;
+				fclose($f);
+			}
+			#endswitch
+		}
+		
+		return res;
+	}
+	
+	
+	
+	/**
+	 * Read string from file
+	 * @param string filepath
+	 * @param int offset
+	 * @param int count
+	 * @return FileIOResult
+	 */
+	public async FileIOResult readBlock(string filepath, int offset, int count = -1)
+	{
+		string content = "";
+		Collection<byte> bytes = null;
+		int size = 0;
+		bool eof = true;
+		if (count == -1) count = 1048576;
+		
+		#switch
+		#case ifcode PHP then
+		
+		$f = fopen($filepath, "rb");
+		if ($f)		
+		{
+			$size = filesize($filepath);
+			fseek($f, $offset);
+			$c = fread($f, $count); 
+			$bytes = unpack("C*", $c);
+			$bytes = Collection::create($bytes);
+			$count = $bytes->count();
+			$eof = feof($f);
+			fclose($f);
+		}
+		
+		#case ifcode NODEJS then
+		#endswitch
+		
+		return new FileIOResult{
+			"kind": FileIOResult::KIND_READ_BINARY,
+			"name": filepath,
+			"offset": offset,
+			"bytes": bytes,
+			"count": count,
+			"size": size,
+			"eof": eof,
+		};
+	}
+	
+	
+	
+	/**
+	 * Read string from file
+	 * @param string filepath
+	 * @param int offset
+	 * @param int count
+	 * @return FileIOResult
+	 */
+	public async FileIOResult writeBlock(string filepath, Collection<byte> bytes, int offset, int count = -1)
+	{
+		if (count == -1) count = 1048576;
+		
+		#switch
+		#case ifcode PHP then
+		
+		$f = fopen($filepath, "cb+");
+		if ($f)		
+		{
+			$arr = $bytes->_getArr();
+			$sz = count($arr);
+			if ($sz > $count) $arr = array_slice($arr, 0, $count);
+			
+			fseek($f, $offset);
+			$count = count($arr);
+			$content = pack("C*", ...$arr);
+			/*var_dump($count);*/
+			fwrite($f, $content);
+			fclose($f);
+		}
+		
+		#case ifcode NODEJS then
+		#endswitch
+		
+		return new FileIOResult{
+			"kind": FileIOResult::KIND_WRITE_BINARY,
+			"name": filepath,
+			"offset": offset,
+			"bytes": bytes,
+			"count": count,
+			"size": 0,
+			"eof": false,
+		};
 	}
 	
 }

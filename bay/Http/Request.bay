@@ -38,7 +38,7 @@ struct Request extends CoreStruct
 	public string host = "";
 	public string method = "GET";
 	public Dict<string> query = null;
-	public Dict<string> payload = null;
+	public Dict<mixed> payload = null;
 	public Dict<string> cookies = null;
 	public Dict<string> headers = null;
 	public Dict<string> params = null;

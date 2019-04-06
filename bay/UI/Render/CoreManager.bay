@@ -169,4 +169,13 @@ class CoreManager extends ContextObject
 		return false;
 	}
 	
+	
+	
+	/**
+	 * Update current manager
+	 */
+	public void updateManager()
+	{
+	}
+	
 }
