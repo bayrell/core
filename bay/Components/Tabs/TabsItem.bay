@@ -18,36 +18,9 @@
  
 namespace Core.Components.Tabs;
 
-use Core.UI.UIController;
-use Core.UI.Annotations.Event;
-use Core.UI.Events.MouseEvent.MouseClickEvent;
-use Core.UI.Render.CoreManager;
-use Core.Components.TabsModel;
+use Core.UI.Render.CoreView;
 
 
-class TabsManager extends CoreManager
+struct TabsItem extends CoreView
 {
-	
-	public TabsModel model;
-	
-	
-	@Event{ "event": classof MouseClickEvent, "method_name": "onTaskHeaderClick" }
-	public assignable UIController tab_header = new UIController();
-	
-	
-	/**
-	 * Event click
-	 */
-	public void onTaskHeaderClick(MouseClickEvent event)
-	{
-		/* Set new value */
-		string key = event.ui.props.get("data-tab-key");
-		mixed tag = event.ui.props.get("@tag", null);
-		this.updateModel({
-			"active": key,
-			"active_tag": tag,
-		});
-	}
-	
-	
 }

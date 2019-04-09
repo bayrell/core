@@ -20,6 +20,7 @@ namespace Core.Backend;
 
 use Runtime.CoreObject;
 use Runtime.RuntimeConstant;
+use Runtime.RuntimeUtils;
 use Runtime.Interfaces.ContextInterface;
 use Core.Backend.AppProvider;
 use Core.Backend.BaseRoute;
@@ -63,7 +64,10 @@ class ApiRoute extends CoreRoute
 		method_name = arr.pop();
 		interface_name = rs::implode(".", arr);
 		
-		ApiResult res = await app.callApi(class_name, interface_name, method_name, request.payload, context);
+		string json = request.payload.get("DATA", null);
+		Dict data = RuntimeUtils::json_decode(json);
+		
+		ApiResult res = await app.callApi(class_name, interface_name, method_name, data, context);
 		if (not(res instanceof ApiResult))
 		{
 			return ApiResult::setError(

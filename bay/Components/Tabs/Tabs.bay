@@ -73,6 +73,12 @@ struct Tabs extends CoreView
 			%tabs_header{
 				display: inline-block;
 				vertical-align: top;
+				padding: 5px;
+				cursor: pointer;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-khtml-user-select: none;
+				-ms-user-select: none;
 			}
 			%tabs_header.active{
 				background-color: yellow;
@@ -96,10 +102,12 @@ struct Tabs extends CoreView
 		string key = "";
 		string title = "";
 		string class_name = "";
+		mixed tag = null;
 		if (item.props)
 		{
 			key = item.props.get("key", "");
 			title = item.props.get("title", "");
+			tag = item.props.get("tag", null);
 		}
 		if (key == active) class_name = "active";
 		return new UIStruct{
@@ -107,11 +115,12 @@ struct Tabs extends CoreView
 			"class_name": static::getCurrentClassName(), 
 			"kind": "element",
 			"name": "div",
+			"key": key,
+			"controller": "tab_header",
 			"props": {
-				"@class": "tab_header",
+				"@class": "tabs_header",
+				"@tag": tag,
 				"class": class_name,
-				"@key": key,
-				"@control": "tab_header",
 				"data-tab-key": key,
 			},
 			"children": [
@@ -136,10 +145,10 @@ struct Tabs extends CoreView
 			"class_name": static::getCurrentClassName(), 
 			"kind": "element",
 			"name": "div",
+			"key": key,
 			"props": {
-				"@class": "tab_content",
+				"@class": "tabs_content",
 				"class": class_name,
-				"@key": key,
 				"data-tab-key": key,
 			},
 			"children": item.children,
@@ -151,10 +160,10 @@ struct Tabs extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Template render(TabsModel data, Collection<UIStruct> children, string key) =>
+	lambda Template render(TabsModel data, Collection<UIStruct> children, Dict props) =>
 		
-		<div @class='tabs' @key={ key }>
-			<div @class='tabs_header' data-active={ data.active }>
+		<div @class='tabs' @key={ props.get('@key', "") }>
+			<div @class='tabs_header_wrap' data-active={ data.active }>
 				{ 
 					children != null ? 
 						children.map( 
@@ -163,7 +172,7 @@ struct Tabs extends CoreView
 				}
 			</div>
 			
-			<div @class='tabs_content' data-active={ data.active }>
+			<div @class='tabs_content_wrap' data-active={ data.active }>
 				{
 					children != null ? 
 						children.map( 

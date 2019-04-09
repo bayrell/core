@@ -84,7 +84,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	 * Update DOM by manager. Return true if manager should update, or false if update should by driver
 	 * @return bool
 	 */
-	updateDOM(elem, ui)
+	driverUpdateDOM(elem, ui)
 	{
 		return false;
 	}
@@ -191,8 +191,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		}
 		
 		/* Update managers model */
-		new_manager.setNewModel(model);
-		new_manager.updateManager();
+		new_manager.driverSetNewModel(model);
+		new_manager.driverUpdateManager();
 		
 		this.saveManager(ui.name, key_manager, new_manager);
 		return new_manager;
@@ -218,7 +218,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		{
 			return false;
 		}
-		return !manager.updateDOM(elem, item.ui);
+		return !manager.driverUpdateDOM(elem, item.ui);
 	}
 	
 	

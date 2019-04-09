@@ -114,12 +114,10 @@ struct ApiRequest extends CoreStruct
 	 */
 	static buildPostData(data)
 	{
-		var res = {
-			"data": [],
-		};
-		data = Runtime.RuntimeUtils.ObjectToNative(data, true);
-		Core.Http.ApiRequest.buildPostDataRecursive(res, data, "");
-		return res.data;
+		var res = [];
+		var json = Runtime.RuntimeUtils.json_encode(data);
+		res.push({"key": "DATA", "val": json});
+		return res;
 	}
 	
 	

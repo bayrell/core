@@ -73,6 +73,7 @@ class ContextMenu extends CoreView
 				position: absolute;
 				background-color: white;
 				border: 1px #ccc solid;
+				z-index: 100;
 			}
 			%contextmenu_item{
 				-webkit-user-select: none;

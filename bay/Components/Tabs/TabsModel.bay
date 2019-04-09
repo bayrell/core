@@ -25,5 +25,6 @@ struct TabsModel extends CoreStruct
 {
 	
 	public string active = "";
+	public mixed active_tag = null;
 
 }

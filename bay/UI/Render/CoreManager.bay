@@ -59,6 +59,18 @@ class CoreManager extends ContextObject
 				);
 			}
 		);
+		
+		/* Init manager */
+		this.initManager();
+	}
+	
+	
+	
+	/**
+	 * Init manager
+	 */
+	public void initManager()
+	{
 	}
 	
 	
@@ -118,8 +130,23 @@ class CoreManager extends ContextObject
 	 */
 	public void updateModel(Dict map)
 	{
-		this.setNewModel( this.model.copy(map) );
-		this.signal_out.dispatch( new ModelChange{ "model": this.model } );
+		this.setModel( this.model.copy(map) );
+	}
+	
+	
+	
+	/**
+	 * Set new manager's model and dispatch signal out ModelChange
+	 * @param CoreModel model
+	 */
+	public void setModel(CoreModel model)
+	{
+		if (this.model != model)
+		{
+			this.model = model;
+			this._model_updated = true;
+			this.signal_out.dispatch( new ModelChange{ "model": this.model } );
+		}
 	}
 	
 	
@@ -149,7 +176,7 @@ class CoreManager extends ContextObject
 	/**
 	 * Set new manager's model
 	 */
-	public void setNewModel(CoreModel model)
+	public void driverSetNewModel(CoreModel model)
 	{
 		if (this.model != model)
 		{
@@ -164,7 +191,7 @@ class CoreManager extends ContextObject
 	 * Update DOM by manager. Return true if manager should update, or false if update should by driver
 	 * @return bool
 	 */
-	public bool updateDOM(mixed elem, UIStruct ui)
+	public bool driverUpdateDOM(mixed elem, UIStruct ui)
 	{
 		return false;
 	}
@@ -174,7 +201,7 @@ class CoreManager extends ContextObject
 	/**
 	 * Update current manager
 	 */
-	public void updateManager()
+	public void driverUpdateManager()
 	{
 	}
 	
