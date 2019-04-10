@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-namespace Core.Components.Tree;
+namespace Core.Components.Dialog;
 
 use Runtime.Exceptions.RuntimeException;
 use Runtime.Interfaces.AssetsInterface;
@@ -34,7 +34,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 */
 	public static string getName()
 	{
-		return "Core.Components.Tree";
+		return "Core.Components.Dialog";
 	}
 	
 	
@@ -119,7 +119,6 @@ class ModuleDescription implements ModuleDescriptionInterface
 	public static Map<string, string> getRequiredModules(ContextInterface context)
 	{
 		return {
-			'Core.Components.Dialog': '>=0.1',
 			'Core.UI': '>=0.3',
 		};
 	}

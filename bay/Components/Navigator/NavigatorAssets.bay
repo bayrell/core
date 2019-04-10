@@ -16,14 +16,14 @@
  *  limitations under the License.
  */
  
-namespace Core.Components.Tree;
+namespace Core.Components.Navigator;
 
 use Runtime.RuntimeAssets;
 use Core.UI.Interfaces.AssetsInterface;
 use Core.UI.Render.RenderContainer;
 
 
-class TreeAssets implements AssetsInterface
+class NavigatorAssets implements AssetsInterface
 {
 
 	
@@ -34,6 +34,7 @@ class TreeAssets implements AssetsInterface
 	public static Vector<string> getRequiredAssets(RenderContainer context)
 	{
 		return [
+			"Core.Components.Tree.TreeAssets",
 			"Core.UI.Assets",
 		];
 	}
@@ -58,16 +59,11 @@ class TreeAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/Tree/DialogCreateModel.js',
-				'/assets/Core/Components/Tree/DialogDeleteModel.js',
-				'/assets/Core/Components/Tree/Tree.js',
-				'/assets/Core/Components/Tree/TreeAssets.js',
-				'/assets/Core/Components/Tree/TreeItem.js',
-				'/assets/Core/Components/Tree/TreeItemDoubleClickEvent.js',
-				'/assets/Core/Components/Tree/TreeItemContextMenuEvent.js',
-				'/assets/Core/Components/Tree/TreeItemSelectEvent.js',
-				'/assets/Core/Components/Tree/TreeManager.js',
-				'/assets/Core/Components/Tree/TreeModel.js',
+				'/assets/Core/Components/Navigator/Navigator.js',
+				'/assets/Core/Components/Navigator/NavigatorAssets.js',
+				'/assets/Core/Components/Navigator/NavigatorItem.js',
+				'/assets/Core/Components/Navigator/NavigatorManager.js',
+				'/assets/Core/Components/Navigator/NavigatorModel.js',
 			]
 		];
 	}

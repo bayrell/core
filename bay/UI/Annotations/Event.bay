@@ -27,6 +27,8 @@ struct Event extends ControllerAnnotation
 	
 	string event = "";
 	string method_name = "";
+	bool cancel = false;
+	bool preventDefault = false;
 	
 	
 	/**
@@ -38,8 +40,20 @@ struct Event extends ControllerAnnotation
 		ControllerAnnotation annotation, string controller_name
 	)
 	{
-		controller.addSignalOut( method (manager, annotation.method_name), [annotation.event] );
+		controller.addSignalOut( static::onEvent(manager, annotation), [annotation.event] );
 	}
 	
 	
+	
+	/**
+	 * On change
+	 */
+	static fun onEvent(CoreManager manager, Controller annotation) => 
+		void (CoreEvent event)
+		{
+			if (annotation.cancel) event.cancel();
+			else if (annotation.preventDefault) event.preventDefault();
+			callback f = method (manager, annotation.method_name);
+			f(event);
+		}
 }

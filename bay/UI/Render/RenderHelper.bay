@@ -335,6 +335,33 @@ static class RenderHelper
 	
 	
 	/**
+	 * Returns required components
+	 * @param string class_name
+	 * @return Collection<string>
+	 */
+	protected static void _getRequiredComponents
+	(
+		Vector<string> res,
+		Map<string> cache,
+		string class_name
+	)
+	{
+		Collection<string> components = ( method(class_name, "components") )();
+		for (int i=0; i<components.count(); i++)
+		{
+			string class_name = components.item(i);
+			if (cache.get(class_name, false) == false)
+			{
+				cache.set(class_name, true);
+				static::_getRequiredComponents(res, cache, class_name);
+				res.push(class_name);
+			}
+		}
+	}
+	
+	
+	
+	/**
 	 * Returns all components
 	 * @param Collection<string> views
 	 * @return Collection<string>
@@ -342,22 +369,45 @@ static class RenderHelper
 	pure Collection<string> getAllComponents(Collection<string> views)
 	{
 		/* Add components from views */
-		Collection<string> res = new Collection(views);
-		
-		/* Add require components */
-		Collection<string> w = null;
-		while (w != res)
+		Vector<string> res = new Vector();
+		Map<string> cache = new Map();
+		for (int i=0; i<views.count(); i++)
 		{
-			w = res;
-			for (int i=0; i<w.count(); i++)
+			string class_name = views.item(i);
+			cache.set(class_name, true);
+			Collection<string> arr = static::_getRequiredComponents(res, cache, class_name);
+			res.push(class_name);
+		}
+		res = res.removeDublicatesIm();
+		return res.toCollection();
+	}
+	
+	
+	
+	/**
+	 * Returns required assets
+	 * @param string assets_class_name
+	 * @return Collection<string>
+	 */
+	protected static void _getRequiredAssets
+	(
+		Vector<string> res,
+		Map<string> cache,
+		string assets_class_name,
+		RenderContainer container = null
+	)
+	{
+		Collection<string> assets = ( method(assets_class_name, "getRequiredAssets") )(container);
+		for (int i=0; i<assets.count(); i++)
+		{
+			string assets_name = assets.item(i);
+			if (cache.get(assets_name, false) == false)
 			{
-				string class_name = w.item(i);
-				Collection<string> components = ( method(class_name, "components") )();
-				res = static::addUniqueItems(res, components);
+				cache.set(assets_name, true);
+				static::_getRequiredAssets(res, cache, assets_name, container);
+				res.push(assets_name);
 			}
 		}
-		
-		return res;
 	}
 	
 	
@@ -370,41 +420,25 @@ static class RenderHelper
 	pure Collection<string> loadAssetsFromComponents(Collection<string> components, RenderContainer container = null)
 	{
 		/* Add assets from components */
-		Collection<string> res = new Collection();
+		Vector<string> res = new Vector();
 		if (components == null) return res;
+		Map<string> cache = new Map();
 		
 		for (int i=0; i<components.count(); i++)
 		{
 			string class_name = components.item(i);
 			Collection<string> assets = ( method(class_name, "assets") )();
-			res = static::addUniqueItems(res, assets);
+			for (int j=0; j<assets.count(); j++)
+			{
+				string assets_name = assets.item(j);
+				cache.set(assets_name, true);
+				static::_getRequiredAssets(res, cache, assets_name, container);
+				res.push(assets_name);
+			}
 		}
 		
-		/* Add require assets */
-		Collection<string> w = null;
-		while (true)
-		{
-			w = new Collection();
-			for (int i=0; i<res.count(); i++)
-			{
-				string assets_class_name = res.item(i);
-				Collection<string> assets = ( method(assets_class_name, "getRequiredAssets") )(container);
-				w = static::addUniqueItems(w, assets);
-				if (w.indexOf(assets_class_name) == -1) w = w.pushIm(assets_class_name);
-			}
-			
-			bool flag = true;
-			for (int i=0; i<w.count(); i++)
-			{
-				string assets_class_name = w.item(i);
-				if (res.indexOf(assets_class_name) == -1) flag = false;
-			}
-			
-			if (flag) break;
-			res = w;
-		}
-		
-		return res;
+		res = res.removeDublicatesIm();
+		return res.toCollection();
 	}
 	
 	

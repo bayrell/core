@@ -15,36 +15,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+ 
+namespace Core.Components.Dialog;
 
-namespace Core.Components.ContextMenu;
-
-use Runtime.CoreEvent;
-use Core.UI.Events.MouseEvent.MouseClickEvent;
+use Runtime.CoreStruct;
 
 
-struct ContextMenuItemClickEvent extends CoreEvent
+struct DialogModel extends CoreStruct
 {
-	
-	public string tag = "";
-	public MouseClickEvent event = null;
-	
-	
-	/**
-	 * Prevent default mouse event
-	 */
-	void preventDefault()
-	{
-		this.event.preventDefault();
-	}
-	
-	
-	/**
-	 * Cancel event
-	 */
-	void cancel()
-	{
-		this.event.cancel();
-	}
-	
+	public bool is_open = false;
+	public bool is_modal = false;
 }
-

@@ -21,7 +21,10 @@ namespace Core.Components.Tree;
 use Runtime.RuntimeUtils;
 use Core.UI.Render.CoreView;
 use Core.UI.Render.RenderHelper;
+use Core.Components.ContextMenu.ContextMenu;
+use Core.Components.Dialog.Dialog;
 use Core.Components.Tree.TreeAssets;
+use Core.Components.Tree.TreeItem;
 use Core.Components.Tree.TreeManager;
 use Core.Components.Tree.TreeModel;
 
@@ -59,6 +62,8 @@ class Tree extends CoreView
 	 */
 	lambda Collection<string> components() =>
 		[
+			classof ContextMenu,
+			classof Dialog,
 		]
 	;
 	
@@ -104,10 +109,23 @@ class Tree extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Template render(TreeModel data, Collection<UIStruct> children, Dict<primitive> props) =>
+	lambda Template render(TreeModel model, Collection<UIStruct> children, Dict<primitive> props) =>
+		rtl::normalizeUIVector([
+			static::renderTree(model, children, props),
+			static::renderContextMenu(model),
+			static::renderDialogs(model),
+		])
+	;
+	
+	
+	
+	/**
+	 * Component render
+	 */
+	lambda Template renderTree(TreeModel model, Collection<UIStruct> children, Dict<primitive> props) =>
 		
 		<div @class='tree'>
-			{ static::renderItems(data, data.items, "", props) }
+			{ static::renderTreeItems(model, model.items, "", props) }
 		</div>
 		
 	;
@@ -117,9 +135,9 @@ class Tree extends CoreView
 	/**
 	 * Tree render items
 	 */
-	lambda Collection<UIStruct> renderItems
+	lambda Collection<UIStruct> renderTreeItems
 	(
-		TreeModel data, 
+		TreeModel model, 
 		Collection<TreeItem> items, 
 		string path, 
 		Dict<primitive> props
@@ -127,8 +145,13 @@ class Tree extends CoreView
 	
 		(items != null) ? 
 			items.map( 
-				lambda Collection<UIStruct> (TreeItem item, int index) use (data, path, props) => 
-					static::renderItem(data, item, (path !== "") ? path ~ "." ~ index : rtl::toString(index), props)
+				lambda Collection<UIStruct> (TreeItem item, int index) use (model, path, props) => 
+					static::renderTreeItem(
+						model, 
+						item, 
+						(path !== "") ? path ~ "." ~ index : rtl::toString(index), 
+						props
+					)
 			) 
 		: ""
 		
@@ -139,30 +162,98 @@ class Tree extends CoreView
 	/**
 	 * Tree render item
 	 */
-	lambda Template renderItem(TreeModel data, TreeItem item, string path, Dict<primitive> props) =>
+	lambda Template renderTreeItem(TreeModel model, TreeItem item, string path, Dict<primitive> props) =>
 		
 		<div @class='tree_item'>
 			<div @class='tree_item_name'>
-				<div @class='tree_icon'>{ static::renderIcon(data, item, props) }</div>
+				<div @class='tree_icon'>{ static::renderTreeIcon(model, item, props) }</div>
 				<div @class='tree_label' data-path={ path } @control="tree_item_label"
-					class={ data.selected === path ? "active" : "" }
+					class={ model.selected === path ? "active" : "" }
 				>{ item.name }</div>
 			</div>
-			<div @class='tree_items'>{ static::renderItems(data, item.items, path, props) }</div>
+			<div @class='tree_items'>{ static::renderTreeItems(model, item.items, path, props) }</div>
 		</div>
 		
 	;
 	
 	
+	
 	/**
 	 * Tree render icon
 	 */
-	pure Collection<UIStruct> renderIcon(TreeModel data, TreeItem item, Dict<primitive> props)
+	pure Collection<UIStruct> renderTreeIcon(TreeModel model, TreeItem item, Dict<primitive> props)
 	{
-		string icons = "";
-		callback get_icon = props.get("get_icon", null);
-		if (get_icon != null) icons = get_icon(item);
-		return <span class={ icons }></span>;
+		return <span class={ static::getTreeIcon(item) }></span>;
 	}
+	
+	
+	
+	/**
+	 * Returns icon by item
+	 */
+	pure string getTreeIcon(TreeItem item)
+	{
+		if (item.kind == TreeItem::KIND_FOLDER)
+		{
+			if (item.is_open) return "fa fa-folder-open";
+			return "fa fa-folder";
+		}
+		if (item.kind == TreeItem::KIND_FILE) return "fa fa-file";
+		return "";
+	}
+	
+	
+	
+	/**
+	 * Render context menu
+	 */
+	lambda Collection<UIStruct> renderContextMenu(Model model) =>
+		<ContextMenu @model={ model.contextmenu } @key="contextmenu" @control="contextmenu">
+			{ static::renderContextMenuItems(model) }
+		</ContextMenu>	
+	;
+	
+	
+	
+	/**
+	 * Render context menu items
+	 */
+	pure Collection<UIStruct> renderContextMenuItems(Model model)
+	{
+		if (model.selected == "")
+			return "";
+		
+		TreeModel item = TreeModel::getSelectedItem(model);
+		if (item.kind == TreeModel::KIND_FOLDER)
+		{
+			return 
+				<ContextMenuItem icon='fa fa-file' tag='create_file'>Create file</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-folder' tag='create_folder'>Create folder</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-trash' tag='delete_node'>Delete</ContextMenuItem>
+			;
+		}
+		else
+		{
+			return 
+				<ContextMenuItem icon='fa fa-trash' tag='delete_node'>Delete</ContextMenuItem>
+			;
+		}
+	}
+	
+	
+	
+	/**
+	 * Render context menu
+	 */
+	lambda Collection<UIStruct> renderDialogs(Model model) =>
+		
+		<Dialog style='promt' 
+			title={ model.dialog_create.kind == TreeModel::KIND_FOLDER ? "Create new folder" : "Create new file" }
+			@model={ model.dialog_create } @control='dialog_create'></Dialog>
+			
+		<Dialog style='confirm' title={ "Do you want to delete " ~ model.dialog_delete.name ~ "?" }
+			@model={ model.dialog_delete } @control='dialog_delete'></Dialog>
+			
+	;
 	
 }

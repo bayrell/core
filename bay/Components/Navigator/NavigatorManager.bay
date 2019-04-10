@@ -1,0 +1,233 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ 
+namespace Core.Components.Navigator;
+
+use Runtime.RuntimeUtils;
+use Core.Components.ContextMenu.ContextMenuItemClickEvent;
+use Core.Components.Tree.TreeItem;
+use Core.Components.Tree.TreeItemSelectEvent;
+use Core.Components.Tree.TreeItemContextMenuEvent;
+use Core.Components.Tree.TreeItemDoubleClickEvent;
+use Core.Components.Tree.TreeManager;
+use Core.Components.Tree.TreeModel;
+use Core.FileSystem.FileNode;
+use Core.Http.ApiRequest;
+use Core.UI.UIController;
+use Core.UI.Annotations.BindValue;
+use Core.UI.Annotations.BindModel;
+use Core.UI.Annotations.Event;
+use Core.UI.Annotations.EventAsync;
+use Core.UI.Events.ModelChange;
+use Core.UI.Events.MouseEvent.MouseClickEvent;
+use Core.UI.Events.MouseEvent.MouseDoubleClickEvent;
+use Core.UI.Events.MouseEvent.MouseContextMenuEvent;
+use Core.UI.Events.UserEvent.ChangeEvent;
+use Core.UI.Render.CoreManager;
+
+
+class NavigatorManager extends TreeManager
+{
+	public NavigatorModel model;
+	
+	
+	/* Controller navigator */
+	@EventAsync{ "event": classof MouseContextMenuEvent, "method_name": "onNavigatorItemContextMenu", "cancel": true }
+	@EventAsync{ "event": classof MouseDoubleClickEvent, "method_name": "onNavigatorItemDoubleClick", "cancel": true }
+	/*public assignable UIController tree_item_label = new UIController();*/
+	
+	
+	
+	/**
+	 * OnModelChange
+	 */
+	public void onNavigatorModelChange1(ModelChange event)
+	{
+		this.setModel(event.model);
+	}
+	
+	
+	
+	/**
+	 * Reload navigation
+	 */
+	public async void onNavigatorItemContextMenu1(MouseContextMenuEvent e)
+	{
+		string tree_data_path = event.ui.props.get("data-path");
+		
+		Model model = this.model;
+		
+		model = NavigatorModel::showContextMenu(model, true, e.clientX, e.clientY);
+		model = NavigatorModel::selectItem(model, tree_data_path);
+		
+		this.setModel(model);
+	}
+	
+	
+	
+	/**
+	 * Reload navigation
+	 */
+	public async void onNavigatorItemDoubleClick1(MouseDoubleClickEvent event)
+	{
+		
+		/* Get path */
+		string tree_data_path = event.ui.props.get("data-path");
+		Collection<int> path = TreeModel::splitPath(tree_data_path);
+		
+		/* Check is folder */
+		NavigatorItem item = TreeModel::getTreeItem(this.model, path);
+		if (item.kind != NavigatorItem::KIND_FOLDER)
+		{
+			await static::reloadFile(path);
+		}
+		else
+		{
+			await static::reloadFolder(path);
+		}
+		
+	}
+	
+	
+	
+	/* Controller navigator_menu */
+	
+	/*
+	@EventAsync{ 
+		"event": classof ContextMenuItemClickEvent, 
+		"method_name": "onContextMenuClick", 
+		"cancel": true 
+	}
+	public assignable UIController contextmenu = new UIController();
+	*/
+	
+	
+	/**
+	 * Navigation menu item click
+	 */
+	public async void onContextMenuClick1(ContextMenuItemClickEvent e)
+	{
+		
+		/* Hide context menu */
+		Model model = this.model;
+		model = Model::navigatorShowContextMenu(model, false);
+		this.setModel(model);
+		
+		
+		Collection<int> path = TreeModel::splitPath( this.model.selected );
+		if (e.tag == 'create_file')
+		{
+			await static::createFile(path);
+		}
+		else if (e.tag == 'create_folder')
+		{
+			await static::createFolder(path);
+		}
+		else if (e.tag == 'delete_node')
+		{
+			await static::deleteNode(path);
+		}
+	}
+	
+	
+	
+	
+	/* ------ Navigator API ------ */
+	
+	
+	/**
+	 * Reload folder by path
+	 */
+	public async void reloadFolder(Collection<int> path)
+	{
+		/* Get folder path */
+		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		
+		/* Call api */
+		ApiResult res = await ApiRequest::callApi(
+			this.api_class_name,
+			"Core.FileSystem.FileTransferInterface",
+			"getDirectoryListing",
+			{
+				"path": path_str,
+			}
+		);
+		
+		if (res.code == 1)
+		{
+			/* Update item */
+			NavigatorModel model = this.model;
+			NavigatorItem item = TreeModel::getTreeItem(model, path);
+			item = item.copy({
+				"items": NavigatorItem::convertFileNodes(res.result),
+				"is_open": true,
+			});
+			model = TreeModel::setTreeItem(model, path, item);
+			
+			/* Update model */
+			this.setModel(model);
+			
+			/* Set signal out */
+		}
+	}
+	
+	
+	
+	/**
+	 * Reload file by path
+	 */
+	public async void reloadFile(Collection<int> path)
+	{
+		/* Get folder path */
+		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		int offset = 0;
+		int filesize = -1;
+		Vector<byte> content = new Vector();
+		
+		/* Load file content */
+		while (filesize == -1 or offset < filesize)
+		{
+			
+			ApiResult res = await ApiRequest::callApi(
+				this.api_class_name,
+				"Core.FileSystem.FileTransferInterface",
+				"readBlock",
+				{
+					"path": path_str,
+					"offset": offset,
+				}
+			);
+			
+			if (res.code != 1) break;
+			
+			offset += res.result.count;
+			filesize = res.result.size;
+			content.appendVector(res.result.bytes);
+			
+			if (res.result.eof) break;
+		}
+		
+		/* Send signal out */
+	}
+	
+	
+	
+	
+	
+	
+}

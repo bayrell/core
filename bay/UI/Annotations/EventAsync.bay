@@ -27,6 +27,8 @@ struct EventAsync extends ControllerAnnotation
 	
 	string event = "";
 	string method_name = "";
+	bool cancel = false;
+	bool preventDefault = false;
 	
 	
 	/**
@@ -49,6 +51,8 @@ struct EventAsync extends ControllerAnnotation
 	static fun onEvent(CoreManager manager, Controller annotation) => 
 		void (CoreEvent event)
 		{
+			if (annotation.cancel) event.cancel();
+			else if (annotation.preventDefault) event.preventDefault();
 			event = event.copy();
 			callback f = rtl::methodAwait(manager, annotation.method_name);
 			f(event);

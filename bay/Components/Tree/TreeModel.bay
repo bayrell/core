@@ -19,6 +19,9 @@
 namespace Core.Components.Tree;
 
 use Runtime.CoreStruct;
+use Core.Components.ContextMenu.ContextMenuModel;
+use Core.Components.Tree.DialogCreateModel;
+use Core.Components.Tree.DialogDeleteModel;
 use Core.Components.Tree.TreeItem;
 
 
@@ -26,7 +29,10 @@ struct TreeModel extends TreeItem
 {
 	
 	public string selected = "";
-	/*public Collection<TreeItem> items = null;*/
+	public DialogModel dialog_create = new DialogCreateModel();
+	public DialogModel dialog_delete = new DialogDeleteModel();
+	public ContextMenuModel contextmenu = new ContextMenuModel();
+	public Collection<TreeItem> items = null;
 	
 	
 	
@@ -112,6 +118,67 @@ struct TreeModel extends TreeItem
 			)
 		);
 		return parent_item;
+	}
+	
+	
+	
+	/**
+	 * Show navigator context menu
+	 * @param TreeModel model
+	 * @param bool is_active
+	 * @param int x
+	 * @param int y
+	 * @return TreeModel
+	 */
+	pure TreeModel showContextMenu(TreeModel model, bool is_active, int x = 0, int y = 0)
+	{
+		ContextMenuModel contextmenu = model.contextmenu;
+		
+		if (is_active)
+		{
+			contextmenu = contextmenu.copy({
+				"is_active": is_active,
+				"x": x,
+				"y": y,
+			});
+		}
+		else
+		{
+			contextmenu = contextmenu.copy({
+				"is_active": is_active,
+			});
+		}
+		
+		model <= contextmenu <= contextmenu;
+		return model;
+	}
+	
+	
+	
+	/**
+	 * Show navigator context menu
+	 * @param TreeModel model
+	 * @param string path
+	 * @return TreeModel
+	 */
+	pure TreeModel selectItem(TreeModel model, string path)
+	{
+		model <= selected <= path;
+		return model;
+	}
+	
+	
+	
+	/**
+	 * Show navigator context menu
+	 * @param TreeModel model
+	 * @return TreeItem
+	 */
+	pure TreeItem getSelectedItem(TreeModel model)
+	{
+		Collection<int> path = static::splitPath( model.selected );
+		TreeItem item = static::getTreeItem( model, path );
+		return item;
 	}
 	
 }

@@ -21,18 +21,23 @@ namespace Core.Components.Tree;
 use Core.UI.UIController;
 use Core.UI.Annotations.BindValue;
 use Core.UI.Annotations.Event;
+use Core.UI.Annotations.EventAsync;
 use Core.UI.Events.MouseEvent.MouseClickEvent;
 use Core.UI.Events.MouseEvent.MouseContextMenuEvent;
 use Core.UI.Events.MouseEvent.MouseDoubleClickEvent;
 use Core.UI.Events.UserEvent.ChangeEvent;
 use Core.UI.Render.CoreManager;
+use Core.Components.ContextMenu.ContextMenuItemClickEvent;
 use Core.Components.Tree.TreeItemContextMenuEvent;
 use Core.Components.Tree.TreeItemDoubleClickEvent;
 use Core.Components.Tree.TreeItemSelectEvent;
+use Core.Components.Tree.TreeItem;
+use Core.Components.Tree.TreeModel;
 
 
 class TreeManager extends CoreManager
 {
+	public TreeModel model;
 	
 	
 	@Event{ "event": classof MouseClickEvent, "method_name": "onTreeItemLabelClick" }
@@ -51,7 +56,7 @@ class TreeManager extends CoreManager
 		this.updateModel({
 			"selected": path,
 		});
-		this.signalOut( new TreeItemSelectEvent{ "path": path, "event": event } );
+		/*this.signalOut( new TreeItemSelectEvent{ "path": path, "event": event } );*/
 	}
 	
 	
@@ -61,9 +66,19 @@ class TreeManager extends CoreManager
 	 */
 	public void onTreeItemLabelContextMenu(MouseContextMenuEvent event)
 	{
+		event.cancel();
+		
 		/* Set new value */
-		string path = event.ui.props.get("data-path");
-		this.signalOut( new TreeItemContextMenuEvent{ "path": path, "event": event } );
+		string tree_data_path = event.ui.props.get("data-path");
+		
+		Model model = this.model;
+		
+		model = TreeModel::showContextMenu(model, true, event.layerX, event.layerY);
+		model = TreeModel::selectItem(model, tree_data_path);
+		
+		this.setModel(model);
+		
+		/*this.signalOut( new TreeItemContextMenuEvent{ "path": path, "event": event } );*/
 	}
 	
 	
@@ -74,7 +89,106 @@ class TreeManager extends CoreManager
 	public void onTreeItemLabelDoubleClick(MouseClickEvent event)
 	{
 		string path = event.ui.props.get("data-path");
-		this.signalOut( new TreeItemDoubleClickEvent{ "path": path, "event": event } );
+		/*this.signalOut( new TreeItemDoubleClickEvent{ "path": path, "event": event } );*/
 	}
 	
+	
+	
+	@EventAsync{ 
+		"event": classof ContextMenuItemClickEvent, 
+		"method_name": "onContextMenuClick", 
+		"cancel": true 
+	}
+	public assignable UIController contextmenu = new UIController();
+	
+	
+	
+	/**
+	 * Navigation menu item click
+	 */
+	public async void onContextMenuClick(ContextMenuItemClickEvent e)
+	{
+		
+		/* Hide context menu */
+		Model model = this.model;
+		model = TreeModel::showContextMenu(model, false);
+		this.setModel(model);
+		
+		
+		Collection<int> path = TreeModel::splitPath( this.model.selected );
+		if (e.tag == 'create_file')
+		{
+			await static::createFile(path);
+		}
+		else if (e.tag == 'create_folder')
+		{
+			await static::createFolder(path);
+		}
+		else if (e.tag == 'delete_node')
+		{
+			await static::deleteNode(path);
+		}
+	}
+	
+	
+	
+	/**
+	 * Create new file
+	 */
+	public async void createFile(Collection<int> path)
+	{
+		NavigatorItem item = TreeModel::getTreeItem(this.model, path);
+		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		
+		if (item.kind == TreeItem::KIND_FOLDER)
+		{
+			console.log( "Create file in " ~ path_str );
+		}
+		else
+		{
+			console.log( "File must be folder" );
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * Create new folder
+	 */
+	public async void createFolder(Collection<int> path)
+	{
+		TreeItem item = TreeModel::getTreeItem(this.model, path);
+		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		
+		if (item.kind == TreeItem::KIND_FOLDER)
+		{
+			console.log( "Create folder in " ~ path_str );
+		}
+		else
+		{
+			console.log( "File must be folder" );
+		}
+	}
+	
+	
+	
+	/**
+	 * Delete node
+	 */
+	public async void deleteNode(Collection<int> path)
+	{
+		TreeItem item = TreeModel::getTreeItem(this.model, path);
+		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		
+		if (item.kind == TreeItem::KIND_FOLDER)
+		{
+			console.log( "Delete folder " ~ path_str );
+		}
+		else
+		{
+			console.log( "Delete file " ~ path_str );
+		}
+		
+	}
 }

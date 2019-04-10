@@ -23,7 +23,11 @@ use Runtime.CoreStruct;
 
 struct TreeItem extends CoreStruct
 {
+	const string KIND_FOLDER = "folder";
+	const string KIND_FILE = "file";
+	
 	public string name = "";
 	public string kind = "";
 	public Collection<TreeItem> items = null;
+	public bool is_open = false;
 }

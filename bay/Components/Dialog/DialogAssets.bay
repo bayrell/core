@@ -16,14 +16,14 @@
  *  limitations under the License.
  */
  
-namespace Core.Components.Tree;
+namespace Core.Components.Dialog;
 
 use Runtime.RuntimeAssets;
 use Core.UI.Interfaces.AssetsInterface;
 use Core.UI.Render.RenderContainer;
 
 
-class TreeAssets implements AssetsInterface
+class DialogAssets implements AssetsInterface
 {
 
 	
@@ -58,16 +58,10 @@ class TreeAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/Tree/DialogCreateModel.js',
-				'/assets/Core/Components/Tree/DialogDeleteModel.js',
-				'/assets/Core/Components/Tree/Tree.js',
-				'/assets/Core/Components/Tree/TreeAssets.js',
-				'/assets/Core/Components/Tree/TreeItem.js',
-				'/assets/Core/Components/Tree/TreeItemDoubleClickEvent.js',
-				'/assets/Core/Components/Tree/TreeItemContextMenuEvent.js',
-				'/assets/Core/Components/Tree/TreeItemSelectEvent.js',
-				'/assets/Core/Components/Tree/TreeManager.js',
-				'/assets/Core/Components/Tree/TreeModel.js',
+				'/assets/Core/Components/Dialog/Dialog.js',
+				'/assets/Core/Components/Dialog/DialogAssets.js',
+				'/assets/Core/Components/Dialog/DialogManager.js',
+				'/assets/Core/Components/Dialog/DialogModel.js',
 			]
 		];
 	}
