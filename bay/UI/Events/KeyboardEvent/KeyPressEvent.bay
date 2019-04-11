@@ -16,17 +16,12 @@
  *  limitations under the License.
  */
 
-namespace Core.Components.Tree;
+namespace Core.UI.Events.KeyboardEvent;
 
-use Runtime.CoreEvent;
-use Core.UI.Events.MouseEvent.MouseClickEvent;
+use Core.UI.Events.KeyboardEvent.KeyboardEvent;
 
 
-struct TreeItemSelectEvent extends CoreEvent
+struct KeyPressEvent extends KeyboardEvent
 {
-	
-	public string path = null;
-	public MouseClickEvent event = null;
-	
+	const string ES6_EVENT_NAME = "keypress";
 }
-

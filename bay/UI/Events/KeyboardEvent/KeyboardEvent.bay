@@ -24,21 +24,21 @@ use Runtime.Interfaces.SerializeInterface;
 use Core.UI.Events.UserEvent.UserEvent;
 
 
-class KeyboardEvent extends UserEvent implements CloneableInterface, SerializeInterface
+struct KeyboardEvent extends UserEvent
 {
 	
-	
-	public serializable cloneable bool altKey = false;
-	public serializable cloneable int charCode = 0;
-	public serializable cloneable string code = "";
-	public serializable cloneable bool ctrlKey = false;
-	public serializable cloneable string key = false;
-	public serializable cloneable int keyCode = 0;
-	public serializable cloneable string locale = "";
-	public serializable cloneable int location = 0;
-	public serializable cloneable bool repeat = false;
-	public serializable cloneable bool shiftKey = false;
-	public serializable cloneable int which = 0;
+	public bool altKey = false;
+	public int charCode = 0;
+	public string code = "";
+	public bool ctrlKey = false;
+	public string key = false;
+	public int keyCode = 0;
+	public string locale = "";
+	public int location = 0;
+	public bool repeat = false;
+	public bool shiftKey = false;
+	public int which = 0;
+	public string value = "";
 	
 	
 	#switch
@@ -58,6 +58,7 @@ class KeyboardEvent extends UserEvent implements CloneableInterface, SerializeIn
 			"repeat": e.repeat,
 			"shiftKey": e.shiftKey,
 			"which": e.which,
+			"value": e.currentTarget.value,
 		}));
 	}
 	

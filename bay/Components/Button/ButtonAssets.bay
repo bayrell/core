@@ -16,14 +16,14 @@
  *  limitations under the License.
  */
  
-namespace Core.Components.Dialog;
+namespace Core.Components.Button;
 
 use Runtime.RuntimeAssets;
 use Core.UI.Interfaces.AssetsInterface;
 use Core.UI.Render.RenderContainer;
 
 
-class DialogAssets implements AssetsInterface
+class ButtonAssets implements AssetsInterface
 {
 
 	
@@ -58,11 +58,10 @@ class DialogAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/Dialog/Dialog.js',
-				'/assets/Core/Components/Dialog/DialogAssets.js',
-				'/assets/Core/Components/Dialog/DialogManager.js',
-				'/assets/Core/Components/Dialog/DialogModel.js',
-				'/assets/Core/Components/Dialog/DialogResultEvent.js',
+				'/assets/Core/Components/Button/Button.js',
+				'/assets/Core/Components/Button/ButtonAssets.js',
+				'/assets/Core/Components/Button/ButtonManager.js',
+				'/assets/Core/Components/Button/ButtonModel.js',
 			]
 		];
 	}

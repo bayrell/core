@@ -133,6 +133,7 @@ class Assets implements AssetsInterface
 				"/assets/Core/UI/Annotations/BindValue.js",
 				"/assets/Core/UI/Annotations/Event.js",
 				"/assets/Core/UI/Annotations/EventAsync.js",
+				"/assets/Core/UI/Annotations/SignalOut.js",
 				"/assets/Core/UI/Events/KeyboardEvent/KeyboardEvent.js",
 				"/assets/Core/UI/Events/MouseEvent/MouseEvent.js",
 				"/assets/Core/UI/Events/UserEvent/BlurEvent.js",
@@ -141,6 +142,9 @@ class Assets implements AssetsInterface
 				"/assets/Core/UI/Render/CoreLayout.js",
 			],
 			[
+				"/assets/Core/UI/Events/KeyboardEvent/KeyDownEvent.js",
+				"/assets/Core/UI/Events/KeyboardEvent/KeyPressEvent.js",
+				"/assets/Core/UI/Events/KeyboardEvent/KeyUpEvent.js",
 				"/assets/Core/UI/Events/MouseEvent/MouseClickEvent.js",
 				"/assets/Core/UI/Events/MouseEvent/MouseContextMenuEvent.js",
 				"/assets/Core/UI/Events/MouseEvent/MouseDoubleClickEvent.js",

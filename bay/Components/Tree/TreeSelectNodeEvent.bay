@@ -15,20 +15,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
+
 namespace Core.Components.Tree;
 
-use Runtime.CoreStruct;
-use Core.Components.Dialog.DialogModel;
+use Runtime.CoreEvent;
 
 
-struct DialogCreateModel extends DialogModel
+struct TreeSelectNodeEvent extends CoreEvent
 {
-	const string KIND_CREATE_FILE = "create_file";
-	const string KIND_CREATE_FOLDER = "create_folder";
-	const string KIND_RENAME_NODE = "rename_node";
-	
-	public string kind = "";
-	public string path_str = "";
 	public Collection<int> path = null;
 }
+

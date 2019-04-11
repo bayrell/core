@@ -15,18 +15,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+ 
+namespace Core.Components.Button;
 
-namespace Core.Components.Tree;
+use Core.UI.UIController;
+use Core.UI.Annotations.Event;
+use Core.UI.Annotations.SignalOut;
+use Core.UI.Events.MouseEvent.MouseClickEvent;
+use Core.UI.Render.CoreManager;
+use Core.Components.Button.ButtonModel;
 
-use Runtime.CoreEvent;
-use Core.UI.Events.MouseEvent.MouseContextMenuEvent;
 
-
-struct TreeItemContextMenuEvent extends CoreEvent
+class ButtonManager extends CoreManager
 {
 	
-	public string path = null;
-	public MouseContextMenuEvent event = null;
+	public ButtonModel model;
+	
+	
+	@SignalOut{
+		"event": classof MouseClickEvent, 
+	}
+	public assignable UIController button = new UIController();
 	
 }
-

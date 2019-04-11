@@ -82,6 +82,9 @@ struct UserEvent extends CoreEvent
 		else if (e.type == "change") obj = new Core.UI.Events.UserEvent.ChangeEvent();
 		else if (e.type == "focus") obj = new Core.UI.Events.UserEvent.FocusEvent();
 		else if (e.type == "blur") obj = new Core.UI.Events.UserEvent.BlurEvent();
+		else if (e.type == "keydown") obj = new Core.UI.Events.KeyboardEvent.KeyDownEvent();
+		else if (e.type == "keypress") obj = new Core.UI.Events.KeyboardEvent.KeyUpEvent();
+		else if (e.type == "keyup") obj = new Core.UI.Events.KeyboardEvent.KeyPressEvent();
 		
 		if (obj == null)
 			return null;

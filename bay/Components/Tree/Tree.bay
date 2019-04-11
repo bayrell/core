@@ -229,12 +229,14 @@ class Tree extends CoreView
 			return 
 				<ContextMenuItem icon='fa fa-file' tag='create_file'>Create file</ContextMenuItem>
 				<ContextMenuItem icon='fa fa-folder' tag='create_folder'>Create folder</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-pencil' tag='rename_node'>Rename</ContextMenuItem>
 				<ContextMenuItem icon='fa fa-trash' tag='delete_node'>Delete</ContextMenuItem>
 			;
 		}
 		else
 		{
 			return 
+				<ContextMenuItem icon='fa fa-pencil' tag='rename node'>Rename</ContextMenuItem>
 				<ContextMenuItem icon='fa fa-trash' tag='delete_node'>Delete</ContextMenuItem>
 			;
 		}
@@ -245,15 +247,31 @@ class Tree extends CoreView
 	/**
 	 * Render context menu
 	 */
-	lambda Collection<UIStruct> renderDialogs(Model model) =>
+	pure Collection<UIStruct> renderDialogs(Model model)
+	{
 		
-		<Dialog style='promt' 
-			title={ model.dialog_create.kind == TreeModel::KIND_FOLDER ? "Create new folder" : "Create new file" }
-			@model={ model.dialog_create } @control='dialog_create'></Dialog>
+		string create_title = "";
+		if (model.dialog_create.kind == TreeModel::KIND_CREATE_FILE)
+		{
+			create_title = "Create new folder";
+		}
+		else if (model.dialog_create.kind == TreeModel::KIND_CREATE_FOLDER)
+		{
+			create_title = "Create new folder";
+		}
+		else if (model.dialog_create.kind == TreeModel::KIND_RENAME_NODE) 
+		{
+			create_title = "Rename file " ~ model.dialog_create.name;
+		}
+		
+		return 
 			
-		<Dialog style='confirm' title={ "Do you want to delete " ~ model.dialog_delete.name ~ "?" }
-			@model={ model.dialog_delete } @control='dialog_delete'></Dialog>
+			<Dialog style='promt' title={ create_title }
+				@model={ model.dialog_create } @control='dialog_create'></Dialog>
+				
+			<Dialog style='confirm' title={ "Do you want to delete " ~ model.dialog_delete.name ~ "?" }
+				@model={ model.dialog_delete } @control='dialog_delete'></Dialog>
 			
-	;
+	};
 	
 }

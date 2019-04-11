@@ -23,6 +23,18 @@ use Runtime.CoreStruct;
 
 struct DialogModel extends CoreStruct
 {
+	const string STYLE_PROMT = "promt";
+	const string STYLE_CONFIRM = "confirm";
+	const string STYLE_ALERT = "alert";
+	const string BUTTON_RESULT_OK = "ok";
+	const string BUTTON_RESULT_CANCEL = "cancel";
+	const string BUTTON_RESULT_EXIT = "exit";
+	
 	public bool is_open = false;
 	public bool is_modal = false;
+	public string style = "";
+	public string title = "";
+	public string message = "";
+	public string input = "";
+	public string button_result = "";
 }

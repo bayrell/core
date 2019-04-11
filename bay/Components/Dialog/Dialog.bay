@@ -21,6 +21,7 @@ namespace Core.Components.Dialog;
 use Runtime.RuntimeUtils;
 use Core.UI.Render.CoreView;
 use Core.UI.Render.RenderHelper;
+use Core.Components.Button.Button;
 use Core.Components.Dialog.Dialog;
 use Core.Components.Dialog.DialogAssets;
 use Core.Components.Dialog.DialogManager;
@@ -60,6 +61,7 @@ class Dialog extends CoreView
 	 */
 	lambda Collection<string> components() =>
 		[
+			classof Button,
 		]
 	;
 	
@@ -70,6 +72,51 @@ class Dialog extends CoreView
 	 */
 	lambda string css(Dict<string> vars) => 
 		@css{
+			%dialog_box, %dialog_shadow{
+				position: fixed;
+				top: 0; left: 0;
+				width: 100%; height: 100%;
+				z-index: 1001;
+			}
+			%dialog_box{
+				overflow: auto;
+				overflow-y: scroll;
+			}
+			%dialog_shadow{
+				background-color: #000;
+				opacity: 0.2;
+				overflow: hidden;
+			}
+			%dialog_wrap{
+				width: 100%;
+				min-height: 100%;
+			}
+			%dialog_wrap > tr > td{
+				padding: 20px;
+			}
+			%dialog{
+				position: relative;
+				padding: 20px;
+				background-color: white;
+				max-width: 350px;
+				margin: 0 auto;
+				width: auto;
+				z-index: 1002;
+				box-shadow: 2px 4px 10px 0px rgba(0,0,0,0.5)
+			}
+			%dialog_title, %dialog_message, %dialog_promt{
+				padding-bottom: 10px;
+			}
+			%dialog_promt_input{
+				padding: 6px 12px;
+				width: 100%;
+			}
+			%dialog_buttons{
+				text-align: center;
+			}
+			%dialog_buttons %(Button)button{
+				margin: 0 5px;
+			}
 		}
 	;
 	
@@ -78,9 +125,86 @@ class Dialog extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Template render(TreeModel model, Collection<UIStruct> children, Dict<primitive> props) =>
-		""
+	pure Collection<UIStruct> render(DialogModel model, Collection<UIStruct> children, Dict<primitive> props)
+	{
+		if (not model.is_open) return "";
+		return 
+			<div @class='dialog_box'>
+				<div @class='dialog_shadow'></div>
+				<table @class='dialog_wrap'><tr><td>
+					<div @class='dialog'>
+						{ this.renderDialog(model, children, props) }
+					</div>
+				</td></tr></table>
+			</div>
+		;
+	};
+	
+	
+	
+	/**
+	 * Render dialog
+	 */
+	lambda Collection<UIStruct> renderDialog
+	(
+		DialogModel model, 
+		Collection<UIStruct> children, 
+		Dict<primitive> props
+	)
+		=> rtl::normalizeUIVector([
+			static::renderTitle(model),
+			static::renderMessage(model),
+			static::renderPromt(model),
+			static::renderButtons(model),
+		])
 	;
+	
+	
+	
+	/**
+	 * Render dialog title
+	 */
+	pure Collection<UIStruct> renderTitle(DialogModel model)
+	{
+		if (model.title == "") return "";
+		return <div @class='dialog_title'>{ model.title }</div>;
+	}
+	
+	
+	
+	/**
+	 * Render dialog message
+	 */
+	pure Collection<UIStruct> renderMessage(DialogModel model)
+	{
+		if (model.message == "") return "";
+		return <div @class='dialog_message'>{ model.message }</div>;
+	}
+	
+	
+	
+	/**
+	 * Render dialog promt
+	 */
+	pure Collection<UIStruct> renderPromt(DialogModel model)
+	{
+		return <div @class='dialog_promt'>
+			<input @class='dialog_promt_input' @control='input' />
+		</div>;
+	}
+	
+	
+	
+	/**
+	 * Render dialog buttons
+	 */
+	pure Collection<UIStruct> renderButtons(DialogModel model)
+	{
+		return <div @class='dialog_buttons'>
+			<Button @control='button' @tag='ok'>OK</Button>
+			<Button @control='button' @tag='cancel'>Cancel</Button>
+		</div>;
+	}
 	
 	
 	

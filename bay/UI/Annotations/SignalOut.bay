@@ -15,18 +15,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+ 
+namespace Core.UI.Annotations;
 
-namespace Core.Components.Tree;
-
-use Runtime.CoreEvent;
-use Core.UI.Events.MouseEvent.MouseDoubleClickEvent;
+use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Events.UserEvent.ChangeEvent;
 
 
-struct TreeItemDoubleClickEvent extends CoreEvent
+struct SignalOut extends ControllerAnnotation
 {
 	
-	public string path = null;
-	public MouseDoubleClickEvent event = null;
+	string event = "";
 	
+	
+	/**
+	 * Init controller
+	 */
+	static void initController
+	(
+		UIController controller, CoreManager manager,
+		ControllerAnnotation annotation, string controller_name
+	)
+	{
+		controller.addSignalOut( static::onEvent(manager, annotation), [annotation.event] );
+	}
+	
+	
+	
+	/**
+	 * On event
+	 */
+	static fun onEvent(CoreManager manager, Controller annotation) => 
+		void (CoreEvent event)
+		{
+			manager.signalOut(event);
+		}
 }
-

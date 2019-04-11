@@ -19,6 +19,7 @@
 namespace Core.Components.Tree;
 
 use Runtime.CoreStruct;
+use Core.Components.Dialog.DialogModel;
 use Core.Components.ContextMenu.ContextMenuModel;
 use Core.Components.Tree.DialogCreateModel;
 use Core.Components.Tree.DialogDeleteModel;
