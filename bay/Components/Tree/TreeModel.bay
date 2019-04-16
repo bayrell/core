@@ -21,8 +21,7 @@ namespace Core.Components.Tree;
 use Runtime.CoreStruct;
 use Core.Components.Dialog.DialogModel;
 use Core.Components.ContextMenu.ContextMenuModel;
-use Core.Components.Tree.DialogCreateModel;
-use Core.Components.Tree.DialogDeleteModel;
+use Core.Components.Tree.TreeDialogModel;
 use Core.Components.Tree.TreeItem;
 
 
@@ -30,8 +29,7 @@ struct TreeModel extends TreeItem
 {
 	
 	public string selected = "";
-	public DialogModel dialog_create = new DialogCreateModel();
-	public DialogModel dialog_delete = new DialogDeleteModel();
+	public DialogModel dialog = new TreeDialogModel();
 	public ContextMenuModel contextmenu = new ContextMenuModel();
 	public Collection<TreeItem> items = null;
 	
@@ -116,6 +114,75 @@ struct TreeModel extends TreeItem
 				parent_item.items.get(key), 
 				path.removeFirstIm(), 
 				item
+			)
+		);
+		return parent_item;
+	}
+	
+	
+	
+	/**
+	 * Add tree item by path
+	 */
+	pure TreeItem addTreeItem(TreeItem parent_item, Collection<int> path, TreeItem item, callback add_item = null)
+	{
+		if (path.count() == 0)
+		{
+			if (parent_item.items != null)
+			{
+				Collection<TreeItem> items = null;
+				if (add_item)
+				{
+					items = add_item(parent_item.items, item);
+				}
+				else
+				{
+					items = parent_item.items.pushIm(item);
+				}
+				parent_item <= items <= parent_item.items.pushIm(item);
+			}
+			else
+			{
+				Collection items = [ item ];
+				parent_item <= items <= items.toCollection();
+			}
+			return parent_item;
+		}
+		
+		int key = path.get(0);
+		parent_item <= items <= parent_item.items.setIm(
+			key, 
+			static::addTreeItem(
+				parent_item.items.get(key), 
+				path.removeFirstIm(), 
+				item,
+				add_item
+			)
+		);
+		return parent_item;
+	}
+	
+	
+	
+	/**
+	 * Add tree item by path
+	 */
+	pure TreeItem deleteTreeItem(TreeItem parent_item, Collection<int> path)
+	{
+		if (path.count() == 1)
+		{
+			parent_item <= items <= parent_item.items.removeIm( path.get(0) );
+			return parent_item;
+		}
+		
+		int key = path.get(0);
+		parent_item <= items <= parent_item.items.setIm(
+			key, 
+			static::addTreeItem(
+				parent_item.items.get(key), 
+				path.removeFirstIm(), 
+				item,
+				add_item
 			)
 		);
 		return parent_item;

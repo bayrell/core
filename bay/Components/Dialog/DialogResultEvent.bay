@@ -19,11 +19,13 @@
 namespace Core.Components.Dialog;
 
 use Runtime.CoreEvent;
+use Core.Components.Dialog.DialogModel;
 
 
 struct DialogResultEvent extends CoreEvent
 {
 	public string input = "";
 	public string value = "";
+	public DialogModel model = null;
 }
 

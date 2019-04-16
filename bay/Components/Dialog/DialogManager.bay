@@ -90,7 +90,7 @@ class DialogManager extends CoreManager
 			"is_open": false,
 			"button_result": value,
 		});
-		this.signalOut( new DialogResultEvent{ "input": this.model.input, "value": value } );
+		this.signalOut( new DialogResultEvent{ "input": this.model.input, "value": value, "model": this.model } );
 	}
 	
 }

@@ -188,8 +188,9 @@ class Dialog extends CoreView
 	 */
 	pure Collection<UIStruct> renderPromt(DialogModel model)
 	{
+		if (model.style != DialogModel::STYLE_PROMT) return "";
 		return <div @class='dialog_promt'>
-			<input @class='dialog_promt_input' @control='input' />
+			<input @class='dialog_promt_input' @control='input' value={ model.input } />
 		</div>;
 	}
 	

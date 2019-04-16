@@ -22,11 +22,12 @@ use Runtime.CoreStruct;
 use Core.Components.Dialog.DialogModel;
 
 
-struct DialogCreateModel extends DialogModel
+struct TreeDialogModel extends DialogModel
 {
 	const string KIND_CREATE_FILE = "create_file";
 	const string KIND_CREATE_FOLDER = "create_folder";
 	const string KIND_RENAME_NODE = "rename_node";
+	const string KIND_DELETE_NODE = "delete_node";
 	
 	public string kind = "";
 	public string path_str = "";

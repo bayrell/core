@@ -220,7 +220,7 @@ class Tree extends CoreView
 	 */
 	pure Collection<UIStruct> renderContextMenuItems(Model model)
 	{
-		if (model.selected == "")
+		if (model.selected == "" or not model.contextmenu.is_active)
 			return "";
 		
 		TreeModel item = TreeModel::getSelectedItem(model);
@@ -236,7 +236,7 @@ class Tree extends CoreView
 		else
 		{
 			return 
-				<ContextMenuItem icon='fa fa-pencil' tag='rename node'>Rename</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-pencil' tag='rename_node'>Rename</ContextMenuItem>
 				<ContextMenuItem icon='fa fa-trash' tag='delete_node'>Delete</ContextMenuItem>
 			;
 		}
@@ -249,29 +249,9 @@ class Tree extends CoreView
 	 */
 	pure Collection<UIStruct> renderDialogs(Model model)
 	{
-		
-		string create_title = "";
-		if (model.dialog_create.kind == TreeModel::KIND_CREATE_FILE)
-		{
-			create_title = "Create new folder";
-		}
-		else if (model.dialog_create.kind == TreeModel::KIND_CREATE_FOLDER)
-		{
-			create_title = "Create new folder";
-		}
-		else if (model.dialog_create.kind == TreeModel::KIND_RENAME_NODE) 
-		{
-			create_title = "Rename file " ~ model.dialog_create.name;
-		}
-		
 		return 
-			
-			<Dialog style='promt' title={ create_title }
-				@model={ model.dialog_create } @control='dialog_create'></Dialog>
-				
-			<Dialog style='confirm' title={ "Do you want to delete " ~ model.dialog_delete.name ~ "?" }
-				@model={ model.dialog_delete } @control='dialog_delete'></Dialog>
-			
+			<Dialog @model={ model.dialog } @control='dialog'></Dialog>
+		;
 	};
 	
 }
