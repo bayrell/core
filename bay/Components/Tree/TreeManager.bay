@@ -67,7 +67,7 @@ class TreeManager extends CoreManager
 	/**
 	 * Event create node
 	 */
-	public async void createNode(Collection<int> path)
+	public async void createNode(Collection<int> path, int pos, TreeItem item)
 	{
 		
 	}
@@ -105,6 +105,16 @@ class TreeManager extends CoreManager
 	
 	
 	/**
+	 * Create new item
+	 */
+	public TreeItem newItem(Dict map)
+	{
+		return new TreeItem(map);
+	}
+	
+	
+	
+	/**
 	 * Create item by dialog result
 	 */
 	public TreeItem createNewItemByDialogResult(DialogResultEvent result)
@@ -118,10 +128,10 @@ class TreeManager extends CoreManager
 			if (model.kind == TreeDialogModel::KIND_CREATE_FILE) kind = TreeItem::KIND_FILE;
 			else if (model.kind == TreeDialogModel::KIND_CREATE_FOLDER) kind = TreeItem::KIND_FOLDER;
 			
-			TreeItem item = new TreeItem{
+			TreeItem item = this.newItem({
 				"name": name,
 				"kind": kind,
-			};
+			});
 			
 			return item;
 		}
@@ -241,9 +251,13 @@ class TreeManager extends CoreManager
 					);
 					this.setModel( model );
 					
+					/* return created pos item */
+					TreeItem p = TreeModel::getTreeItem(this.model, path);
+					int pos = p.items.indexOf(item);
+					
 					/* Call await method */
 					callback f = rtl::methodAwait(this, "createNode");
-					f(path);
+					f(path, pos, item);
 				}
 			}
 			

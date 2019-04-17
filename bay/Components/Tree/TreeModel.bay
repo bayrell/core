@@ -87,7 +87,7 @@ struct TreeModel extends TreeItem
 		for (int i=0; i<path.count(); i++)
 		{
 			int key = path.item(i);
-			TreeItem item = item.items.get(key, null);
+			item = item.items.get(key, null);
 			if (item == null) return null;
 		}
 		

@@ -23,15 +23,14 @@ use Core.Http.ApiResult;
 use Core.Components.Navigator.NavigatorItem;
 
 
-struct NavigatorReloadItemEvent extends CoreEvent
+struct NavigatorCreateItemEvent extends CoreEvent
 {
 	const string KIND_START = "start";
 	const string KIND_END = "end";
 	
 	public Collection<int> path = null;
 	public NavigatorItem item = null;
-	public string kind = null;
-	public Collection<byte> content = null;
+	public int pos = 0;
 	public ApiResult res = null;
 }
 

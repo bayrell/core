@@ -256,6 +256,14 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 			#endswitch
 		}
 		
+		if (kind == FileNode::KIND_FOLDER)
+		{
+			#switch
+			#case ifcode PHP then
+			$res = @mkdir($filepath);
+			#endswitch
+		}
+		
 		return res;
 	}
 	

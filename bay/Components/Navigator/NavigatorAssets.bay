@@ -62,6 +62,7 @@ class NavigatorAssets implements AssetsInterface
 			[
 				'/assets/Core/Components/Navigator/Navigator.js',
 				'/assets/Core/Components/Navigator/NavigatorAssets.js',
+				'/assets/Core/Components/Navigator/NavigatorCreateItemEvent.js',
 				'/assets/Core/Components/Navigator/NavigatorItem.js',
 				'/assets/Core/Components/Navigator/NavigatorManager.js',
 				'/assets/Core/Components/Navigator/NavigatorModel.js',
