@@ -45,6 +45,56 @@ class TreeManager extends CoreManager
 	
 	
 	/**
+	 * Event select node
+	 */
+	public async void selectNode(Collection<int> path)
+	{
+		
+	}
+	
+	
+	
+	/**
+	 * Event reload node
+	 */
+	public async void reloadNode(Collection<int> path)
+	{
+		
+	}
+	
+	
+	
+	/**
+	 * Event create node
+	 */
+	public async void createNode(Collection<int> path)
+	{
+		
+	}
+	
+	
+	
+	/**
+	 * Event rename node
+	 */
+	public async void renameNode(Collection<int> path)
+	{
+		
+	}
+	
+	
+	
+	/**
+	 * Event delete node
+	 */
+	public async void deleteNode(Collection<int> path)
+	{
+		
+	}
+	
+	
+	
+	/**
 	 * Push item to collection
 	 */
 	public Collection<TreeItem> pushItemToCollection(Collection<TreeItem> items, TreeItem item)
@@ -112,7 +162,11 @@ class TreeManager extends CoreManager
 		});
 		
 		Collection<int> path = TreeModel::splitPath( tree_data_path );
-		this.selectNode(path);
+		this.signalOut( new TreeSelectNodeEvent{ "path": path } );
+		
+		/* Call await method */
+		callback f = rtl::methodAwait(this, "selectNode");
+		f(path);
 	}
 	
 	
@@ -142,7 +196,11 @@ class TreeManager extends CoreManager
 	{
 		string tree_data_path = event.ui.props.get("data-path");
 		Collection<int> path = TreeModel::splitPath( tree_data_path );
-		this.reloadNode(path);
+		this.signalOut( new TreeReloadNodeEvent{ "path": path } );
+		
+		/* Call await method */
+		callback f = rtl::methodAwait(this, "reloadNode");
+		f(path);
 	}
 	
 	
@@ -182,6 +240,10 @@ class TreeManager extends CoreManager
 						method this.pushItemToCollection
 					);
 					this.setModel( model );
+					
+					/* Call await method */
+					callback f = rtl::methodAwait(this, "createNode");
+					f(path);
 				}
 			}
 			
@@ -200,6 +262,10 @@ class TreeManager extends CoreManager
 						item
 					);
 					this.setModel( model );
+					
+					/* Call await method */
+					callback f = rtl::methodAwait(this, "renameNode");
+					f(path);
 				}
 			}
 			
@@ -207,12 +273,17 @@ class TreeManager extends CoreManager
 			/* Remove node */
 			if (result.model.kind == TreeDialogModel::KIND_DELETE_NODE)
 			{
+				TreeItem item = TreeModel::getTreeItem(this.model, result.model.path);
 				TreeModel model = TreeModel::deleteTreeItem
 				(
 					this.model,
 					result.model.path
 				);
 				this.setModel( model );
+				
+				/* Call await method */
+				callback f = rtl::methodAwait(this, "deleteNode");
+				f(path, item);
 			}
 		}
 	}
@@ -243,40 +314,20 @@ class TreeManager extends CoreManager
 		Collection<int> path = TreeModel::splitPath( this.model.selected );
 		if (e.tag == 'create_file')
 		{
-			static::createFile(path);
+			static::showCreateFile(path);
 		}
 		else if (e.tag == 'create_folder')
 		{
-			static::createFolder(path);
+			static::showCreateFolder(path);
 		}
 		else if (e.tag == 'rename_node')
 		{
-			static::renameNode(path);
+			static::showRenameNode(path);
 		}
 		else if (e.tag == 'delete_node')
 		{
-			static::deleteNode(path);
+			static::showDeleteNode(path);
 		}
-	}
-	
-	
-	
-	/**
-	 * Event select node
-	 */
-	public void selectNode(Collection<int> path)
-	{
-		this.signalOut( new TreeSelectNodeEvent{ "path": path } );
-	}
-	
-	
-	
-	/**
-	 * Event reload node
-	 */
-	public void reloadNode(Collection<int> path)
-	{
-		this.signalOut( new TreeReloadNodeEvent{ "path": path } );
 	}
 	
 	
@@ -284,7 +335,7 @@ class TreeManager extends CoreManager
 	/**
 	 * Create new file
 	 */
-	public void createFile(Collection<int> path)
+	public void showCreateFile(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
 		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
@@ -326,7 +377,7 @@ class TreeManager extends CoreManager
 	/**
 	 * Create new folder
 	 */
-	public void createFolder(Collection<int> path)
+	public void showCreateFolder(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
 		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
@@ -365,7 +416,7 @@ class TreeManager extends CoreManager
 	/**
 	 * Rename node
 	 */
-	public void renameNode(Collection<int> path)
+	public void showRenameNode(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
 		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
@@ -410,7 +461,7 @@ class TreeManager extends CoreManager
 	/**
 	 * Delete node
 	 */
-	public void deleteNode(Collection<int> path)
+	public void showDeleteNode(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
 		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
@@ -449,9 +500,6 @@ class TreeManager extends CoreManager
 		}
 		
 	}
-	
-	
-	
 	
 	
 	

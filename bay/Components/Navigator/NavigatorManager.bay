@@ -20,6 +20,8 @@ namespace Core.Components.Navigator;
 
 use Runtime.RuntimeUtils;
 use Core.Components.ContextMenu.ContextMenuItemClickEvent;
+use Core.Components.Navigator.NavigatorItem;
+use Core.Components.Navigator.NavigatorReloadItemEvent;
 use Core.Components.Tree.TreeItem;
 use Core.Components.Tree.TreeItemSelectEvent;
 use Core.Components.Tree.TreeItemContextMenuEvent;
@@ -46,9 +48,150 @@ class NavigatorManager extends TreeManager
 	public NavigatorModel model;
 	
 	
+	
+	/**
+	 * Event reload node
+	 */
+	public async void reloadNode(Collection<int> path)
+	{
+		NavigatorItem item = TreeModel::getTreeItem(this.model, path);
+		
+		/* Reload folder */
+		if (item.kind == NavigatorItem::KIND_FOLDER)
+		{
+			/* Set is reload */
+			item <= is_reload <= true;
+			this.setModel( TreeModel::setTreeItem(this.model, path, item) );
+			
+			/* Signal out */
+			this.signalOut( 
+				new NavigatorReloadItemEvent
+				{ 
+					"kind": NavigatorReloadItemEvent::KIND_START,
+					"item": item,
+					"path": path,
+				} 
+			);
+			
+			/* Get folder path */
+			string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+			
+			/* Call api */
+			ApiResult res = await ApiRequest::callApi(
+				this.model.api_class_name,
+				"Core.FileSystem.FileTransferInterface",
+				"getDirectoryListing",
+				{
+					"path": path_str,
+				}
+			);
+			
+			/* Set items */
+			NavigatorItem item = TreeModel::getTreeItem(this.model, path);
+			
+			if (res.code == 1)
+			{
+				/* Update item */
+				NavigatorModel model = this.model;
+				NavigatorItem item = TreeModel::getTreeItem(model, path);
+				item = item.copy({
+					"items": NavigatorItem::convertFileNodes(res.result),
+					"is_open": true,
+					"is_reload": false,
+				});
+			}
+			else
+			{
+				item <= is_reload <= false;
+			}
+			
+			/* Update model */
+			this.setModel( TreeModel::setTreeItem(this.model, path, item) );
+			
+			/* Signal out */
+			this.signalOut( 
+				new NavigatorReloadItemEvent
+				{ 
+					"kind": NavigatorReloadItemEvent::KIND_END,
+					"item": item,
+					"path": path,
+				} 
+			);
+		}
+		
+		
+		/* Reload file */
+		else if (item.kind == NavigatorItem::KIND_FILE)
+		{
+			/* Set is reload true */
+			item <= is_reload <= true;
+			this.setModel( TreeModel::setTreeItem(this.model, path, item) );
+			
+			/* Signal out */
+			this.signalOut( 
+				new NavigatorReloadItemEvent
+				{ 
+					"kind": NavigatorReloadItemEvent::KIND_START,
+					"item": item,
+					"path": path,
+				} 
+			);
+			
+			/* Get folder path */
+			string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+			int offset = 0;
+			int filesize = -1;
+			Vector<byte> content = new Vector();
+			
+			/* Load file content */
+			while (filesize == -1 or offset < filesize)
+			{
+				ApiResult res = await ApiRequest::callApi(
+					this.model.api_class_name,
+					"Core.FileSystem.FileTransferInterface",
+					"readBlock",
+					{
+						"path": path_str,
+						"offset": offset,
+					}
+				);
+				
+				if (res.code != 1) break;
+				
+				offset += res.result.count;
+				filesize = res.result.size;
+				content.appendVector(res.result.bytes);
+				
+				if (res.result.eof) break;
+			}
+			
+			/* Set is reload false */
+			NavigatorItem item = TreeModel::getTreeItem(this.model, path);
+			item <= is_reload <= false;
+			this.setModel( TreeModel::setTreeItem(this.model, path, item) );
+			
+			/* Signal out */
+			this.signalOut( 
+				new NavigatorReloadItemEvent
+				{ 
+					"kind": NavigatorReloadItemEvent::KIND_END,
+					"item": item,
+					"path": path,
+					"content": content.toCollection()
+				} 
+			);
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
 	/* Controller navigator */
-	@EventAsync{ "event": classof MouseContextMenuEvent, "method_name": "onNavigatorItemContextMenu", "cancel": true }
-	@EventAsync{ "event": classof MouseDoubleClickEvent, "method_name": "onNavigatorItemDoubleClick", "cancel": true }
+	/*@EventAsync{ "event": classof MouseContextMenuEvent, "method_name": "onNavigatorItemContextMenu", "cancel": true }
+	@EventAsync{ "event": classof MouseDoubleClickEvent, "method_name": "onNavigatorItemDoubleClick", "cancel": true }*/
 	/*public assignable UIController tree_item_label = new UIController();*/
 	
 	

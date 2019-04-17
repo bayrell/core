@@ -21,6 +21,7 @@ namespace Core.Components.Navigator;
 use Runtime.RuntimeAssets;
 use Core.UI.Interfaces.AssetsInterface;
 use Core.UI.Render.RenderContainer;
+use Core.Components.Navigator.NavigatorReloadEvent;
 
 
 class NavigatorAssets implements AssetsInterface
@@ -64,6 +65,7 @@ class NavigatorAssets implements AssetsInterface
 				'/assets/Core/Components/Navigator/NavigatorItem.js',
 				'/assets/Core/Components/Navigator/NavigatorManager.js',
 				'/assets/Core/Components/Navigator/NavigatorModel.js',
+				'/assets/Core/Components/Navigator/NavigatorReloadItemEvent.js',
 			]
 		];
 	}

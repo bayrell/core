@@ -97,8 +97,12 @@ class Tree extends CoreView
 			%tree_label:hover{
 				background-color: #eaeaea;
 			}
-			%tree_label.active{
+			%tree_item.active > %tree_item_name > %tree_label{
 				background-color: blue;
+				color: white;
+			}
+			%tree_item.reload > %tree_item_name > %tree_label{
+				background-color: gray;
 				color: white;
 			}
 		}
@@ -162,19 +166,23 @@ class Tree extends CoreView
 	/**
 	 * Tree render item
 	 */
-	lambda Template renderTreeItem(TreeModel model, TreeItem item, string path, Dict<primitive> props) =>
+	pure Template renderTreeItem(TreeModel model, TreeItem item, string path, Dict<primitive> props)
+	{
+		string class_name = "";
 		
-		<div @class='tree_item'>
-			<div @class='tree_item_name'>
-				<div @class='tree_icon'>{ static::renderTreeIcon(model, item, props) }</div>
-				<div @class='tree_label' data-path={ path } @control="tree_item_label"
-					class={ model.selected === path ? "active" : "" }
-				>{ item.name }</div>
+		if (model.selected === path) class_name ~= "active ";
+		if (item.is_reload) class_name ~= "reload ";
+		
+		return 
+			<div @class='tree_item' class={ class_name }>
+				<div @class='tree_item_name'>
+					<div @class='tree_icon'>{ static::renderTreeIcon(model, item, props) }</div>
+					<div @class='tree_label' data-path={ path } @control="tree_item_label">{ item.name }</div>
+				</div>
+				<div @class='tree_items'>{ static::renderTreeItems(model, item.items, path, props) }</div>
 			</div>
-			<div @class='tree_items'>{ static::renderTreeItems(model, item.items, path, props) }</div>
-		</div>
-		
-	;
+		;
+	}
 	
 	
 	

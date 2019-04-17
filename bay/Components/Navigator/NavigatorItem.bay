@@ -24,9 +24,9 @@ use Core.Components.Tree.TreeItem;
 
 struct NavigatorItem extends TreeItem
 {
+	const string KIND_FOLDER = "folder";
+	const string KIND_FILE = "file";
 	
-	
-	/*public bool is_open = false;*/
 	public bool have_error = false;
 	public bool have_warning = false;
 	/*public string kind = "";*/

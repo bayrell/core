@@ -15,20 +15,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-namespace Core.Components.Tree;
 
-use Runtime.CoreStruct;
+namespace Core.Components.Navigator;
+
+use Runtime.CoreEvent;
+use Core.Components.Navigator.NavigatorItem;
 
 
-struct TreeItem extends CoreStruct
+struct NavigatorReloadItemEvent extends CoreEvent
 {
-	const string KIND_FOLDER = "folder";
-	const string KIND_FILE = "file";
+	const string KIND_START = "start";
+	const string KIND_END = "end";
 	
-	public string name = "";
-	public string kind = "";
-	public Collection<TreeItem> items = null;
-	public bool is_open = false;
-	public bool is_reload = false;
+	public Collection<int> path = null;
+	public NavigatorItem item = null;
+	public string kind = null;
+	public Collection<byte> content = null;
 }
+
