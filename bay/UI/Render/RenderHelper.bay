@@ -262,7 +262,7 @@ static class RenderHelper
 		if (UIStruct::isComponent(ui))
 		{
 			fun render = method (ui.name, "render");
-			Collection<UIStruct> res = render( UIStruct::getModel(ui), ui.children, ui.props );
+			Collection<UIStruct> res = render( UIStruct::getModel(ui), ui );
 			
 			/* Normalize ui vector */
 			if (not(res instanceof Collection))

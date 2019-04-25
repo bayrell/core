@@ -77,6 +77,16 @@ class TreeManager extends CoreManager
 	/**
 	 * Event rename node
 	 */
+	public async void openNode(Collection<int> path)
+	{
+		
+	}
+	
+	
+	
+	/**
+	 * Event rename node
+	 */
 	public async void renameNode(Collection<int> path)
 	{
 		
@@ -87,7 +97,7 @@ class TreeManager extends CoreManager
 	/**
 	 * Event delete node
 	 */
-	public async void deleteNode(Collection<int> path)
+	public async void deleteNode(Collection<int> path, TreeItem item)
 	{
 		
 	}
@@ -209,7 +219,7 @@ class TreeManager extends CoreManager
 		this.signalOut( new TreeReloadNodeEvent{ "path": path } );
 		
 		/* Call await method */
-		callback f = rtl::methodAwait(this, "reloadNode");
+		callback f = rtl::methodAwait(this, "openNode");
 		f(path);
 	}
 	
@@ -298,7 +308,7 @@ class TreeManager extends CoreManager
 				
 				/* Call await method */
 				callback f = rtl::methodAwait(this, "deleteNode");
-				f(path, item);
+				f(result.model.path, item);
 			}
 		}
 	}
@@ -342,6 +352,12 @@ class TreeManager extends CoreManager
 		else if (e.tag == 'delete_node')
 		{
 			static::showDeleteNode(path);
+		}
+		else if (e.tag == 'reload_node')
+		{
+			/* Call await method */
+			callback f = rtl::methodAwait(this, "reloadNode");
+			f(path);
 		}
 	}
 	

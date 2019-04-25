@@ -82,8 +82,8 @@ class Button extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Collection<UIStruct> render(ButtonModel model, Collection<UIStruct> children, Dict<primitive> props) =>
-		<button @class='button' @control='button' @tag={ props.get("@tag", "") }>{ children }</button>
+	lambda Collection<UIStruct> render(ButtonModel model, UIStruct ui) =>
+		<button @class='button' @control='button' @tag={ ui.props.get("@tag", "") }>{ ui.children }</button>
 	;
 	
 	

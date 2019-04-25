@@ -29,8 +29,10 @@ use Core.UI.Events.ModelChange;
 
 class CoreManager extends ContextObject
 {
+	public string _key = "";
 	public CoreModel model = null;
-	public bool _model_updated = true;
+	public bool _model_updated_by_self = true;
+	public bool _model_updated_by_driver = true;
 	public Emitter signal_in = new Emitter();
 	public Emitter signal_out = new Emitter();
 	public string parent_controller_name = "";
@@ -70,6 +72,25 @@ class CoreManager extends ContextObject
 	 * Init manager
 	 */
 	public void initManager()
+	{
+		this.signal_in.addMethod(method this.signalInModelChange, [classof ModelChange]);
+	}
+	
+	
+	
+	/**
+	 * Model changed by input signal
+	 */
+	public void signalInModelChange(ModelChange event)
+	{
+	}
+	
+	
+	
+	/**
+	 * Model changed by driver or self
+	 */
+	public void onModelChange(CoreModel old_model, CoreModel new_model)
 	{
 	}
 	
@@ -143,9 +164,11 @@ class CoreManager extends ContextObject
 	{
 		if (this.model != model)
 		{
+			CoreModel old_model = this.model;
 			this.model = model;
-			this._model_updated = true;
+			this._model_updated_by_self = true;
 			this.signal_out.dispatch( new ModelChange{ "model": this.model } );
+			this.onModelChange(old_model, model);
 		}
 	}
 	
@@ -163,12 +186,34 @@ class CoreManager extends ContextObject
 	
 	
 	/**
-	 * Returns true if model is update by Driver
+	 * Returns true if model is updated
 	 * @return bool
 	 */
 	public bool isModelUpdated()
 	{
-		return this._model_updated;
+		return this._model_updated_by_self or this._model_updated_by_driver;
+	}
+	
+	
+	
+	/**
+	 * Returns true if model is update by Driver
+	 * @return bool
+	 */
+	public bool isModelUpdatedByDriver()
+	{
+		return this._model_updated_by_driver;
+	}
+	
+	
+	
+	/**
+	 * Returns true if model is update by self manager
+	 * @return bool
+	 */
+	public bool isModelUpdatedBySelf()
+	{
+		return this._model_updated_by_self;
 	}
 	
 	
@@ -178,11 +223,14 @@ class CoreManager extends ContextObject
 	 */
 	public void driverSetNewModel(CoreModel model)
 	{
+		CoreModel old_model = this.model;
 		if (this.model != model)
 		{
 			this.model = model;
-			this._model_updated = true;
+			this._model_updated_by_driver = true;
+			this.onModelChange(old_model, model);
 		}
+		return old_model;
 	}
 	
 	
@@ -201,7 +249,7 @@ class CoreManager extends ContextObject
 	/**
 	 * Update current manager
 	 */
-	public void driverUpdateManager()
+	public void driverUpdateManager(CoreModel old_model)
 	{
 	}
 	

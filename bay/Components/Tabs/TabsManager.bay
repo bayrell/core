@@ -21,6 +21,7 @@ namespace Core.Components.Tabs;
 use Core.UI.UIController;
 use Core.UI.Annotations.Event;
 use Core.UI.Events.MouseEvent.MouseClickEvent;
+use Core.UI.Events.MouseEvent.MouseContextMenuEvent;
 use Core.UI.Render.CoreManager;
 use Core.Components.TabsModel;
 
@@ -32,6 +33,7 @@ class TabsManager extends CoreManager
 	
 	
 	@Event{ "event": classof MouseClickEvent, "method_name": "onTaskHeaderClick" }
+	@Event{ "event": classof MouseContextMenuEvent, "method_name": "onTaskHeaderContext" }
 	public assignable UIController tab_header = new UIController();
 	
 	
@@ -47,6 +49,13 @@ class TabsManager extends CoreManager
 			"active": key,
 			"active_tag": tag,
 		});
+	}
+	
+	
+	
+	public void onTaskHeaderContext(MouseContextMenuEvent event)
+	{
+		this.signalOut(event);
 	}
 	
 	

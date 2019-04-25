@@ -113,9 +113,9 @@ class Tree extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Template render(TreeModel model, Collection<UIStruct> children, Dict<primitive> props) =>
+	lambda Template render(TreeModel model, UIStruct ui) =>
 		rtl::normalizeUIVector([
-			static::renderTree(model, children, props),
+			static::renderTree(model, ui),
 			static::renderContextMenu(model),
 			static::renderDialogs(model),
 		])
@@ -126,10 +126,10 @@ class Tree extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Template renderTree(TreeModel model, Collection<UIStruct> children, Dict<primitive> props) =>
+	lambda Template renderTree(TreeModel model, UIStruct ui) =>
 		
 		<div @class='tree'>
-			{ static::renderTreeItems(model, model.items, "", props) }
+			{ static::renderTreeItems(model, model.items, "", ui.props) }
 		</div>
 		
 	;
@@ -179,7 +179,9 @@ class Tree extends CoreView
 					<div @class='tree_icon'>{ static::renderTreeIcon(model, item, props) }</div>
 					<div @class='tree_label' data-path={ path } @control="tree_item_label">{ item.name }</div>
 				</div>
-				<div @class='tree_items'>{ static::renderTreeItems(model, item.items, path, props) }</div>
+				<div @class='tree_items'>
+					{ item.is_open ? static::renderTreeItems(model, item.items, path, props) : "" }
+				</div>
 			</div>
 		;
 	}
@@ -235,17 +237,18 @@ class Tree extends CoreView
 		if (item.kind == TreeModel::KIND_FOLDER)
 		{
 			return 
-				<ContextMenuItem icon='fa fa-file' tag='create_file'>Create file</ContextMenuItem>
-				<ContextMenuItem icon='fa fa-folder' tag='create_folder'>Create folder</ContextMenuItem>
-				<ContextMenuItem icon='fa fa-pencil' tag='rename_node'>Rename</ContextMenuItem>
-				<ContextMenuItem icon='fa fa-trash' tag='delete_node'>Delete</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-file' @tag='create_file'>Create file</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-folder' @tag='create_folder'>Create folder</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-pencil' @tag='rename_node'>Rename</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-trash' @tag='delete_node'>Delete</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-refresh' @tag='reload_node'>Reload</ContextMenuItem>
 			;
 		}
 		else
 		{
 			return 
-				<ContextMenuItem icon='fa fa-pencil' tag='rename_node'>Rename</ContextMenuItem>
-				<ContextMenuItem icon='fa fa-trash' tag='delete_node'>Delete</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-pencil' @tag='rename_node'>Rename</ContextMenuItem>
+				<ContextMenuItem icon='fa fa-trash' @tag='delete_node'>Delete</ContextMenuItem>
 			;
 		}
 	}

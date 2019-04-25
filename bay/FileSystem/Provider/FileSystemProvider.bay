@@ -274,7 +274,6 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string folderpath
 	 * @param string old_name
 	 * @param string new_name
-	 * @param Dict options
 	 * @return bool
 	 */
 	public async bool renameNode(string folderpath, string old_name, string new_name)
@@ -287,6 +286,26 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 		if (!file_exists($path)) return false;
 		
 		$res = rename($folderpath . "/" . $old_name, $folderpath . "/" . $new_name);
+		#endswitch
+		
+		return res;
+	}
+	
+	
+	
+	/**
+	 * Delete node
+	 * @param string path
+	 * @return bool
+	 */
+	public async bool deleteNode(string path)
+	{
+		bool res = false;
+		
+		#switch
+		#case ifcode PHP then
+		if (!file_exists($path)) return false;
+		$res = unlink($path);
 		#endswitch
 		
 		return res;

@@ -178,11 +178,9 @@ struct TreeModel extends TreeItem
 		int key = path.get(0);
 		parent_item <= items <= parent_item.items.setIm(
 			key, 
-			static::addTreeItem(
+			static::deleteTreeItem(
 				parent_item.items.get(key), 
-				path.removeFirstIm(), 
-				item,
-				add_item
+				path.removeFirstIm()
 			)
 		);
 		return parent_item;

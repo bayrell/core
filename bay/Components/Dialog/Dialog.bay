@@ -125,7 +125,7 @@ class Dialog extends CoreView
 	/**
 	 * Component render
 	 */
-	pure Collection<UIStruct> render(DialogModel model, Collection<UIStruct> children, Dict<primitive> props)
+	pure Collection<UIStruct> render(DialogModel model, UIStruct ui)
 	{
 		if (not model.is_open) return "";
 		return 
@@ -133,7 +133,7 @@ class Dialog extends CoreView
 				<div @class='dialog_shadow'></div>
 				<table @class='dialog_wrap'><tr><td>
 					<div @class='dialog'>
-						{ this.renderDialog(model, children, props) }
+						{ this.renderDialog(model, ui) }
 					</div>
 				</td></tr></table>
 			</div>
@@ -148,8 +148,7 @@ class Dialog extends CoreView
 	lambda Collection<UIStruct> renderDialog
 	(
 		DialogModel model, 
-		Collection<UIStruct> children, 
-		Dict<primitive> props
+		UIStruct ui
 	)
 		=> rtl::normalizeUIVector([
 			static::renderTitle(model),

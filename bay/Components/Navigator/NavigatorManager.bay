@@ -22,7 +22,6 @@ use Runtime.RuntimeUtils;
 use Core.Components.ContextMenu.ContextMenuItemClickEvent;
 use Core.Components.Navigator.NavigatorItem;
 use Core.Components.Navigator.NavigatorItemEvent;
-use Core.Components.Navigator.NavigatorItemEvent;
 use Core.Components.Tree.TreeItem;
 use Core.Components.Tree.TreeItemSelectEvent;
 use Core.Components.Tree.TreeItemContextMenuEvent;
@@ -79,6 +78,7 @@ class NavigatorManager extends TreeManager
 					"kind": NavigatorItemEvent::KIND_CREATE_START,
 					"item": item,
 					"path": path,
+					"path_str": path_str,
 				} 
 			);
 			
@@ -100,6 +100,7 @@ class NavigatorManager extends TreeManager
 					"kind": NavigatorItemEvent::KIND_CREATE_END,
 					"item": item,
 					"path": path,
+					"path_str": path_str,
 					"res": res,
 				} 
 			);
@@ -174,6 +175,73 @@ class NavigatorManager extends TreeManager
 	
 	
 	/**
+	 * Event delete node
+	 */
+	public async void deleteNode(Collection<int> path, NavigatorItem item)
+	{
+		Collection<int> p_path = path.removeLastIm();
+		string path_str = "/" ~ TreeModel::getNamePath(this.model, p_path) ~ "/" ~ item.name;
+		
+		/* Signal out */
+		this.signalOut( 
+			new NavigatorItemEvent
+			{ 
+				"kind": NavigatorItemEvent::KIND_DELETE_START,
+				"item": item,
+				"path": path,
+				"path_str": path_str,
+			} 
+		);
+		
+		/* Delete node */
+		ApiResult res = await ApiRequest::callApi(
+			this.model.api_class_name,
+			"Core.FileSystem.FileTransferInterface",
+			"deleteNode",
+			{
+				"path": path_str,
+			}
+		);
+		
+		/* Signal out */
+		this.signalOut( 
+			new NavigatorItemEvent
+			{ 
+				"kind": NavigatorItemEvent::KIND_DELETE_END,
+				"item": item,
+				"path": path,
+				"path_str": path_str,
+			} 
+		);
+		
+	}
+	
+	
+	
+	/**
+	 * Event rename node
+	 */
+	public async void openNode(Collection<int> path)
+	{
+		NavigatorItem item = TreeModel::getTreeItem(this.model, path);
+		if (item.items == null)
+		{
+			await this.reloadNode(path);
+		}
+		else
+		{
+			item = item.copy({
+				"is_open": not item.is_open,
+				"is_reload": false,
+			});
+			/* Update model */
+			this.setModel( TreeModel::setTreeItem(this.model, path, item) );
+		}
+	}
+	
+	
+	
+	/**
 	 * Event reload node
 	 */
 	public async void reloadNode(Collection<int> path)
@@ -194,6 +262,7 @@ class NavigatorManager extends TreeManager
 					"kind": NavigatorItemEvent::KIND_RELOAD_START,
 					"item": item,
 					"path": path,
+					"path_str": path_str,
 				} 
 			);
 			
@@ -239,6 +308,7 @@ class NavigatorManager extends TreeManager
 					"kind": NavigatorItemEvent::KIND_RELOAD_END,
 					"item": item,
 					"path": path,
+					"path_str": path_str,
 					"res": res,
 				} 
 			);
@@ -252,6 +322,12 @@ class NavigatorManager extends TreeManager
 			item <= is_reload <= true;
 			this.setModel( TreeModel::setTreeItem(this.model, path, item) );
 			
+			/* Get folder path */
+			string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+			int offset = 0;
+			int filesize = -1;
+			Vector<byte> content = new Vector();
+			
 			/* Signal out */
 			this.signalOut( 
 				new NavigatorItemEvent
@@ -259,14 +335,9 @@ class NavigatorManager extends TreeManager
 					"kind": NavigatorItemEvent::KIND_RELOAD_START,
 					"item": item,
 					"path": path,
+					"path_str": path_str,
 				} 
 			);
-			
-			/* Get folder path */
-			string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
-			int offset = 0;
-			int filesize = -1;
-			Vector<byte> content = new Vector();
 			
 			/* Load file content */
 			while (filesize == -1 or offset < filesize)
@@ -302,12 +373,12 @@ class NavigatorManager extends TreeManager
 					"kind": NavigatorItemEvent::KIND_RELOAD_END,
 					"item": item,
 					"path": path,
+					"path_str": path_str,
 					"content": content.toCollection()
 				} 
 			);
 		}
 		
-	}	
-	
+	}
 	
 }

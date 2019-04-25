@@ -53,6 +53,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		);
 		this.managers = {};
 		this.managers_hash = {};
+		this.remove_keys = [];
+		this.is_initializing = false;
 	}
 	
 	
@@ -75,6 +77,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	modelChanged(e)
 	{
 		this.model = e.model;
+		this.is_initializing = false;
 		this.runAnimation();
 	}
 	
@@ -191,8 +194,9 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		}
 		
 		/* Update managers model */
-		new_manager.driverSetNewModel(model);
-		new_manager.driverUpdateManager();
+		var old_model = new_manager.driverSetNewModel(model);
+		new_manager.driverUpdateManager(old_model);
+		new_manager._key = key_manager;
 		
 		this.saveManager(ui.name, key_manager, new_manager);
 		return new_manager;
@@ -237,6 +241,12 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			return true;
 		}
 		
+		/* If different keys */
+		if (elem._key != item.key_ui)
+		{
+			return true;
+		}
+		
 		/* Check if different manager */
 		var manager = this.findManager(item);
 		if (elem._manager != manager)
@@ -259,9 +269,11 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		var ui = item.ui;
 		var manager = this.findManager(item);
 		var key_path = item.key_ui;
+		var is_new_elem = elem._ui == null;
+		var different_key = !is_new_elem && elem._key != key_path;
 		
 		/* Is new element */
-		if (elem._ui == null && ui.kind == "element")
+		if (is_new_elem && ui.kind == "element")
 		{
 			elem._events = {};
 			
@@ -324,6 +336,11 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 					
 				}
 			}
+		}
+		
+		if (different_key)
+		{
+			this.warning("Different keys ", elem._key, key_path, " in ", elem);
 		}
 		
 		elem._manager = manager;
@@ -486,7 +503,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 					/* Render view */
 					var model = Runtime.UIStruct.getModel(ui);
 					var f = Runtime.rtl.method( ui.name, "render" );
-					var t = f( model, ui.children, ui.props );
+					var t = f( model, ui );
 					
 					/* Find manager by path or create new manager if does not exists */
 					var parent_manager = this.findParentManager(item);
@@ -527,23 +544,115 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	}
 	
 	
+	/**
+	 * Find elem by key
+	 */
+	findElemByKey(elem, key)
+	{
+		for (var i = 0; i < elem.children.length; i++)
+		{
+			if (elem.childNodes[i]._key == key)
+			{
+				return elem.childNodes[i];
+			}
+		}
+		return null;
+	}
+	
+	
 	
 	/**
 	 * Create Document Object Model
 	 */
 	updateDOMChilds(manager, elem, template, key_path)
 	{
+		if (this.is_initializing) this.updateDOMChildsInit(manager, elem, template, key_path);
+		else this.updateDOMChildsUpdate(manager, elem, template, key_path);
+	}
+	
+	
+	
+	/**
+	 * Create Document Object Model
+	 */
+	updateDOMChildsUpdate(manager, elem, template, key_path)
+	{
+		var res = [];
 		var append_arr = [];
 		var update_arr = [];
 		var remove_arr = [];
-		var index_elem = 0;
 		
 		/* If has childs */
 		if (template != null)
 		{
 			var items = this.unpackComponents(manager, template, key_path);
 			var index_item = 0;
-			
+			for (var index_item=0; index_item<items.count(); index_item++)
+			{
+				var item = items.item(index_item);
+				var e = this.findElemByKey(elem, item.key_ui);
+				
+				if (e == null)
+				{
+					e = this.createElem(null, item);
+					res.push(e);
+				}
+				else
+				{
+					var new_item = this.updateElem(e, item);
+					res.push(new_item);
+				}
+			}
+		}
+		
+		
+		/* Check if changed */
+		var is_change = false;
+		if (res.length == elem.childNodes.length)
+		{
+			for (var i=0; i<res.length; i++)
+			{
+				var e1 = elem.childNodes[i];
+				var e2 = res[i];
+				if (e1 != e2) is_change = true;
+			}
+		}
+		else
+		{
+			is_change = true;
+		}
+		
+		/* Replace childs */
+		if (is_change)
+		{
+			while (elem.firstChild) elem.removeChild(elem.firstChild);
+			for (var i=0; i<res.length; i++)
+			{
+				var e2 = res[i];
+				/*console.log(e2);*/
+				elem.appendChild(e2);
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * Create Document Object Model
+	 */
+	updateDOMChildsInit(manager, elem, template, key_path)
+	{
+		var res = [];
+		var append_arr = [];
+		var update_arr = [];
+		var remove_arr = [];
+		var index_item = 0;
+		var index_elem = 0;
+		
+		/* If has childs */
+		if (template != null)
+		{
+			var items = this.unpackComponents(manager, template, key_path);
 			while (index_item < items.count())
 			{
 				var e = elem.childNodes[index_elem];
@@ -553,7 +662,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				
 				if (e == undefined)
 				{
-					var e = this.createElem(null, item);
+					e = this.createElem(null, item);
 					if (e != null) append_arr.push(e);
 				}
 				else
@@ -562,13 +671,11 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 					if (new_item != e)
 					{
 						update_arr.push({"old_item": e, "new_item": new_item});
+						e = new_item;
 					}
 				}
-				
 			}
-			
 		}
-		
 		
 		/* Remove items */
 		while (index_elem < elem.childNodes.length)
@@ -578,11 +685,11 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			index_elem++;
 		}
 		
-		
 		/* Apply changes */
 		for (var i=0; i<remove_arr.length; i++)
 		{
-			elem.removeChild( remove_arr[i] );
+			var e = remove_arr[i];
+			elem.removeChild( e );
 		}
 		for (var i=0; i<append_arr.length; i++)
 		{
@@ -592,9 +699,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		{
 			elem.replaceChild(update_arr[i].new_item, update_arr[i].old_item);
 		}
-		
 	}
-
+	
 	
 	
 	/**
@@ -611,6 +717,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		var root = document.querySelector( this.selector );
 		root._driver = this;
 		
+		this.is_initializing = true;
 		this.runAnimation();
 	}
 	
@@ -635,6 +742,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		Runtime.rtl._memorizeClear();
 		this.managers_hash = {};
 		this.animation_id = null;
+		this.remove_keys = [];
+		
 		var root = document.querySelector( this.selector );
 		var template = new Runtime.Collection( 
 			new Runtime.UIStruct(
@@ -650,14 +759,19 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		
 		for (var key in this.managers)
 		{
-			this.managers[key]._model_updated = false;
+			this.managers[key]._model_updated_by_self = false;
+			this.managers[key]._model_updated_by_driver = false;
 		}
 		
+		if (this.remove_keys.length != 0)
+		{
+			console.log(this.remove_keys);
+		}
 	}
 	
 }
 
 
 
-window['WebDriverApp'] = new Core.UI.Drivers.RenderDriver();
-window['WebDriverApp'].run('#root', document.getElementById('view').value, document.getElementById('model').value);
+window['RenderDriver'] = new Core.UI.Drivers.RenderDriver();
+window['RenderDriver'].run('#root', document.getElementById('view').value, document.getElementById('model').value);

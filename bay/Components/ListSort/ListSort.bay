@@ -115,10 +115,10 @@ struct ListSort extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Template render(ListSortModel data, Collection<UIStruct> children, string key) =>
+	lambda Template render(ListSortModel model, UIStruct ui) =>
 		
-		<div @class='list_sort' @key={ key }>
-			{ static::items(data) }
+		<div @class='list_sort' @key={ ui.key }>
+			{ static::items(model) }
 		</div>
 		
 	;

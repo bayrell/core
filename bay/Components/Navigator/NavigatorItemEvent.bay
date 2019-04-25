@@ -27,8 +27,12 @@ struct NavigatorItemEvent extends CoreEvent
 {
 	const string KIND_CREATE_START = "create_start";
 	const string KIND_CREATE_END = "create_end";
-	const string KIND_RELOAD_START = "reload_end";
+	const string KIND_RELOAD_START = "reload_start";
 	const string KIND_RELOAD_END = "reload_end";
+	const string KIND_RENAME_START = "rename_start";
+	const string KIND_RENAME_END = "rename_end";
+	const string KIND_DELETE_START = "delete_start";
+	const string KIND_DELETE_END = "delete_end";
 	
 	public string kind = "";
 	public Collection<int> path = null;
@@ -38,7 +42,7 @@ struct NavigatorItemEvent extends CoreEvent
 	public string path_str = "";
 	public string old_name = "";
 	public string new_name = "";
-	public int pos = 0;
 	public ApiResult res = null;
+	public Collection<byte> content = null;
 }
 

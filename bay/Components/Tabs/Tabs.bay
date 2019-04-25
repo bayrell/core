@@ -105,9 +105,9 @@ struct Tabs extends CoreView
 		mixed tag = null;
 		if (item.props)
 		{
-			key = item.props.get("key", "");
+			key = item.key;
 			title = item.props.get("title", "");
-			tag = item.props.get("tag", null);
+			tag = item.props.get("@tag", null);
 		}
 		if (key == active) class_name = "active";
 		return new UIStruct{
@@ -138,7 +138,7 @@ struct Tabs extends CoreView
 	{
 		string key = "";
 		string class_name = "";
-		if (item.props) key = item.props.get("key", "");
+		if (item.props) key = item.key;
 		if (key == active) class_name = "active";
 		return new UIStruct{
 			"space": RuntimeUtils::getCssHash(classof Tabs),
@@ -160,22 +160,22 @@ struct Tabs extends CoreView
 	/**
 	 * Component render
 	 */
-	lambda Template render(TabsModel data, Collection<UIStruct> children, Dict props) =>
+	lambda Template render(TabsModel data, UIStruct ui) =>
 		
-		<div @class='tabs' @key={ props.get('@key', "") }>
-			<div @class='tabs_header_wrap' data-active={ data.active }>
+		<div @class='tabs' @key="div" data-active={ data.active }>
+			<div @class='tabs_header_wrap' @key="header">
 				{ 
-					children != null ? 
-						children.map( 
+					ui.children != null ? 
+						ui.children.map( 
 							lambda UIStruct (UIStruct item) use (data) => static::renderTab(item, data.active) 
 						) : ""
 				}
 			</div>
 			
-			<div @class='tabs_content_wrap' data-active={ data.active }>
+			<div @class='tabs_content_wrap' @key="content">
 				{
-					children != null ? 
-						children.map( 
+					ui.children != null ? 
+						ui.children.map( 
 							lambda UIStruct (UIStruct item) use (data) => static::renderContent(item, data.active) 
 						) : "" 
 				}

@@ -108,7 +108,7 @@ class ContextMenu extends CoreView
 	 * @param Collection<UIStruct> children
 	 * @param Dict<primitive> props
 	 */
-	pure Collection<UIStruct> render(ContextMenuModel data, Collection<UIStruct> children, Dict<primitive> props)
+	pure Collection<UIStruct> render(ContextMenuModel data, UIStruct ui)
 	{
 		Dict<string> style = {
 			'display': data.is_active ? 'block' : 'none',
@@ -116,7 +116,7 @@ class ContextMenu extends CoreView
 			'left': data.x ~ 'px',
 		};
 		return <div @class='contextmenu' @style={ style }>
-			{ static::renderChildren(children) }
+			{ static::renderChildren(ui.children) }
 		</div>;
 	}
 	
@@ -134,7 +134,7 @@ class ContextMenu extends CoreView
 			
 			Collection<UIStruct> (UIStruct item)
 			{
-				string tag = item.props ? item.props.get("tag", "") : "";
+				string tag = item.props ? item.props.get("@tag", "") : "";
 				string icon = item.props ? item.props.get("icon", "") : "";
 				return <div @class='contextmenu_item' @control='contextmenu_item' @tag={ tag }  >
 					<div @class='contextmenu_item_icon'>
