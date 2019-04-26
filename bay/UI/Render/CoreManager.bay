@@ -79,6 +79,15 @@ class CoreManager extends ContextObject
 	
 	
 	/**
+	 * Destroy manager
+	 */
+	public void destroyManager()
+	{
+	}
+	
+	
+	
+	/**
 	 * Model changed by input signal
 	 */
 	public void signalInModelChange(ModelChange event)

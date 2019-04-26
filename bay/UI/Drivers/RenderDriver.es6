@@ -544,6 +544,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	}
 	
 	
+	
 	/**
 	 * Find elem by key
 	 */
@@ -625,12 +626,24 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		/* Replace childs */
 		if (is_change)
 		{
-			while (elem.firstChild) elem.removeChild(elem.firstChild);
+			var keys = {};
+			while (elem.firstChild)
+			{
+				keys[elem.firstChild._key] = 1;
+				elem.removeChild(elem.firstChild);
+			}
 			for (var i=0; i<res.length; i++)
 			{
-				var e2 = res[i];
-				/*console.log(e2);*/
-				elem.appendChild(e2);
+				var e = res[i];
+				keys[e._key] = 0;
+				elem.appendChild(e);
+			}
+			for (var key in keys)
+			{
+				if (keys[key] == 1)
+				{
+					this.remove_keys.push(key);
+				}
 			}
 		}
 	}
@@ -763,10 +776,46 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			this.managers[key]._model_updated_by_driver = false;
 		}
 		
+		/* Remove unused managers */
 		if (this.remove_keys.length != 0)
 		{
-			console.log(this.remove_keys);
+			var keys = [];
+			for (var key in this.managers)
+			{
+				if (this.hasRemoveManagersKey(key))
+				{
+					keys.push(key);
+				}
+			}
+			for (var i=0; i<keys.length; i++)
+			{
+				var key = keys[i];
+				var manager = this.managers[key];
+				manager.setParentManager(null, ""); /* Clear controller */
+				manager.destroyManager();
+				this.managers[key] = null;
+				delete this.managers[key];
+				console.log("Remove manager ", key);
+			}
 		}
+	}
+	
+	
+	
+	/**
+	 * Has remove managers by key
+	 */
+	hasRemoveManagersKey(key)
+	{
+		for (var i=0; i<this.remove_keys.length; i++)
+		{
+			var k = this.remove_keys[i];
+			if (key.indexOf(k) == 0)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }
