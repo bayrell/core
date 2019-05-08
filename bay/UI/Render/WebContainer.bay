@@ -26,15 +26,62 @@ use Core.Http.Session;
 use Core.Http.WebFile;
 use Core.UI.Render.RenderContainer;
 use Core.UI.Render.RenderHelper;
+use Core.UI.Render.RenderResult;
 
 
 struct WebContainer extends CoreStruct
 {
 	public Request request = null;
+	public RenderResult render = null;
 	public Response response = null;
 	public RouteInfo route_info = null;
 	public Collection<Cookie> cookies = null;
 	public Map<string> params = null;	
+	
+	
+	
+	/**
+	 * Render web container and return RenderContainer
+	 */
+	lambda RenderContainer render(WebContainer container)
+	{
+		RenderResult render_result = container.render;
+		if (render_result == null)
+		{
+			return null;
+		}
+		
+		RenderContainer layout_model = render_result.layout_model;
+		if (layout_model == null)
+		{
+			layout_model = new RenderContainer();
+		}
+		
+		/* Render view */
+		string content = RenderHelper::render( render_result.view_class, render_result.view_model );
+		
+		if (render_result.layout_class != "" and layout_model != null)
+		{
+			Vector<string> components = RenderHelper::getAllComponents(
+				[
+					render_result.layout_class, 
+					render_result.view_class
+				]
+			);
+			Vector<string> assets = RenderHelper::loadAssetsFromComponents(components, layout_model);
+			layout_model = RenderHelper::initRenderContainer(layout_model);
+			layout_model = layout_model.copy({
+				"assets": assets,
+				"components": components,
+				"content": content,
+				"view": render_result.view_class,
+				"model": render_result.view_model,
+			});
+		}
+		
+		return layout_model;
+	}
+	
 	
 	
 	

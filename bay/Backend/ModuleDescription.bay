@@ -23,7 +23,7 @@ use Runtime.Interfaces.AssetsInterface;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
 use Core.Backend.ApiRoute;
-use Core.Backend.BackendProviderFactory;
+use Core.Backend.BackendAppDriver;
 use Core.UI.Interfaces.RoutesDeclaringInterface;
 
 
@@ -59,14 +59,15 @@ class ModuleDescription implements ModuleDescriptionInterface, RoutesDeclaringIn
 	 */
 	public static void initContext(ContextInterface context)
 	{
-		
-		Map config = context.get("driver.runtime.config");
+		Map config = context.getDriver("runtime.config");
 		config.set("app.session.csrf_token_name", "csrf_token");
 		config.set("app.session.csrf_token_expire", 54000);
 		config.set("app.session.auth_token_name", "auth_token");
 		config.set("app.session.auth_token_expire", 31536000);
 		config.set("app.session.token_secret_key", "TheSecretKey!");
 		
+		BackendAppDriver driver = context.getDriver("Backend.App");
+		driver.initDriver();
 	}
 	
 	
@@ -77,7 +78,7 @@ class ModuleDescription implements ModuleDescriptionInterface, RoutesDeclaringIn
 	 */
 	public static void onRegister(ContextInterface context)
 	{
-		context.registerProviderFactory("Backend.App", new BackendProviderFactory());
+		context.registerDriver("Backend.App", new BackendAppDriver(context));
 	}
 	
 	
