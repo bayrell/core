@@ -58,12 +58,12 @@ class Assets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/FileSystem/Assets.js',
-				'/assets/Core/FileSystem/FileIOResult.js',
-				'/assets/Core/FileSystem/FileNode.js',
-				'/assets/Core/FileSystem/FileStat.js',
-				'/assets/Core/FileSystem/FileSystemInterface.js',
-				'/assets/Core/FileSystem/ModuleDescription.js',
+				'@Core/FileSystem/Assets.js',
+				'@Core/FileSystem/FileIOResult.js',
+				'@Core/FileSystem/FileNode.js',
+				'@Core/FileSystem/FileStat.js',
+				'@Core/FileSystem/FileSystemInterface.js',
+				'@Core/FileSystem/ModuleDescription.js',
 			]
 		];
 	}

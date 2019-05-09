@@ -42,10 +42,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string basedir
 	 * @return Vector<string> res - Result
 	 */
-	public Vector<string> getDirectoryListing(string basedir=""){
+	public Vector<string> getDirectoryListing(string basedir="")
+	{
 		#switch
 		#case ifcode PHP then
 		$arr = scandir($basedir, SCANDIR_SORT_ASCENDING);
+		if ($arr == false) $arr = [];
 		$res = new Vector();
 		$res->_assignArr($arr);
 		$res->removeValue(".");
@@ -69,18 +71,20 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string basedir
 	 * @param Vector<string> res - Result
 	 */
-	public Vector<string> readDirectoryRecursive(string basedir=""){
-		
+	public Vector<string> readDirectoryRecursive(string basedir="")
+	{
 		Vector<string> res = new Vector();
 		Vector<string> arr = this.getDirectoryListing(basedir);
 		
-		arr.each(void (string path) use (res, basedir){
-			string path = basedir ~ "/" ~ path;
-			res.push(path);			
-			if (this.isDir(path)){
-				res.appendVector( this.getDirectoryListing(path) );
+		arr.each(
+			void (string path) use (res, basedir){
+				string path = basedir ~ "/" ~ path;
+				res.push(path);			
+				if (this.isDir(path)){
+					res.appendVector( this.getDirectoryListing(path) );
+				}
 			}
-		});
+		);
 		
 		delete arr;
 		return res;
@@ -93,20 +97,24 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string basedir
 	 * @param Vector<string> res - Result
 	 */
-	public Vector<string> getFilesRecursive(string basedir=""){
-		
+	public Vector<string> getFilesRecursive(string basedir="")
+	{
 		Vector<string> res = new Vector();
 		Vector<string> arr = this.getDirectoryListing(basedir);
 		
-		arr.each(void (string path) use (res, basedir){
-			string path = basedir ~ "/" ~ path;
-			if (this.isDir(path)){
-				res.appendVector( this.getFilesRecursive(path) );
+		arr.each(
+			void (string path) use (res, basedir){
+				string path = basedir ~ "/" ~ path;
+				if (this.isDir(path))
+				{
+					res.appendVector( this.getFilesRecursive(path) );
+				}
+				else
+				{
+					res.push(path);
+				}
 			}
-			else{
-				res.push(path);
-			}
-		});
+		);
 		
 		delete arr;
 		return res;
@@ -120,7 +128,8 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string charset
 	 * @return string
 	 */
-	public string readFile(string filepath="", string charset="utf8"){
+	public string readFile(string filepath="", string charset="utf8")
+	{
 		#switch
 		#case ifcode PHP then
 		return file_get_contents($filepath);
@@ -138,7 +147,8 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string content
 	 * @param string charset
 	 */
-	public void saveFile(string filepath="", string content="", string charset="utf8"){
+	public void saveFile(string filepath="", string content="", string charset="utf8")
+	{
 		#switch
 		#case ifcode PHP then
 		file_put_contents($filepath, $content);
@@ -155,7 +165,8 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string mode
 	 * @return FileInterface
 	 */
-	public FileInterface openFile(string filepath="", string mode=""){
+	public FileInterface openFile(string filepath="", string mode="")
+	{
 	}
 	
 	
@@ -165,7 +176,8 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string dirpath
 	 * @param boolean create_parent. Default is true
 	 */
-	public void fileExists(string filepath=""){
+	public void fileExists(string filepath="")
+	{
 		#switch
 		#case ifcode PHP then
 		return file_exists($filepath);
@@ -183,10 +195,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string dirpath
 	 * @param boolean create_parent. Default is true
 	 */
-	public void makeDir(string dirpath="", bool create_parent=false){
+	public void makeDir(string dirpath="", bool create_parent=false)
+	{
 		#switch
 		#case ifcode PHP then
-		if (file_exists($dirpath)){
+		if (file_exists($dirpath))
+		{
 			mkdir($dirpath, 0755, true);
 		}
 		#case ifcode NODEJS then
@@ -203,7 +217,8 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string path
 	 * @param boolean 
 	 */
-	public void isDir(string path){
+	public void isDir(string path)
+	{
 		#switch
 		#case ifcode PHP then
 		return is_dir($path);
@@ -219,8 +234,9 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string path
 	 * @param boolean 
 	 */
-	public void isFile(string path){
-		return !this.isDir(path);
+	public void isFile(string path)
+	{
+		return not this.isDir(path);
 	}
 	
 	
@@ -347,7 +363,8 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 		#case ifcode NODEJS then
 		#endswitch
 		
-		return new FileIOResult{
+		return new FileIOResult
+		{
 			"kind": FileIOResult::KIND_READ_BINARY,
 			"name": filepath,
 			"offset": offset,
@@ -392,7 +409,8 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 		#case ifcode NODEJS then
 		#endswitch
 		
-		return new FileIOResult{
+		return new FileIOResult
+		{
 			"kind": FileIOResult::KIND_WRITE_BINARY,
 			"name": filepath,
 			"offset": offset,

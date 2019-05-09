@@ -63,7 +63,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 */
 	public static void onRegister(ContextInterface context)
 	{
-		context.registerProviderFactory("provider.default.fs", new FileSystemProviderFactory());
+		context.registerProviderFactory("default.fs", new FileSystemProviderFactory());
 	}
 	
 	

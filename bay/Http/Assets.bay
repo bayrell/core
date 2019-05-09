@@ -58,14 +58,14 @@ class Assets implements AssetsInterface
 		return [
 			
 			[
-				"/assets/Core/Http/ApiRequest.js",
-				"/assets/Core/Http/ApiResult.js",
-				"/assets/Core/Http/Cookie.js",
-				"/assets/Core/Http/Request.js",
-				"/assets/Core/Http/Response.js",
+				"@Core/Http/ApiRequest.js",
+				"@Core/Http/ApiResult.js",
+				"@Core/Http/Cookie.js",
+				"@Core/Http/Request.js",
+				"@Core/Http/Response.js",
 			],
 			[
-				"/assets/Core/Http/JsonResponse.js",
+				"@Core/Http/JsonResponse.js",
 			],
 		];
 	}

@@ -60,14 +60,11 @@ struct WebContainer extends CoreStruct
 		/* Render view */
 		string content = RenderHelper::render( render_result.view_class, render_result.view_model );
 		
-		if (render_result.layout_class != "" and layout_model != null)
+		if (layout_model != null)
 		{
-			Vector<string> components = RenderHelper::getAllComponents(
-				[
-					render_result.layout_class, 
-					render_result.view_class
-				]
-			);
+			Vector<string> arr = [ render_result.view_class ];
+			if (render_result.layout_class != "") arr.push(render_result.layout_class);
+			Vector<string> components = RenderHelper::getAllComponents(arr);
 			Vector<string> assets = RenderHelper::loadAssetsFromComponents(components, layout_model);
 			layout_model = RenderHelper::initRenderContainer(layout_model);
 			layout_model = layout_model.copy({
@@ -75,6 +72,7 @@ struct WebContainer extends CoreStruct
 				"components": components,
 				"content": content,
 				"view": render_result.view_class,
+				"layout": render_result.layout_class,
 				"model": render_result.view_model,
 			});
 		}
