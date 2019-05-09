@@ -615,7 +615,23 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			{
 				var e1 = elem.childNodes[i];
 				var e2 = res[i];
-				if (e1 != e2) is_change = true;
+				if (e1 != e2)
+				{
+					if (e1 instanceof Text && e2 instanceof Text)
+					{
+						if (e1.textContent != e2.textContent)
+						{
+							is_change = true;
+							break;
+						}
+					}
+					else
+					{
+						console.log(e1,e2);
+						is_change = true;
+						break;
+					}
+				}
 			}
 		}
 		else

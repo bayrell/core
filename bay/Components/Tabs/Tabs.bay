@@ -70,7 +70,12 @@ struct Tabs extends CoreView
 		@css{
 			%tabs{
 			}
-			%tabs_header{
+			%tabs_header_wrap_scroll{
+				overflow: hidden;
+				white-space: nowrap;
+				-webkit-overflow-scrolling: touch;
+			}
+			%tab_header_item{
 				display: inline-block;
 				vertical-align: top;
 				padding: 5px;
@@ -80,7 +85,7 @@ struct Tabs extends CoreView
 				-khtml-user-select: none;
 				-ms-user-select: none;
 			}
-			%tabs_header.active{
+			%tab_header_item.active{
 				background-color: yellow;
 			}
 			%tabs_content{
@@ -95,9 +100,77 @@ struct Tabs extends CoreView
 	
 	
 	/**
+	 * Component render
+	 */
+	lambda Template render(TabsModel model, UIStruct ui) =>
+	
+		<div @class='tabs' @key="div" data-active={ model.active != "" ? model.active : model.default_tab }>
+			{ static::renderHeader(model, ui) }
+			{ static::renderBottom(model, ui) }
+		</div>
+	;
+	
+	
+	
+	/**
 	 * Header render
 	 */
-	pure Template renderTab(UIStruct item, string active)
+	pure Template renderHeader(TabsModel model, UIStruct ui)
+	{
+		if (model.scroll)
+		{
+			return 
+				<div @class='tabs_header_wrap tabs_header_wrap_scroll' @key="header">
+					
+							{ 
+								ui.children != null ? 
+									ui.children.map( 
+										lambda UIStruct (UIStruct item) use (model) => 
+											static::renderTab(item, model.active, model.default_tab) 
+									) : ""
+							}
+						
+				</div>
+			;
+		}
+		
+		return 
+			<div @class='tabs_header_wrap' @key="header">
+				{ 
+					ui.children != null ? 
+						ui.children.map( 
+							lambda UIStruct (UIStruct item) use (model) => 
+								static::renderTab(item, model.active, model.default_tab) 
+						) : ""
+				}
+			</div>
+		;
+	}
+	
+	
+	
+	/**
+	 * Header render
+	 */
+	lambda Template renderBottom(TabsModel model, UIStruct ui) =>
+	
+		<div @class='tabs_content_wrap' @key="content">
+			{
+				ui.children != null ? 
+					ui.children.map( 
+						lambda UIStruct (UIStruct item) use (model) => 
+							static::renderContent(item, model.active, model.default_tab) 
+					) : "" 
+			}
+		</div>
+	;
+	
+	
+	
+	/**
+	 * Header render
+	 */
+	pure Template renderTab(UIStruct item, string active, string default_tab)
 	{
 		string key = "";
 		string title = "";
@@ -110,6 +183,7 @@ struct Tabs extends CoreView
 			tag = item.props.get("@tag", null);
 		}
 		if (key == active) class_name = "active";
+		else if (active == "" and default_tab != "" and key == default_tab) class_name = "active";
 		return new UIStruct{
 			"space": RuntimeUtils::getCssHash(classof Tabs),
 			"class_name": static::getCurrentClassName(), 
@@ -118,7 +192,7 @@ struct Tabs extends CoreView
 			"key": key,
 			"controller": "tab_header",
 			"props": {
-				"@class": "tabs_header",
+				"@class": "tab_header_item",
 				"@tag": tag,
 				"class": class_name,
 				"data-tab-key": key,
@@ -134,12 +208,13 @@ struct Tabs extends CoreView
 	/**
 	 * Tab render
 	 */
-	pure Template renderContent(UIStruct item, string active)
+	pure Template renderContent(UIStruct item, string active, string default_tab)
 	{
 		string key = "";
 		string class_name = "";
 		if (item.props) key = item.key;
 		if (key == active) class_name = "active";
+		else if (active == "" and default_tab != "" and key == default_tab) class_name = "active";
 		return new UIStruct{
 			"space": RuntimeUtils::getCssHash(classof Tabs),
 			"class_name": static::getCurrentClassName(), 
@@ -157,31 +232,5 @@ struct Tabs extends CoreView
 	
 	
 	
-	/**
-	 * Component render
-	 */
-	lambda Template render(TabsModel data, UIStruct ui) =>
-		
-		<div @class='tabs' @key="div" data-active={ data.active }>
-			<div @class='tabs_header_wrap' @key="header">
-				{ 
-					ui.children != null ? 
-						ui.children.map( 
-							lambda UIStruct (UIStruct item) use (data) => static::renderTab(item, data.active) 
-						) : ""
-				}
-			</div>
-			
-			<div @class='tabs_content_wrap' @key="content">
-				{
-					ui.children != null ? 
-						ui.children.map( 
-							lambda UIStruct (UIStruct item) use (data) => static::renderContent(item, data.active) 
-						) : "" 
-				}
-			</div>
-		</div>
-		
-	;
 	
 }
