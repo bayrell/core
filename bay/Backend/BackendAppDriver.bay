@@ -244,7 +244,7 @@ class BackendAppDriver extends ContextObject
 		if (this.api.indexOf(class_name) == -1)
 		{
 			return ApiResult::setError(
-				new ApiResult(),
+				new ApiResult{"class_name": class_name, "method_name": method_name},
 				RuntimeConstant::ERROR_OBJECT_DOES_NOT_EXISTS, 
 				"Class " ~ class_name ~ " does not exists in api list"
 			);
@@ -254,7 +254,7 @@ class BackendAppDriver extends ContextObject
 		else if (not rtl::class_exists(class_name))
 		{
 			return ApiResult::setError(
-				new ApiResult(),
+				new ApiResult{"class_name": class_name, "method_name": method_name},
 				RuntimeConstant::ERROR_OBJECT_DOES_NOT_EXISTS, 
 				"Class " ~ class_name ~ " does not exists"
 			);
@@ -285,7 +285,7 @@ class BackendAppDriver extends ContextObject
 		if (find_api_method == null)
 		{
 			return ApiResult::setError(
-				new ApiResult(),
+				new ApiResult{"class_name": class_name, "method_name": method_name},
 				RuntimeConstant::ERROR_OBJECT_DOES_NOT_EXISTS, 
 				"Method " ~ class_name ~ "." ~ interface_name ~ "." ~ method_name ~ " does not exists"
 			);
@@ -294,7 +294,10 @@ class BackendAppDriver extends ContextObject
 		callback f = rtl::method(class_name, find_method_name);
 		ApiRequest request = new ApiRequest{ "data": data };
 		ApiResult res = await f(context, request);
-		
+		res = res.copy({
+			"class_name": class_name, 
+			"method_name": method_name
+		});
 		return res;
 	}
 	

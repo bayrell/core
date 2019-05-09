@@ -49,32 +49,45 @@ class ApiRoute extends CoreRoute
 	public async static WebContainer IndexAction(WebContainer container, ContextInterface context)
 	{
 		Request request = container.request;
-		AppProvider app = context.getValue('default.app');
+		ApiResult res = null;
 		
 		/* Check if POST request */
 		if (request.method != "POST")
 		{
-			return ApiResult::setError(new ApiResult(), RuntimeConstant::ERROR_REQUEST, "Request must be POST");
+			res = ApiResult::setError(new ApiResult(), RuntimeConstant::ERROR_REQUEST, "Request must be POST");
 		}
 		
-		string class_name = container.params.get("class_name", "", "string");
-		string interface_name = "";
-		string method_name = container.params.get("method_name", "", "string");
-		Collection<string> arr = rs::explode(".", method_name);
-		method_name = arr.pop();
-		interface_name = rs::implode(".", arr);
-		
-		string json = request.payload.get("DATA", null);
-		Dict data = RuntimeUtils::json_decode(json);
-		
-		ApiResult res = await app.callApi(class_name, interface_name, method_name, data, context);
 		if (not(res instanceof ApiResult))
 		{
-			return ApiResult::setError(
-				new ApiResult(),
-				RuntimeConstant::ERROR_RUNTIME, 
-				"The result of the api request must be ApiResult"
-			);
+			string class_name = container.params.get("class_name", "", "string");
+			string interface_name = "";
+			string method_name = container.params.get("method_name", "", "string");
+			Collection<string> arr = rs::explode(".", method_name);
+			method_name = arr.pop();
+			interface_name = rs::implode(".", arr);
+			
+			string json = request.payload.get("DATA", null);
+			json = RuntimeUtils::base64_decode(json);
+			Dict data = RuntimeUtils::json_decode(json);
+			if (data == null)
+			{
+				res = ApiResult::setError(new ApiResult(), RuntimeConstant::ERROR_REQUEST, "POST DATA not found");
+			}
+			
+			if (not(res instanceof ApiResult))
+			{
+				res = await context.callApi(class_name, interface_name, method_name, data, context);
+				if (not(res instanceof ApiResult))
+				{
+					res = ApiResult::setError(
+						new ApiResult(),
+						RuntimeConstant::ERROR_RUNTIME, 
+						"The result of the api request must be ApiResult"
+					);
+				}
+			}
+			
+			res <= params <= data;
 		}
 		
 		/* Create Response*/

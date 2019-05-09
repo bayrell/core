@@ -63,6 +63,7 @@ class NavigatorManager extends TreeManager
 	 */
 	public async void createNode(Collection<int> path, int pos, NavigatorItem item)
 	{
+		ContextInterface context = this.context();
 		Collection<int> path = path.pushIm(pos);
 		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
 		
@@ -82,7 +83,7 @@ class NavigatorManager extends TreeManager
 				} 
 			);
 			
-			ApiResult res = await ApiRequest::callApi(
+			ApiResult res = await context.callApi(
 				this.model.api_class_name,
 				"Core.FileSystem.FileTransferInterface",
 				"createNode",
@@ -115,6 +116,7 @@ class NavigatorManager extends TreeManager
 	 */
 	public async void renameNode(Collection<int> path, NavigatorItem item_old, NavigatorItem item_new)
 	{
+		ContextInterface context = this.context();
 		Collection<int> p_path = path.removeLastIm();
 		string path_str = "/" ~ TreeModel::getNamePath(this.model, p_path);
 		string path_old = path_str ~ "/" ~ item_old.name;
@@ -140,7 +142,7 @@ class NavigatorManager extends TreeManager
 				} 
 			);
 			
-			ApiResult res = await ApiRequest::callApi(
+			ApiResult res = await context.callApi(
 				this.model.api_class_name,
 				"Core.FileSystem.FileTransferInterface",
 				"renameNode",
@@ -179,6 +181,7 @@ class NavigatorManager extends TreeManager
 	 */
 	public async void deleteNode(Collection<int> path, NavigatorItem item)
 	{
+		ContextInterface context = this.context();
 		Collection<int> p_path = path.removeLastIm();
 		string path_str = "/" ~ TreeModel::getNamePath(this.model, p_path) ~ "/" ~ item.name;
 		
@@ -194,7 +197,7 @@ class NavigatorManager extends TreeManager
 		);
 		
 		/* Delete node */
-		ApiResult res = await ApiRequest::callApi(
+		ApiResult res = await context.callApi(
 			this.model.api_class_name,
 			"Core.FileSystem.FileTransferInterface",
 			"deleteNode",
@@ -246,6 +249,7 @@ class NavigatorManager extends TreeManager
 	 */
 	public async void reloadNode(Collection<int> path)
 	{
+		ContextInterface context = this.context();
 		NavigatorItem item = TreeModel::getTreeItem(this.model, path);
 		
 		/* Reload folder */
@@ -270,7 +274,7 @@ class NavigatorManager extends TreeManager
 			string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
 			
 			/* Call api */
-			ApiResult res = await ApiRequest::callApi(
+			ApiResult res = await context.callApi(
 				this.model.api_class_name,
 				"Core.FileSystem.FileTransferInterface",
 				"getDirectoryListing",
@@ -342,7 +346,7 @@ class NavigatorManager extends TreeManager
 			/* Load file content */
 			while (filesize == -1 or offset < filesize)
 			{
-				ApiResult res = await ApiRequest::callApi(
+				ApiResult res = await context.callApi(
 					this.model.api_class_name,
 					"Core.FileSystem.FileTransferInterface",
 					"readBlock",

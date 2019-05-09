@@ -19,6 +19,7 @@
 namespace Core.Http;
 
 use Runtime.CoreStruct;
+use Runtime.RuntimeUtils;
 
 
 struct Request extends CoreStruct

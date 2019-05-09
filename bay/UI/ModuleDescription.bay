@@ -67,8 +67,6 @@ class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
 	public static void onRegister(ContextInterface context)
 	{
 		/* Register Drivers */
-		/*context.registerDriver("driver.web.core", new WebDriver( context ));*/
-		
 	}
 	
 	

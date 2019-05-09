@@ -32,6 +32,7 @@ struct ApiResult extends CoreStruct
 	public string method_name = "";
 	public string text = "";
 	public primitive result = null;
+	public primitive params = null;
 	
 	
 	
