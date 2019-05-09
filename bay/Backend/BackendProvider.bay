@@ -42,7 +42,6 @@ class BackendProvider extends ContextObject
 	public Vector<RouteInfo> routes_info = null;
 	
 	
-	
 	/**
 	 * Start app
 	 */

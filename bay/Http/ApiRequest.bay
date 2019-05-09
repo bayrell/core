@@ -94,8 +94,8 @@ struct ApiRequest extends CoreStruct
 	
 	public static function callApi($class_name, $interface_name, $method_name, $data, $context)
 	{
-		$app = $context->getValue('default.app');
-		return $app->callApi($class_name, $interface_name, $method_name, $data, $context);
+		$driver = $context->getDriver('Backend.App');
+		return $driver->callApi($class_name, $interface_name, $method_name, $data, $context);
 	}
 	
 	#endswitch

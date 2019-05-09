@@ -44,4 +44,48 @@ struct Request extends CoreStruct
 	public Dict<string> params = null;
 	public int start_time = 0;
 	
+	
+	/**
+	 * Send response
+	 * @return Response res
+	 */
+	public static Request createPHPRequest()
+	{
+		Request r = null;
+		
+		#switch
+		#case ifcode PHP then
+		$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : "";
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : "";
+		$method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : "";
+		$start_time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : "";
+		$query = new Map();
+		$payload = new Map();
+		$cookies = new Map();
+		foreach ($_GET as $key => $val) $query->set($key, $val);
+		foreach ($_POST as $key => $val){
+			$payload->set($key, RuntimeUtils::NativeToObject($val));
+		}
+		foreach ($_COOKIE as $key => $val) $cookies->set($key, $val);
+		
+		$arr = parse_url($uri);
+		$uri = isset($arr['path']) ? $arr['path'] : "";
+		
+		$r = new Request(
+			new Map([
+				"host" => $host,
+				"uri" => $uri,
+				"method" => $method,
+				"query" => $query->toDict(),
+				"payload" => $payload->toDict(),
+				"cookies" => $cookies->toDict(),
+				"start_time" => $start_time,
+			])
+		);
+		
+		#endswitch
+		
+		return r;
+	}	
+	
 }

@@ -58,15 +58,15 @@ class TreeAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/Tree/Tree.js',
-				'/assets/Core/Components/Tree/TreeAssets.js',
-				'/assets/Core/Components/Tree/TreeDialogModel.js',
-				'/assets/Core/Components/Tree/TreeItem.js',
-				'/assets/Core/Components/Tree/TreeItemSelectEvent.js',
-				'/assets/Core/Components/Tree/TreeManager.js',
-				'/assets/Core/Components/Tree/TreeModel.js',
-				'/assets/Core/Components/Tree/TreeReloadNodeEvent.js',
-				'/assets/Core/Components/Tree/TreeSelectNodeEvent.js',				
+				'@Core/Components/Tree/Tree.js',
+				'@Core/Components/Tree/TreeAssets.js',
+				'@Core/Components/Tree/TreeDialogModel.js',
+				'@Core/Components/Tree/TreeItem.js',
+				'@Core/Components/Tree/TreeItemSelectEvent.js',
+				'@Core/Components/Tree/TreeManager.js',
+				'@Core/Components/Tree/TreeModel.js',
+				'@Core/Components/Tree/TreeReloadNodeEvent.js',
+				'@Core/Components/Tree/TreeSelectNodeEvent.js',				
 			]
 		];
 	}

@@ -58,10 +58,10 @@ class ListSortAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/ListSort/ListSort.js',
-				'/assets/Core/Components/ListSort/ListSortAssets.js',
-				'/assets/Core/Components/ListSort/ListSortManager.js',
-				'/assets/Core/Components/ListSort/ListSortModel.js',
+				'@Core/Components/ListSort/ListSort.js',
+				'@Core/Components/ListSort/ListSortAssets.js',
+				'@Core/Components/ListSort/ListSortManager.js',
+				'@Core/Components/ListSort/ListSortModel.js',
 			]
 		];
 	}

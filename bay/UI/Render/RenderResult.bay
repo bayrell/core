@@ -15,23 +15,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+ 
 namespace Core.UI.Render;
-
 
 use Runtime.CoreStruct;
 
 
-struct RenderContainer extends CoreStruct
+struct RenderResult extends CoreStruct
 {
-	
-	public string title = "";
-	public string content = "";
-	public Collection<string> assets = null;
-	public Collection<string> components = null;
-	public Dict<string> css_vars = new Dict<string>();
-	public string view = "";
-	public string layout = "";
-	public CoreStruct model = null;
-
+	string layout_class = "";
+	string view_class = "";
+	RenderContainer layout_model = null;
+	CoreStruct view_model = null;
 }
+

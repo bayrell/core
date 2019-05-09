@@ -58,10 +58,10 @@ class ButtonAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/Button/Button.js',
-				'/assets/Core/Components/Button/ButtonAssets.js',
-				'/assets/Core/Components/Button/ButtonManager.js',
-				'/assets/Core/Components/Button/ButtonModel.js',
+				'@Core/Components/Button/Button.js',
+				'@Core/Components/Button/ButtonAssets.js',
+				'@Core/Components/Button/ButtonManager.js',
+				'@Core/Components/Button/ButtonModel.js',
 			]
 		];
 	}

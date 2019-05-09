@@ -58,11 +58,11 @@ class TabsAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/Tabs/Tabs.js',
-				'/assets/Core/Components/Tabs/TabsAssets.js',
-				'/assets/Core/Components/Tabs/TabsItem.js',
-				'/assets/Core/Components/Tabs/TabsManager.js',
-				'/assets/Core/Components/Tabs/TabsModel.js',
+				'@Core/Components/Tabs/Tabs.js',
+				'@Core/Components/Tabs/TabsAssets.js',
+				'@Core/Components/Tabs/TabsItem.js',
+				'@Core/Components/Tabs/TabsManager.js',
+				'@Core/Components/Tabs/TabsModel.js',
 			]
 		];
 	}

@@ -1,0 +1,302 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace Core.Backend;
+
+
+use Runtime.re;
+use Runtime.ContextObject;
+use Runtime.RuntimeConstant;
+use Runtime.RuntimeUtils;
+use Core.Http.ApiRequest;
+use Core.Http.ApiResult;
+use Core.Http.Request;
+use Core.Http.Response;
+use Core.UI.Annotations.ApiMethod;
+use Core.UI.Annotations.RouteInfo;
+use Core.UI.Interfaces.ApiDeclaringInterface;
+use Core.UI.Interfaces.RoutesDeclaringInterface;
+use Core.UI.Interfaces.RoutesInterface;
+use Core.UI.Render.WebContainer;
+
+
+class BackendAppDriver extends ContextObject
+{
+	
+	public Collection<string> api = null;
+	public Collection<string> routes = null;
+	public Collection<RouteInfo> routes_info = null;
+	
+	
+	/**
+	 * Init app driver
+	 */
+	public void initDriver()
+	{
+		this.api = static::buildApi( this.context() );
+		this.routes = static::buildRoutes( this.context() );
+		this.routes_info = this.buildRoutesInfo( this.routes );
+	}
+	
+	
+	
+	/**
+	 * Build api
+	 */
+	lambda Collection<string> buildApi(ContextInterface context)
+	{
+		/* Filter modules. Leave only ApiDeclaringInterface  */
+		Vector<string> modules = context.getModules();
+		Vector<string> modules_api = modules.filter(
+			bool (string module_name)
+			{
+				string module_description_class_name = module_name ~ ".ModuleDescription";
+				Vector<string> interfaces = RuntimeUtils::getInterfaces(module_description_class_name);
+				bool has_api = interfaces.indexOf( classof ApiDeclaringInterface ) != -1;
+				if (not has_api) return false;
+				return true;
+			}
+		);
+		
+		/* Get api names */
+		Vector<string> api = modules_api.reduce(
+			void (Vector<string> arr, string module_name) use (context)
+			{
+				string module_description_class_name = module_name ~ ".ModuleDescription";
+				api = rtl::callStaticMethod(
+					module_description_class_name, 
+					"getApi", 
+					[
+						context
+					]
+				);
+				if (api == null)
+					return arr;
+					
+				return arr.concat(api);
+			}, 
+			new Vector()
+		);
+		
+		return api.toCollection();
+	}
+	
+	
+	
+	/**
+	 * Build routes
+	 */
+	lambda Collection<string> buildRoutes(ContextInterface context)
+	{
+		/* Filter modules. Leave only PageDescriptionInterface  */
+		Vector<string> modules = context.getModules();
+		Vector<string> modules_pages = modules.filter(
+			bool (string module_name)
+			{
+				string module_description_class_name = module_name ~ ".ModuleDescription";
+				Vector<string> interfaces = RuntimeUtils::getInterfaces(module_description_class_name);
+				bool has_api = interfaces.indexOf( classof RoutesDeclaringInterface ) != -1;
+				if (not has_api) return false;
+				return true;
+			}
+		);
+		
+		/* Get routes names */
+		Vector<string> routes = modules_pages.reduce(
+			void (Vector<string> arr, string module_name) use (context)
+			{
+				string module_description_class_name = module_name ~ ".ModuleDescription";
+				routes = rtl::callStaticMethod(
+					module_description_class_name, 
+					"getRoutes", 
+					[
+						context
+					]
+				);
+				if (routes == null)
+					return arr;
+					
+				return arr.concat(routes);
+			}, 
+			new Vector()
+		);
+		
+		return routes.toCollection();
+	}
+	
+	
+	
+	/**
+	 * Build routes info
+	 */
+	lambda Collection<RouteInfo> buildRoutesInfo(Collection<string> routes)
+	{	
+		routes_info = new Vector<string>();
+		routes.each(
+			void (string class_name) use (routes_info)
+			{
+				Vector<string> interfaces = RuntimeUtils::getInterfaces(class_name);
+				if (interfaces == null)
+					return;
+				
+				Vector<IntrospectionInfo> introspection = RuntimeUtils::getIntrospection(class_name);
+				if (introspection == null)
+					return;
+				
+				/* Analyze introspection */
+				introspection.each(
+					void (IntrospectionInfo info) use (routes_info)
+					{
+						Vector<CoreObject> annotations = info::filterAnnotations(classof RouteInfo, info);
+						
+						if (annotations == null)
+							return;
+						if (annotations.count() == 0)
+							return;
+						
+						RouteInfo route_info = annotations.item(0);
+						route_info = route_info.copy({
+							"class_name": info.class_name,
+							"method_name": info.name,
+						});
+						
+						routes_info.push(route_info);
+					}
+				);
+			}
+		);
+		
+		return routes_info.toCollection();
+	}
+	
+	
+	
+	/**
+	 * Render route
+	 */
+	public async WebContainer renderRoute
+	(
+		string class_name, string method_name, Dict params = null, Request request = null
+	)
+	{
+		/* Create request */
+		if (request == null)
+		{
+			request = Request::createPHPRequest();
+		}
+		
+		/* Create web container */
+		WebContainer container = new WebContainer{ "request": request };	
+		
+		/* Assign route info */
+		for (int i=0; i<this.routes_info.count(); i++)
+		{
+			RouteInfo info = this.routes_info.item(i);
+			if (info.class_name == class_name and info.method_name == method_name)
+			{
+				container <= route_info <= info;
+				break;
+			}
+		}
+		
+		/* Assign route params */
+		if (params != null)
+		{
+			container <= params <= params;
+		}
+		
+		/* Render route */
+		callback f = method(class_name, method_name);
+		container = f(container, this.context());
+		
+		/* Return result */
+		return container;
+	}
+	
+	
+	
+	
+	/**
+	 * Check if api is exists
+	 */
+	public async ApiResult callApi
+	(
+		string class_name, string interface_name, string method_name, 
+		Dict<mixed> data, ContextInterface context
+	)
+	{
+		/* Check if class name is api */
+		if (this.api.indexOf(class_name) == -1)
+		{
+			return ApiResult::setError(
+				new ApiResult(),
+				RuntimeConstant::ERROR_OBJECT_DOES_NOT_EXISTS, 
+				"Class " ~ class_name ~ " does not exists in api list"
+			);
+		}
+		
+		/* Check if class name is exists */
+		else if (not rtl::class_exists(class_name))
+		{
+			return ApiResult::setError(
+				new ApiResult(),
+				RuntimeConstant::ERROR_OBJECT_DOES_NOT_EXISTS, 
+				"Class " ~ class_name ~ " does not exists"
+			);
+		}
+		
+		/* Find api method */
+		string find_method_name = "";
+		ApiMethod find_api_method = null;
+		Vector<IntrospectionInfo> introspection = RuntimeUtils::getIntrospection(class_name);
+		for (int i=0; i<introspection.count(); i++)
+		{
+			IntrospectionInfo info = introspection.item(i);
+			if (info.kind != "method") continue;
+			
+			Vector<CoreObject> annotations = info::filterAnnotations(classof ApiMethod, info);
+			if (annotations == null) continue;
+			if (annotations.count() == 0) continue;
+			
+			ApiMethod api_method = annotations.item(0);
+			if (api_method.space == interface_name and api_method.name == method_name)
+			{
+				find_api_method = api_method;
+				find_method_name = info.name;
+				break;
+			}
+		}
+		
+		if (find_api_method == null)
+		{
+			return ApiResult::setError(
+				new ApiResult(),
+				RuntimeConstant::ERROR_OBJECT_DOES_NOT_EXISTS, 
+				"Method " ~ class_name ~ "." ~ interface_name ~ "." ~ method_name ~ " does not exists"
+			);
+		}
+		
+		callback f = rtl::method(class_name, find_method_name);
+		ApiRequest request = new ApiRequest{ "data": data };
+		ApiResult res = await f(context, request);
+		
+		return res;
+	}
+	
+}
+

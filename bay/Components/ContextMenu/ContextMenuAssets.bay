@@ -58,12 +58,12 @@ class ContextMenuAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/ContextMenu/ContextMenu.js',
-				'/assets/Core/Components/ContextMenu/ContextMenuAssets.js',
-				'/assets/Core/Components/ContextMenu/ContextMenuItem.js',
-				'/assets/Core/Components/ContextMenu/ContextMenuItemClickEvent.js',
-				'/assets/Core/Components/ContextMenu/ContextMenuManager.js',
-				'/assets/Core/Components/ContextMenu/ContextMenuModel.js',
+				'@Core/Components/ContextMenu/ContextMenu.js',
+				'@Core/Components/ContextMenu/ContextMenuAssets.js',
+				'@Core/Components/ContextMenu/ContextMenuItem.js',
+				'@Core/Components/ContextMenu/ContextMenuItemClickEvent.js',
+				'@Core/Components/ContextMenu/ContextMenuManager.js',
+				'@Core/Components/ContextMenu/ContextMenuModel.js',
 			]
 		];
 	}

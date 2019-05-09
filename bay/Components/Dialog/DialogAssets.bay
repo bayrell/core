@@ -58,11 +58,11 @@ class DialogAssets implements AssetsInterface
 	{
 		return [
 			[
-				'/assets/Core/Components/Dialog/Dialog.js',
-				'/assets/Core/Components/Dialog/DialogAssets.js',
-				'/assets/Core/Components/Dialog/DialogManager.js',
-				'/assets/Core/Components/Dialog/DialogModel.js',
-				'/assets/Core/Components/Dialog/DialogResultEvent.js',
+				'@Core/Components/Dialog/Dialog.js',
+				'@Core/Components/Dialog/DialogAssets.js',
+				'@Core/Components/Dialog/DialogManager.js',
+				'@Core/Components/Dialog/DialogModel.js',
+				'@Core/Components/Dialog/DialogResultEvent.js',
 			]
 		];
 	}
