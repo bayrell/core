@@ -87,7 +87,18 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	 * Update DOM by manager. Return true if manager should update, or false if update should by driver
 	 * @return bool
 	 */
-	driverUpdateDOM(elem, ui)
+	shouldUpdateElem(elem, ui)
+	{
+		return true;
+	}
+	
+	
+	
+	/**
+	 * Overload driver render
+	 * @return bool
+	 */
+	driverRenderOverload(elem, ui)
 	{
 		return false;
 	}
@@ -197,8 +208,9 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		}
 		
 		/* Update managers model */
-		var old_model = new_manager.driverSetNewModel(model);
-		new_manager.driverUpdateManager(old_model);
+		var old_model = new_manager.model;
+		new_manager.driverSetNewModel(model);
+		new_manager.onUpdateManager(old_model, model);
 		new_manager._key = key_manager;
 		
 		this.saveManager(ui.name, key_manager, new_manager);
@@ -210,7 +222,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	/**
 	 * Return true if driver should update DOM of the elem
 	 */
-	shouldUpdateElem(elem, item)
+	driverShouldUpdateElem(elem, item)
 	{
 		if (elem._ui == null || elem._ui == undefined)
 		{
@@ -221,11 +233,11 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		{
 			return true;
 		}
-		if (!manager.isModelUpdated())
+		if (manager.driverRenderOverload(elem, item.ui))
 		{
 			return false;
 		}
-		return !manager.driverUpdateDOM(elem, item.ui);
+		return manager.shouldUpdateElem(elem, item.ui);
 	}
 	
 	
@@ -325,7 +337,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 									);
 								}
 							}
-							/*console.log(elem);*/
+							/* console.log(elem); */
 						}
 					}
 					
@@ -438,8 +450,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	{
 		if (elem._ui == item.ui) return elem;
 		
-		/* Can update item DOM */
-		if (!this.shouldUpdateElem(elem, item))
+		/* Should update item DOM */
+		if (!this.driverShouldUpdateElem(elem, item))
 		{
 			return elem;
 		}
@@ -630,29 +642,27 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				{
 					if (e1.textContent != e2.textContent)
 					{
-						console.log("Change", e1.textContent, e2.textContent);
+						/* console.log("Change", e1.textContent, e2.textContent); */
 						is_change = true;
 						break;
 					}
 				}
 				else if (
-					e1 instanceof Text && not (e2 instanceof Text) || 
-					e2 instanceof Text && not (e1 instanceof Text)
+					e1 instanceof Text && !(e2 instanceof Text) || 
+					e2 instanceof Text && !(e1 instanceof Text)
 				)
 				{
 					is_change = true;
 					break;
 				}
-				else
+				else if (e1._key != e2._key)
 				{
-					if (e1._key != e2._key)
-					{
-						is_change = true;
-					}
-					else if (update_keys.indexOf(e2._key) != -1)
-					{
-						is_change = true;
-					}
+					is_change = true;
+					break;
+				}
+				else if (update_keys.indexOf(e2._key) != -1)
+				{
+					is_change = true;
 					break;
 				}
 				
@@ -663,11 +673,132 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			is_change = true;
 		}
 		
+		
 		/* Replace childs */
 		if (is_change)
 		{
-			console.log("Change Elem", elem);
+			/* console.log("Change Elem", elem); */
 			
+			var findElementPos = function (elem, e)
+			{
+				var childs = elem.childNodes;
+				for (var i = 0; i < elem.childNodes.length; i++)
+				{
+					if (childs[i] == e)
+					{
+						return i;
+					}
+				}
+				return -1;
+			}
+			
+			var insertFirst = function (elem, e)
+			{
+				if (elem.childNodes.length == 0)
+				{
+					elem.appendChild(e);
+				}
+				else
+				{
+					elem.insertBefore(e, elem.firstChild);
+				}
+			}
+			
+			var insertAfter = function (elem, prev, e)
+			{
+				if (prev == null)
+				{
+					insertFirst(elem, e);
+					return;
+				}
+				var next = prev.nextSibling;
+				if (next == null)
+				{
+					elem.appendChild(e);
+				}
+				else
+				{
+					elem.insertBefore(e, next);
+				}
+			}
+			
+			
+			/* Remove elems */
+			var i = elem.childNodes.length - 1;
+			while (i >= 0)
+			{
+				var e = elem.childNodes[i];
+				if (res.indexOf(e) == -1)
+				{
+					elem.removeChild(e);
+					this.remove_keys.push(e._key);
+					/* console.log('Remove child ', i); */
+				}
+				i--;
+			}
+			
+			
+			var prevElem = null;
+			for (var i=0; i<res.length; i++)
+			{
+				var e = res[i];
+				var pos = findElementPos(elem, e);
+				var flag = false;
+				
+				/* If new element */
+				if (pos == -1)
+				{
+					if (prevElem == null)
+					{
+						insertFirst(elem, e);
+						flag = true;
+						/* console.log('Insert first ', i); */
+					}
+					else
+					{
+						insertAfter(elem, prevElem, e);
+						flag = true;
+						/* console.log('Insert after[1] ', i); */
+					}
+				}
+				
+				/* If existing element */
+				else
+				{
+					if (pos - 1 < 0)
+					{
+						if (i != 0)
+						{
+							insertAfter(elem, prevElem, e);
+							flag = true;
+							/* console.log('Insert after[2] ', i); */
+						}
+					}
+					else
+					{
+						var prevSibling = elem.childNodes[pos - 1];
+						if (prevElem != prevSibling)
+						{
+							insertAfter(elem, prevElem, e);
+							flag = true;
+							/* console.log('Insert after[3] ', i); */
+						}
+					}
+				}
+				
+				if (flag)
+				{
+					var index = this.remove_keys.indexOf(e._key);
+					if (index != -1)
+						this.remove_keys.splice(index, 1);
+				}
+				
+				prevElem = e;
+			}
+			
+			
+			
+			/*
 			var keys = {};
 			while (elem.firstChild)
 			{
@@ -687,6 +818,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 					this.remove_keys.push(key);
 				}
 			}
+			*/
 		}
 	}
 	
@@ -715,7 +847,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				index_item++;
 				index_elem++;
 				
-				if (e == undefined)
+				if (e == undefined || e == null)
 				{
 					e = this.createElem(null, item);
 					if (e != null) append_arr.push(e);
@@ -794,6 +926,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	 */
 	animation()
 	{
+		/* console.log('*** animation ***'); */
+		
 		Runtime.rtl._memorizeClear();
 		this.managers_hash = {};
 		this.animation_id = null;
@@ -837,7 +971,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				manager.destroyManager();
 				this.managers[key] = null;
 				delete this.managers[key];
-				console.log("Remove manager ", key);
+				/* console.log("Remove manager ", key); */
 			}
 		}
 	}
