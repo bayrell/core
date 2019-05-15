@@ -53,7 +53,8 @@ struct TreeModel extends TreeItem
 	{
 		Collection<TreeItem> items = static::getTreePathItems(model, path);
 		string path_str = rs::implode(ch, items.map( lambda string (TreeItem item) use (attr) => item.takeValue(attr) ));
-		return path_str;
+		if (path_str == "") return path_str;
+		return ch ~ path_str;
 	}
 	
 	

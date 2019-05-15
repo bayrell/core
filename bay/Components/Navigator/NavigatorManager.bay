@@ -65,7 +65,7 @@ class NavigatorManager extends TreeManager
 	{
 		ContextInterface context = this.context();
 		Collection<int> path = path.pushIm(pos);
-		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		string path_str = TreeModel::getNamePath(this.model, path);
 		
 		if (item.kind == NavigatorItem::KIND_FILE or item.kind == NavigatorItem::KIND_FOLDER)
 		{
@@ -118,7 +118,7 @@ class NavigatorManager extends TreeManager
 	{
 		ContextInterface context = this.context();
 		Collection<int> p_path = path.removeLastIm();
-		string path_str = "/" ~ TreeModel::getNamePath(this.model, p_path);
+		string path_str = TreeModel::getNamePath(this.model, p_path);
 		string path_old = path_str ~ "/" ~ item_old.name;
 		string old_name = item_old.name;
 		string new_name = item_new.name;
@@ -183,7 +183,7 @@ class NavigatorManager extends TreeManager
 	{
 		ContextInterface context = this.context();
 		Collection<int> p_path = path.removeLastIm();
-		string path_str = "/" ~ TreeModel::getNamePath(this.model, p_path) ~ "/" ~ item.name;
+		string path_str = TreeModel::getNamePath(this.model, p_path) ~ "/" ~ item.name;
 		
 		/* Signal out */
 		this.signalOut( 
@@ -271,7 +271,7 @@ class NavigatorManager extends TreeManager
 			);
 			
 			/* Get folder path */
-			string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+			string path_str = TreeModel::getNamePath(this.model, path);
 			
 			/* Call api */
 			ApiResult res = await context.callApi(
@@ -327,7 +327,7 @@ class NavigatorManager extends TreeManager
 			this.setModel( TreeModel::setTreeItem(this.model, path, item) );
 			
 			/* Get folder path */
-			string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+			string path_str = TreeModel::getNamePath(this.model, path);
 			int offset = 0;
 			int filesize = -1;
 			Vector<byte> content = new Vector();

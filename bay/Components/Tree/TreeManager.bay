@@ -201,7 +201,7 @@ class TreeManager extends CoreManager
 		
 		Model model = this.model;
 		
-		model = TreeModel::showContextMenu(model, true, event.layerX, event.layerY);
+		model = TreeModel::showContextMenu(model, true, event.pageX - window.scrollX, event.pageY - window.scrollY);
 		model = TreeModel::selectItem(model, tree_data_path);
 		
 		this.setModel(model);
@@ -369,7 +369,7 @@ class TreeManager extends CoreManager
 	public void showCreateFile(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
-		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		string path_str = TreeModel::getNamePath(this.model, path);
 		
 		if (item.kind == TreeItem::KIND_FOLDER)
 		{
@@ -411,7 +411,7 @@ class TreeManager extends CoreManager
 	public void showCreateFolder(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
-		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		string path_str = TreeModel::getNamePath(this.model, path);
 		
 		if (item.kind == TreeItem::KIND_FOLDER)
 		{
@@ -450,7 +450,7 @@ class TreeManager extends CoreManager
 	public void showRenameNode(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
-		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		string path_str = TreeModel::getNamePath(this.model, path);
 		string title = "";
 		
 		if (item == null)
@@ -495,7 +495,7 @@ class TreeManager extends CoreManager
 	public void showDeleteNode(Collection<int> path)
 	{
 		TreeItem item = TreeModel::getTreeItem(this.model, path);
-		string path_str = "/" ~ TreeModel::getNamePath(this.model, path);
+		string path_str = TreeModel::getNamePath(this.model, path);
 		string title = "";
 		
 		if (item == null)

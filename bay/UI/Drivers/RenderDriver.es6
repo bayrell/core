@@ -191,6 +191,9 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			new_manager.setParentManager(parent_manager, ui.controller); /* Create link through controller */
 			
 			this.managers[key_manager] = new_manager;
+			
+			/* Start New Manager */
+			new_manager.onStartManager();
 		}
 		
 		/* Update managers model */
@@ -410,7 +413,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			}
 			
 			var manager = this.findManager(item);
-			this.updateDOMChilds(manager, elem, item.ui.children, item.key_ui);
+			this.updateDOMChildsInit(manager, elem, item.ui.children, item.key_ui);
 			
 			return elem;
 		}
@@ -582,6 +585,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		var append_arr = [];
 		var update_arr = [];
 		var remove_arr = [];
+		var is_update = false;
+		var update_keys = [];
 		
 		/* If has childs */
 		if (template != null)
@@ -600,8 +605,13 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				}
 				else
 				{
-					var new_item = this.updateElem(e, item);
-					res.push(new_item);
+					var new_e = this.updateElem(e, item);
+					res.push(new_e);
+					if (e != new_e)
+					{
+						is_update = true;
+						update_keys.push(item.key_ui);
+					}
 				}
 			}
 		}
@@ -615,23 +625,37 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			{
 				var e1 = elem.childNodes[i];
 				var e2 = res[i];
-				if (e1 != e2)
+				
+				if (e1 instanceof Text && e2 instanceof Text)
 				{
-					if (e1 instanceof Text && e2 instanceof Text)
+					if (e1.textContent != e2.textContent)
 					{
-						if (e1.textContent != e2.textContent)
-						{
-							is_change = true;
-							break;
-						}
-					}
-					else
-					{
-						console.log(e1,e2);
+						console.log("Change", e1.textContent, e2.textContent);
 						is_change = true;
 						break;
 					}
 				}
+				else if (
+					e1 instanceof Text && not (e2 instanceof Text) || 
+					e2 instanceof Text && not (e1 instanceof Text)
+				)
+				{
+					is_change = true;
+					break;
+				}
+				else
+				{
+					if (e1._key != e2._key)
+					{
+						is_change = true;
+					}
+					else if (update_keys.indexOf(e2._key) != -1)
+					{
+						is_change = true;
+					}
+					break;
+				}
+				
 			}
 		}
 		else
@@ -642,6 +666,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		/* Replace childs */
 		if (is_change)
 		{
+			console.log("Change Elem", elem);
+			
 			var keys = {};
 			while (elem.firstChild)
 			{

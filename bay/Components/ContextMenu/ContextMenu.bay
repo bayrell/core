@@ -70,7 +70,7 @@ class ContextMenu extends CoreView
 	lambda string css(Dict<string> vars) => 
 		@css{
 			%contextmenu{
-				position: absolute;
+				position: fixed;
 				background-color: white;
 				border: 1px #ccc solid;
 				z-index: 100;

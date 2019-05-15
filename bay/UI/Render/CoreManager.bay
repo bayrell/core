@@ -97,6 +97,15 @@ class CoreManager extends ContextObject
 	
 	
 	/**
+	 * Driver start manager
+	 */
+	public void onStartManager()
+	{
+	}
+	
+	
+	
+	/**
 	 * Model changed by driver or self
 	 */
 	public void onModelChange(CoreModel old_model, CoreModel new_model)
