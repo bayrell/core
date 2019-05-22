@@ -46,7 +46,7 @@ class ApiRoute extends CoreRoute
 		"uri": "/api/{class_name}/{method_name}/", 
 		"name": "api:class" 
 	} 
-	public async static WebContainer IndexAction(WebContainer container, ContextInterface context)
+	public async static WebContainer IndexAction(ContextInterface context, WebContainer container)
 	{
 		Request request = container.request;
 		ApiResult res = null;

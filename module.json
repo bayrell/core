@@ -1,0 +1,38 @@
+{
+	"name": "Bayrell Core Library",
+	"namespace": "Core",
+	"entities": [
+		{
+			"kind": "component",
+			"class_name": "Core.Components.Button",
+		},
+		{
+			"kind": "component",
+			"class_name": "Core.Components.ContextMenu",
+		},
+		{
+			"kind": "component",
+			"class_name": "Core.Components.Dialog",
+		},
+		{
+			"kind": "component",
+			"class_name": "Core.Components.Input",
+		},
+		{
+			"kind": "component",
+			"class_name": "Core.Components.ListSort",
+		},
+		{
+			"kind": "component",
+			"class_name": "Core.Components.Navigator",
+		},
+		{
+			"kind": "component",
+			"class_name": "Core.Components.Tabs",
+		},
+		{
+			"kind": "component",
+			"class_name": "Core.Components.Tree",
+		},
+	],
+}

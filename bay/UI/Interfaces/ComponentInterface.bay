@@ -18,11 +18,43 @@
  
 namespace Core.UI.Interfaces;
 
-use Runtime.Interfaces.ContextInterface;
 
-
-interface ApiDeclaringInterface
+interface ComponentInterface
 {
-
+	
+	
+	/**
+	 * Returns module name
+	 * @return string
+	 */
+	pure string getName();
+	
+	
+	
+	/**
+	 * Returns assets name
+	 */
+	pure string componentAssetsName();
+	
+	
+	
+	/**
+	 * Returns manager name
+	 */
+	pure string componentManagerName();
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	pure string componentModelName();
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	pure string componentViewName();
 	
 }

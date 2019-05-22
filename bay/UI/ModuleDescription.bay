@@ -33,9 +33,7 @@ class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getName(){
-		return "Core.UI";
-	}
+	pure string getName() => "Core.UI";
 	
 	
 	
@@ -43,10 +41,25 @@ class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getModuleVersion()
+	pure string getModuleVersion() => "0.7.0";
+	
+	
+	
+	/**
+	 * Returns required modules
+	 * @return Map<string>
+	 */
+	pure Map<string> requiredModules() =>
 	{
-		return "0.7.0";
-	}
+		'Runtime': '>=0.3',
+	};
+	
+	
+	
+	/**
+	 * Returns enities
+	 */
+	pure Collection<Dict> entities() => null;
 	
 	
 	
@@ -67,19 +80,6 @@ class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
 	public static void onRegister(ContextInterface context)
 	{
 		/* Register Drivers */
-	}
-	
-	
-	
-	/**
-	 * Returns required modules
-	 * @return Map<string, string>
-	 */	
-	public static Map<string, string> getRequiredModules(ContextInterface context)
-	{
-		return {
-			'Runtime': '>=0.3',
-		};
 	}
 	
 	

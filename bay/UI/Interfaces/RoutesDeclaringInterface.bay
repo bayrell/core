@@ -21,13 +21,6 @@ namespace Core.UI.Interfaces;
 
 interface RoutesDeclaringInterface
 {
-	
-	
-	/**
-	 * Returns routes
-	 * @return Vector<string>
-	 */	
-	public static Vector<string> getRoutes(ContextInterface context);
-	
+
 	
 }

@@ -19,6 +19,7 @@
 namespace Core.UI.Render;
 
 use Runtime.CoreStruct;
+use Core.UI.Render.RenderContainer;
 
 
 struct RenderResult extends CoreStruct

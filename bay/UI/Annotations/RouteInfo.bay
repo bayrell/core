@@ -30,6 +30,8 @@ struct RouteInfo extends CoreStruct
 	public string class_name = "";
 	public string method_name = "";
 	public string uri_match = "";
+	public string layout_class = "";
+	public string view_class = "";
 	public Collection<string> params = null;
 	
 	

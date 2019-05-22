@@ -30,9 +30,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getName(){
-		return "Core.FileSystem";
-	}
+	pure string getName() => "Core.FileSystem";
 	
 	
 	
@@ -40,9 +38,18 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */	
-	public static string getModuleVersion(){
-		return "0.0.1";
-	}
+	pure string getModuleVersion() => "0.0.1";
+	
+	
+	
+	/**
+	 * Returns required modules
+	 * @return Map<string, string>
+	 */
+	pure Map<string> requiredModules() =>
+	{
+		'Runtime': '*',
+	};
 	
 	
 	
@@ -67,18 +74,5 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * @param Map<mixed> config
 	 */
 	public static void onReadConfig(ContextInterface context, Map<mixed> config){}
-	
-	
-	
-	/**
-	 * Returns required modules
-	 * @return Map<string, string>
-	 */	
-	public static Map<string, string> getRequiredModules(ContextInterface context){
-		return {
-			'Runtime': '*',
-		};
-	}
-	
 	
 }

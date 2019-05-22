@@ -32,6 +32,8 @@ use Core.UI.Annotations.RouteInfo;
 use Core.UI.Interfaces.ApiDeclaringInterface;
 use Core.UI.Interfaces.RoutesDeclaringInterface;
 use Core.UI.Interfaces.RoutesInterface;
+use Core.UI.Render.RenderContainer;
+use Core.UI.Render.RenderResult;
 use Core.UI.Render.WebContainer;
 
 
@@ -73,22 +75,28 @@ class BackendAppDriver extends ContextObject
 			}
 		);
 		
+		
 		/* Get api names */
 		Vector<string> api = modules_api.reduce(
 			void (Vector<string> arr, string module_name) use (context)
 			{
 				string module_description_class_name = module_name ~ ".ModuleDescription";
-				api = rtl::callStaticMethod(
+				mixed res = rtl::callStaticMethod(
 					module_description_class_name, 
-					"getApi", 
-					[
-						context
-					]
+					"entities"
 				);
-				if (api == null)
-					return arr;
-					
-				return arr.concat(api);
+				
+				if (res == null) return arr;
+				
+				res = res.filter(
+					bool (Dict item) => item.get("entity", "") == "api"
+				);
+				
+				res = res.map(
+					string (Dict item) => item.get("class_name", "")
+				);
+				
+				return arr.concat(res);
 			}, 
 			new Vector()
 		);
@@ -121,17 +129,22 @@ class BackendAppDriver extends ContextObject
 			void (Vector<string> arr, string module_name) use (context)
 			{
 				string module_description_class_name = module_name ~ ".ModuleDescription";
-				routes = rtl::callStaticMethod(
+				mixed res = rtl::callStaticMethod(
 					module_description_class_name, 
-					"getRoutes", 
-					[
-						context
-					]
+					"entities"
 				);
-				if (routes == null)
-					return arr;
-					
-				return arr.concat(routes);
+				
+				if (res == null) return arr;
+				
+				res = res.filter(
+					bool (Dict item) => item.get("entity", "") == "routes"
+				);
+				
+				res = res.map(
+					string (Dict item) => item.get("class_name", "")
+				);
+				
+				return arr.concat(res);
 			}, 
 			new Vector()
 		);
@@ -220,9 +233,20 @@ class BackendAppDriver extends ContextObject
 			container <= params <= params;
 		}
 		
+		/* Should create render */
+		if (container.route_info.view_class != "" and container.route_info.layout_class != "")
+		{
+			container <= render <= new RenderResult
+			{
+				"view_class": container.route_info.view_class,
+				"layout_class": container.route_info.layout_class,
+				"layout_model": new RenderContainer{},
+			};
+		}
+		
 		/* Render route */
 		callback f = method(class_name, method_name);
-		container = f(container, this.context());
+		container = await f(this.context(), container);
 		
 		/* Return result */
 		return container;
