@@ -18,7 +18,7 @@
 
 namespace Core.UI;
 
-use Core.UI.Interfaces.AssetsInterface;
+use Core.Interfaces.AssetsInterface;
 use Core.UI.Render.RenderContainer;
 
 
@@ -31,14 +31,14 @@ class Assets implements AssetsInterface
 	 * Returns required assets
 	 * @return Collection<string>
 	 */	
-	pure Collection<string> assets() => null;
+	lambda Collection<string> assets() => null;
 	
 	
 	
 	/**
 	 * Required components
 	 */
-	pure Collection<string> components() => null;
+	lambda Collection<string> components() => null;
 	
 	
 	

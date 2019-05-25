@@ -16,43 +16,40 @@
  *  limitations under the License.
  */
 
-namespace Core.Components.Dialog;
+namespace Core.Interfaces;
 
-use Runtime.Exceptions.RuntimeException;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.Interfaces.ComponentInterface;
-use Core.UI.Render.RenderContainer;
+use Core.Interfaces.AssetsInterface;
 
 
-class ModuleDescription implements 
-	ModuleDescriptionInterface, 
-	ComponentInterface
+class ModuleDescription implements ModuleDescriptionInterface, AssetsInterface
 {
+
 	
 	/**
 	 * Returns module name
 	 * @return string
 	 */
-	lambda string getName() => "Core.Components.Dialog";
+	lambda string getName() => "Core.Interfaces";
+	
 	
 	
 	/**
 	 * Returns module name
 	 * @return string
 	 */
-	lambda string getModuleVersion() => "0.1.2";
+	lambda string getModuleVersion() => "0.1.0";
 	
 	
 	
 	/**
 	 * Returns required modules
 	 * @return Map<string>
-	 */	
-	lambda Map<string> requiredModules() =>
+	 */
+	lambda Map<string> requiredModules() => 
 	{
-		'Core.UI': '>=0.3',
-		'Core.Components.Button': '*',
+		'Runtime': '>=0.3',
 	};
 	
 	
@@ -63,40 +60,21 @@ class ModuleDescription implements
 	 */
 	lambda Collection<string> getModuleFiles() => 
 	[
-		"Core.Components.Dialog.Dialog",
-		"Core.Components.Dialog.DialogManager",
-		"Core.Components.Dialog.DialogModel",
-		"Core.Components.Dialog.DialogResultEvent",
-		"Core.Components.Dialog.ModuleDescription",
+		"Core.Interfaces.ApiDeclaringInterface",
+		"Core.Interfaces.AssetsInterface",
+		"Core.Interfaces.ComponentInterface",
+		"Core.Interfaces.FrontendInterface",
+		"Core.Interfaces.RoutesDeclaringInterface",
+		"Core.Interfaces.RoutesInterface",
+		"Core.Interfaces.ModuleDescription",
 	];
 	
 	
 	
 	/**
 	 * Returns enities
-	 */
+	 */		
 	lambda Collection<Dict> entities() => null;
-	
-	
-	
-	/**
-	 * Returns view name
-	 */
-	lambda string componentViewName()  => "Core.Components.Dialog.Dialog";
-	
-	
-	
-	/**
-	 * Returns manager name
-	 */
-	lambda string componentManagerName() => "Core.Components.Dialog.DialogManager";
-	
-	
-	
-	/**
-	 * Returns model name
-	 */
-	lambda string componentModelName()  => "Core.Components.Dialog.DialogModel";
 	
 	
 	
@@ -111,7 +89,7 @@ class ModuleDescription implements
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Vector<string> resources(RenderContainer container) => null;
+	lambda Collection<string> resources(RenderContainer container) => null;
 	
 	
 	
@@ -138,15 +116,19 @@ class ModuleDescription implements
 	 */
 	public static void onRegister(ContextInterface context)
 	{
+		/* Register Drivers */
+		/*context.registerDriver("driver.web.core", new WebDriver( context ));*/
+		
 	}
 	
 	
 	
 	/**
 	 * Called then context read config
+	 * @param ContextInterface context
 	 * @param Map<mixed> config
 	 */
-	public static void onReadConfig(ContextInterface context, Map<mixed> config){}
-	
+	public static void onReadConfig(ContextInterface context, Map<mixed> config){
+	}
 	
 }

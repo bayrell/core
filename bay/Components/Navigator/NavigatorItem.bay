@@ -35,7 +35,7 @@ struct NavigatorItem extends TreeItem
 	/**
 	 * Returns icon by kind
 	 */
-	pure string getIcon(string kind)
+	lambda string getIcon(string kind)
 	{
 		if (kind == "folder") return "folder";
 		else if (kind == "file") return "file";
@@ -50,7 +50,7 @@ struct NavigatorItem extends TreeItem
 	 * @param Collection<FileNode> items
 	 * @return TreeModel
 	 */
-	pure Collection<NavigatorItem> convertFileNodes(Collection<FileNode> items)
+	lambda Collection<NavigatorItem> convertFileNodes(Collection<FileNode> items)
 	{
 		return items.map( 
 			NavigatorItem (FileNode item)

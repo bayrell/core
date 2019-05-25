@@ -54,7 +54,7 @@ struct ApiResult extends CoreStruct
 	 * @param ApiResult res
 	 * @return ApiResult
 	 */
-	pure ApiResult setError(ApiResult res, int code, string error = "")
+	lambda ApiResult setError(ApiResult res, int code, string error = "")
 	{
 		bool success = false;
 		if (code >= RuntimeConstant::ERROR_OK) success = true;

@@ -51,7 +51,7 @@ struct ListSort extends CoreView
 	/**
 	 * Render items
 	 */
-	pure Collection<UIStruct> items(ListSortModel data)
+	lambda Collection<UIStruct> items(ListSortModel data)
 	{
 		Vector<UIStruct> res = new Vector();
 		for (int i=0; i<data.items.count(); i++)

@@ -20,9 +20,10 @@ namespace Core.UI.Render;
 
 use Runtime.CoreStruct;
 use Runtime.RuntimeUtils;
+use Runtime.Interfaces.ModuleDescriptionInterface;
 use Runtime.Interfaces.StringInterface;
-use Core.UI.Interfaces.AssetsInterface;
-use Core.UI.Interfaces.ComponentInterface;
+use Core.Interfaces.AssetsInterface;
+use Core.Interfaces.ComponentInterface;
 use Core.UI.Render.RenderContainer;
 
 
@@ -33,7 +34,7 @@ static class RenderHelper
 	/**
 	 * Render class with data
 	 */
-	pure string render
+	lambda string render
 	(
 		string class_name, 
 		mixed data
@@ -66,7 +67,7 @@ static class RenderHelper
 	/**
 	 * Returns if tag name is double token
 	 */
-	pure memorize bool isDoubleToken(string tag_name)
+	lambda memorize bool isDoubleToken(string tag_name)
 	{
 		Dict tokens = ["img", "meta", "input", "link", "br"];
 		if (tokens.indexOf(tag_name) == -1)  return true;
@@ -106,7 +107,7 @@ static class RenderHelper
 	/**
 	 * Returns attrs
 	 */
-	pure Dict<string> getUIAttrs(UIStruct ui)
+	lambda Dict<string> getUIAttrs(UIStruct ui)
 	{
 		Dict<string> attrs = new Map();
 		
@@ -215,7 +216,7 @@ static class RenderHelper
 	/**
 	 * Returns attrs
 	 */
-	pure string getUIStringAttrs(UIStruct ui)
+	lambda string getUIStringAttrs(UIStruct ui)
 	{
 		Dict<string> attrs = static::getUIAttrs(ui);
 		attrs = attrs.map(
@@ -233,7 +234,7 @@ static class RenderHelper
 	/**
 	 * Convert UI to string
 	 */
-	pure string getUIStringVector(Collection<UIStruct> arr)
+	lambda string getUIStringVector(Collection<UIStruct> arr)
 	{
 		if (arr == null) 
 			return "";
@@ -251,7 +252,7 @@ static class RenderHelper
 	/**
 	 * Convert UI to string
 	 */
-	pure string getUIString(UIStruct ui)
+	lambda string getUIString(UIStruct ui)
 	{
 		if (ui == null)
 			return "";
@@ -313,7 +314,7 @@ static class RenderHelper
 	 * @param Collection<string> items
 	 * @return Collection<string>
 	 */
-	pure Collection<string> addUniqueItems
+	lambda Collection<string> addUniqueItems
 	(
 		Collection<string> res, 
 		Collection<string> items,
@@ -350,47 +351,51 @@ static class RenderHelper
 		RenderContainer container
 	)
 	{
-		if (modules != null)
+		if (modules == null)
+			return;
+		
+		for (int i=0; i<modules.count(); i++)
 		{
-			for (int i=0; i<modules.count(); i++)
+			string module_item = modules.item(i);
+			Vector<string> interfaces = RuntimeUtils::getInterfaces(module_item);
+			bool is_assets = interfaces.indexOf( classof AssetsInterface ) != -1;
+			bool is_components = interfaces.indexOf( classof ComponentInterface ) != -1;
+			bool is_module = interfaces.indexOf( classof ModuleDescriptionInterface ) != -1;
+			
+			if (not (is_components or is_assets or is_module))
 			{
-				string module_item = modules.item(i);
-				Vector<string> interfaces = RuntimeUtils::getInterfaces(module_item);
-				bool is_assets = interfaces.indexOf( classof AssetsInterface ) != -1;
-				bool is_components = interfaces.indexOf( classof ComponentInterface ) != -1;
-				if (not is_assets and not is_components)
+				continue;
+			}
+			
+			if (cache.get(module_item, false) == false)
+			{
+				cache.set(module_item, true);
+				if (is_module)
 				{
-					continue;
-				}
-				
-				if (is_components or is_assets)
-				{
-					if (cache.get(module_item, false) == false)
+					Dict<string> sub_modules = ( method(module_item, "requiredModules") )();
+					if (sub_modules != null)
 					{
-						cache.set(module_item, true);
-						if (is_components)
-						{
-							Dict<string> sub_modules = ( method(module_item, "requiredModules") )();
-							if (sub_modules != null)
-							{
-								Collection<string> sub_modules = sub_modules.keys();
-								sub_modules = sub_modules.map(
-									string (string module_name){ return module_name ~ ".ModuleDescription"; }
-								);
-								static::_getAssets(res, cache, sub_modules, v);
-							}
-						}
-						
-						Dict<string> sub_assets = ( method(module_item, "assets") )(container);
-						if (sub_assets != null)
-						{
-							static::_getAssets(res, cache, sub_assets, container);
-						}
-						res.push(module_item);
+						Collection<string> sub_modules = sub_modules.keys();
+						sub_modules = sub_modules.map(
+							string (string module_name){ return module_name ~ ".ModuleDescription"; }
+						);
+						static::_getAssets(res, cache, sub_modules, container);
 					}
 				}
+				
+				if (is_assets or is_components)
+				{
+					Dict<string> sub_assets = ( method(module_item, "assets") )(container);
+					if (sub_assets != null)
+					{
+						static::_getAssets(res, cache, sub_assets, container);
+					}
+				}
+				res.push(module_item);
 			}
+			
 		}
+		
 	}
 	
 	
@@ -400,7 +405,7 @@ static class RenderHelper
 	 * @param Collection<string> modules
 	 * @return Collection<string>
 	 */
-	pure Collection<string> getAssets(Collection<string> modules, RenderContainer container)
+	lambda Collection<string> getAssets(Collection<string> modules, RenderContainer container)
 	{
 		/* Add modules */
 		Vector<string> res = new Vector();
@@ -417,45 +422,41 @@ static class RenderHelper
 	 * @param Collection<string> assets
 	 * @return Collection<string>
 	 */
-	pure memorize Collection<string> loadAsyncResources(Collection<string> assets)
+	lambda memorize Collection<string> loadResources(Collection<string> assets)
 	{
 		Collection<string> res = new Collection();
 		if (assets == null) return res;
 		
 		for (int i=0; i<assets.count(); i++)
 		{
-			string assets_name = assets.item(i);
-			Collection<mixed> r = ( method(assets_name, "assetsAsyncLoad") )(null);
+			string class_name = assets.item(i);
+			Vector<string> interfaces = RuntimeUtils::getInterfaces(class_name);
+			bool is_assets = interfaces.indexOf( classof AssetsInterface ) != -1;
+			bool is_components = interfaces.indexOf( classof ComponentInterface ) != -1;
+			bool is_module = interfaces.indexOf( classof ModuleDescriptionInterface ) != -1;
+			
+			if (not (is_components or is_assets or is_module))
+			{
+				continue;
+			}
+			
+			Collection<string> r = ( method(class_name, "getModuleFiles") )(null);
 			if (r != null)
 			{
-				for (int j=0; j<r.count(); j++)
+				r = r.map(
+					string (string item) => "@" ~ rs::replace(".", "/", item) ~ ".js"
+				);
+				res = static::addUniqueItems(res, r);
+			}
+			
+			if (is_assets or is_components)
+			{
+				Collection<mixed> r = ( method(class_name, "resources") )(null);
+				if (r != null)
 				{
-					string arr = r.item(j);
-					res = static::addUniqueItems(res, arr);
+					res = static::addUniqueItems(res, r);
 				}
 			}
-		}
-		
-		return res;
-	}
-	
-	
-	
-	/**
-	 * Returns assets
-	 * @param Collection<string> assets
-	 * @return Collection<string>
-	 */
-	pure memorize Collection<string> loadSyncResources(Collection<string> assets)
-	{
-		Collection<string> res = new Collection();
-		if (assets == null) return res;
-		
-		for (int i=0; i<assets.count(); i++)
-		{
-			string assets_name = assets.item(i);
-			Collection<mixed> r = ( method(assets_name, "assetsSyncLoad") )(null);
-			res = static::addUniqueItems(res, r);
 		}
 		
 		return res;
@@ -468,7 +469,7 @@ static class RenderHelper
 	 * @param Dict<string> css_vars
 	 * @return string
 	 */
-	pure memorize string getCSSFromComponents(Collection<string> components, Dict<string> css_vars)
+	lambda memorize string getCSSFromComponents(Collection<string> components, Dict<string> css_vars)
 	{
 		Vector<string> res = new Vector();
 		
@@ -491,7 +492,7 @@ static class RenderHelper
 	 * @param RenderContainer container
 	 * @return RenderContainer
 	 */
-	pure RenderContainer initRenderContainer(RenderContainer container)
+	lambda RenderContainer initRenderContainer(RenderContainer container)
 	{
 		return container;
 	}

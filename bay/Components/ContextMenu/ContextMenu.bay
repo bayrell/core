@@ -78,7 +78,7 @@ class ContextMenu extends CoreView
 	 * @param Collection<UIStruct> children
 	 * @param Dict<primitive> props
 	 */
-	pure Collection<UIStruct> render(ContextMenuModel data, UIStruct ui)
+	lambda Collection<UIStruct> render(ContextMenuModel data, UIStruct ui)
 	{
 		Dict<string> style = {
 			'display': data.is_active ? 'block' : 'none',
@@ -98,7 +98,7 @@ class ContextMenu extends CoreView
 	 * @param Collection<UIStruct> children
 	 * @param Dict<primitive> props
 	 */
-	pure Collection<UIStruct> renderChildren(Collection<UIStruct> children)
+	lambda Collection<UIStruct> renderChildren(Collection<UIStruct> children)
 	{
 		return children.map( 
 			

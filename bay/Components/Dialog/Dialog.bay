@@ -94,7 +94,7 @@ class Dialog extends CoreView
 	/**
 	 * Component render
 	 */
-	pure Collection<UIStruct> render(DialogModel model, UIStruct ui)
+	lambda Collection<UIStruct> render(DialogModel model, UIStruct ui)
 	{
 		if (not model.is_open) return "";
 		return 
@@ -132,7 +132,7 @@ class Dialog extends CoreView
 	/**
 	 * Render dialog title
 	 */
-	pure Collection<UIStruct> renderTitle(DialogModel model)
+	lambda Collection<UIStruct> renderTitle(DialogModel model)
 	{
 		if (model.title == "") return "";
 		return <div @class='dialog_title'>{ model.title }</div>;
@@ -143,7 +143,7 @@ class Dialog extends CoreView
 	/**
 	 * Render dialog message
 	 */
-	pure Collection<UIStruct> renderMessage(DialogModel model)
+	lambda Collection<UIStruct> renderMessage(DialogModel model)
 	{
 		if (model.message == "") return "";
 		return <div @class='dialog_message'>{ model.message }</div>;
@@ -154,7 +154,7 @@ class Dialog extends CoreView
 	/**
 	 * Render dialog promt
 	 */
-	pure Collection<UIStruct> renderPromt(DialogModel model)
+	lambda Collection<UIStruct> renderPromt(DialogModel model)
 	{
 		if (model.style != DialogModel::STYLE_PROMT) return "";
 		return <div @class='dialog_promt'>
@@ -167,7 +167,7 @@ class Dialog extends CoreView
 	/**
 	 * Render dialog buttons
 	 */
-	pure Collection<UIStruct> renderButtons(DialogModel model)
+	lambda Collection<UIStruct> renderButtons(DialogModel model)
 	{
 		return <div @class='dialog_buttons'>
 			<Button @control='button' @tag='ok'>OK</Button>

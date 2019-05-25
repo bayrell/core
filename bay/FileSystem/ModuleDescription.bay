@@ -20,7 +20,7 @@ namespace Core.FileSystem;
 
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.UI.Interfaces.AssetsInterface;
+use Core.Interfaces.AssetsInterface;
 
 
 class ModuleDescription implements ModuleDescriptionInterface, AssetsInterface
@@ -55,6 +55,21 @@ class ModuleDescription implements ModuleDescriptionInterface, AssetsInterface
 	
 	
 	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		'Core.FileSystem.FileIOResult',
+		'Core.FileSystem.FileNode',
+		'Core.FileSystem.FileStat',
+		'Core.FileSystem.FileSystemInterface',
+		'Core.FileSystem.ModuleDescription',
+	];
+	
+	
+	
+	/**
 	 * Returns enities
 	 */
 	lambda Collection<Dict> entities() => null;
@@ -72,27 +87,7 @@ class ModuleDescription implements ModuleDescriptionInterface, AssetsInterface
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Collection<string> assetsSyncLoad(RenderContainer context) =>
-		[
-		]
-	;
-	
-	
-	
-	/**
-	 * Returns async loaded files
-	 */			
-	lambda Collection<mixed> assetsAsyncLoad(RenderContainer context) =>
-		[
-			[
-				'@Core/FileSystem/FileIOResult.js',
-				'@Core/FileSystem/FileNode.js',
-				'@Core/FileSystem/FileStat.js',
-				'@Core/FileSystem/FileSystemInterface.js',
-				'@Core/FileSystem/ModuleDescription.js',
-			]
-		]
-	;
+	lambda Collection<string> resources(RenderContainer context) => null;
 	
 	
 	

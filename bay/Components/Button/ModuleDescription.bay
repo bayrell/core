@@ -21,7 +21,7 @@ namespace Core.Components.Button;
 use Runtime.Exceptions.RuntimeException;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.UI.Interfaces.ComponentInterface;
+use Core.Interfaces.ComponentInterface;
 use Core.UI.Render.RenderContainer;
 
 
@@ -52,6 +52,20 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 	{
 		'Core.UI': '>=0.3',
 	};
+	
+	
+	
+	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		"Core.Components.Button.Button",
+		"Core.Components.Button.ButtonManager",
+		"Core.Components.Button.ButtonModel",
+		"Core.Components.Button.ModuleDescription",
+	];
 	
 	
 	
@@ -94,26 +108,7 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Collection<string> assetsSyncLoad(RenderContainer container) =>
-		[
-		]
-	;
-	
-	
-	
-	/**
-	 * Returns async loaded files
-	 */			
-	lambda Collection<mixed> assetsAsyncLoad(RenderContainer container) =>
-		[
-			[
-				'@Core/Components/Button/Button.js',
-				'@Core/Components/Button/ButtonManager.js',
-				'@Core/Components/Button/ButtonModel.js',
-				'@Core/Components/Button/ModuleDescription.js',
-			]
-		]
-	;
+	lambda Collection<string> resources(RenderContainer container) => null;
 	
 	
 	

@@ -21,7 +21,7 @@ namespace Core.Components.Navigator;
 use Runtime.Exceptions.RuntimeException;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.UI.Interfaces.ComponentInterface;
+use Core.Interfaces.ComponentInterface;
 use Core.UI.Render.RenderContainer;
 
 
@@ -55,6 +55,22 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 		'Core.FileSystem': '*',
 		'Core.UI': '>=0.3',
 	};
+	
+	
+	
+	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		"Core.Components.Navigator.Navigator",
+		"Core.Components.Navigator.NavigatorItem",
+		"Core.Components.Navigator.NavigatorItemEvent",
+		"Core.Components.Navigator.NavigatorManager",
+		"Core.Components.Navigator.NavigatorModel",
+		"Core.Components.Navigator.ModuleDescription",
+	];
 	
 	
 	
@@ -96,28 +112,7 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Vector<string> assetsSyncLoad(RenderContainer container) =>
-		[
-		]
-	;
-	
-	
-	
-	/**
-	 * Returns async loaded files
-	 */			
-	lambda Vector<mixed> assetsAsyncLoad(RenderContainer container) =>
-		[
-			[
-				'@Core/Components/Navigator/Navigator.js',
-				'@Core/Components/Navigator/NavigatorItem.js',
-				'@Core/Components/Navigator/NavigatorItemEvent.js',
-				'@Core/Components/Navigator/NavigatorManager.js',
-				'@Core/Components/Navigator/NavigatorModel.js',
-				'@Core/Components/Navigator/ModuleDescription.js',
-			]
-		]
-	;
+	lambda Vector<string> resources(RenderContainer container) => null;
 	
 	
 	

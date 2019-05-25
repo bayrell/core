@@ -87,7 +87,7 @@ struct Tabs extends CoreView
 	/**
 	 * Header render
 	 */
-	pure Template renderHeader(TabsModel model, UIStruct ui)
+	lambda Template renderHeader(TabsModel model, UIStruct ui)
 	{
 		if (model.scroll)
 		{
@@ -142,7 +142,7 @@ struct Tabs extends CoreView
 	/**
 	 * Header render
 	 */
-	pure Template renderTab(UIStruct item, string active, string default_tab)
+	lambda Template renderTab(UIStruct item, string active, string default_tab)
 	{
 		string key = "";
 		string title = "";
@@ -180,7 +180,7 @@ struct Tabs extends CoreView
 	/**
 	 * Tab render
 	 */
-	pure Template renderContent(UIStruct item, string active, string default_tab)
+	lambda Template renderContent(UIStruct item, string active, string default_tab)
 	{
 		string key = "";
 		string class_name = "";

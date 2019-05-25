@@ -20,7 +20,7 @@ namespace Core.UI.Render;
 
 
 use Runtime.CoreObject;
-use Core.UI.Interfaces.RoutesInterface;
+use Core.Interfaces.RoutesInterface;
 use Core.UI.Render.WebContainer;
 
 

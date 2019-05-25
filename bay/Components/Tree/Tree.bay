@@ -159,7 +159,7 @@ class Tree extends CoreView
 	/**
 	 * Tree render item
 	 */
-	pure Template renderTreeItem(TreeModel model, TreeItem item, string path, Dict<primitive> props)
+	lambda Template renderTreeItem(TreeModel model, TreeItem item, string path, Dict<primitive> props)
 	{
 		string class_name = "";
 		
@@ -184,7 +184,7 @@ class Tree extends CoreView
 	/**
 	 * Tree render icon
 	 */
-	pure Collection<UIStruct> renderTreeIcon(TreeModel model, TreeItem item, Dict<primitive> props)
+	lambda Collection<UIStruct> renderTreeIcon(TreeModel model, TreeItem item, Dict<primitive> props)
 	{
 		return <span class={ static::getTreeIcon(item) }></span>;
 	}
@@ -194,7 +194,7 @@ class Tree extends CoreView
 	/**
 	 * Returns icon by item
 	 */
-	pure string getTreeIcon(TreeItem item)
+	lambda string getTreeIcon(TreeItem item)
 	{
 		if (item.kind == TreeItem::KIND_FOLDER)
 		{
@@ -221,7 +221,7 @@ class Tree extends CoreView
 	/**
 	 * Render context menu items
 	 */
-	pure Collection<UIStruct> renderContextMenuItems(Model model)
+	lambda Collection<UIStruct> renderContextMenuItems(Model model)
 	{
 		if (model.selected == "" or not model.contextmenu.is_active)
 			return "";
@@ -251,7 +251,7 @@ class Tree extends CoreView
 	/**
 	 * Render context menu
 	 */
-	pure Collection<UIStruct> renderDialogs(Model model)
+	lambda Collection<UIStruct> renderDialogs(Model model)
 	{
 		return 
 			<Dialog @model={ model.dialog } @control='dialog'></Dialog>

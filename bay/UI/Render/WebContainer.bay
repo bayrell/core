@@ -19,12 +19,12 @@
 namespace Core.UI.Render;
 
 use Runtime.CoreStruct;
-use Core.UI.Annotations.RouteInfo;
-use Core.UI.Interfaces.ComponentInterface;
+use Core.Interfaces.ComponentInterface;
 use Core.Http.Request;
 use Core.Http.Response;
 use Core.Http.Session;
 use Core.Http.WebFile;
+use Core.UI.Annotations.RouteInfo;
 use Core.UI.Render.RenderContainer;
 use Core.UI.Render.RenderHelper;
 use Core.UI.Render.RenderResult;
@@ -79,6 +79,7 @@ struct WebContainer extends CoreStruct
 					return is_component;
 				}
 			);
+			
 			layout_model = RenderHelper::initRenderContainer(layout_model);
 			layout_model = layout_model.copy({
 				"assets": assets,
@@ -104,7 +105,7 @@ struct WebContainer extends CoreStruct
 	 * @param CoreStruct view_data
 	 * @return Response
 	 */
-	pure Response responsePage
+	lambda Response responsePage
 	(
 		string layout_class_name, RenderContainer layout_data, 
 		string view_class_name, CoreStruct view_data

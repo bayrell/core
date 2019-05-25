@@ -16,13 +16,29 @@
  *  limitations under the License.
  */
  
-namespace Core.UI.Interfaces;
+namespace Core.Interfaces;
 
 use Core.UI.Render.RenderContainer;
 
 
 interface AssetsInterface
 {
+	
+	/**
+	 * Returns required modules
+	 * @return Dict<string>
+	 */
+	lambda Dict<string> requiredModules();
+	
+	
+	
+	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles();
+	
+	
 	
 	/**
 	 * Returns required assets
@@ -35,14 +51,7 @@ interface AssetsInterface
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Collection<string> assetsSyncLoad(RenderContainer container);
-	
-	
-	
-	/**
-	 * Returns async loaded files
-	 */			
-	lambda Collection<mixed> assetsAsyncLoad(RenderContainer container);
+	lambda Collection<string> resources(RenderContainer container);
 	
 	
 	

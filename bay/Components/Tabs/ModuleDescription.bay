@@ -22,7 +22,7 @@ use Runtime.Exceptions.RuntimeException;
 use Runtime.Interfaces.AssetsInterface;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.UI.Interfaces.ComponentInterface;
+use Core.Interfaces.ComponentInterface;
 use Core.UI.Render.RenderContainer;
 
 
@@ -54,6 +54,21 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 	{
 		'Core.UI': '>=0.3',
 	};
+	
+	
+	
+	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		"Core.Components.Tabs.Tabs",
+		"Core.Components.Tabs.TabsItem",
+		"Core.Components.Tabs.TabsManager",
+		"Core.Components.Tabs.TabsModel",
+		"Core.Components.Tabs.ModuleDescription",
+	];
 	
 	
 	
@@ -95,27 +110,7 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Collection<string> assetsSyncLoad(RenderContainer container) => 
-		[
-		]
-	;
-	
-	
-	
-	/**
-	 * Returns async loaded files
-	 */			
-	lambda Collection<mixed> assetsAsyncLoad(RenderContainer container) =>
-		[
-			[
-				'@Core/Components/Tabs/Tabs.js',
-				'@Core/Components/Tabs/TabsItem.js',
-				'@Core/Components/Tabs/TabsManager.js',
-				'@Core/Components/Tabs/TabsModel.js',
-				'@Core/Components/Tabs/ModuleDescription.js',
-			]
-		]
-	;
+	lambda Collection<string> resources(RenderContainer container) => null;
 	
 	
 	

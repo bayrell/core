@@ -38,7 +38,7 @@ struct TreeModel extends TreeItem
 	/**
 	 * Split path
 	 */
-	pure Collection<int> splitPath(string path)
+	lambda Collection<int> splitPath(string path)
 	{
 		Collection<string> path = rs::explode(".", path);
 		return path.map( method rtl::toInt );
@@ -49,7 +49,7 @@ struct TreeModel extends TreeItem
 	/**
 	 * Return name path
 	 */
-	pure Collection<int> getNamePath(TreeModel model, Collection<int> path, string ch = "/", string attr = "name")
+	lambda Collection<int> getNamePath(TreeModel model, Collection<int> path, string ch = "/", string attr = "name")
 	{
 		Collection<TreeItem> items = static::getTreePathItems(model, path);
 		string path_str = rs::implode(ch, items.map( lambda string (TreeItem item) use (attr) => item.takeValue(attr) ));
@@ -62,7 +62,7 @@ struct TreeModel extends TreeItem
 	/**
 	 * Returns tree items by path
 	 */
-	pure Collection<TreeItem> getTreePathItems(TreeModel model, Collection<int> path)
+	lambda Collection<TreeItem> getTreePathItems(TreeModel model, Collection<int> path)
 	{
 		TreeItem item = model;
 		Vector<TreeItem> items = new Vector();
@@ -82,7 +82,7 @@ struct TreeModel extends TreeItem
 	/**
 	 * Returns tree item by path
 	 */
-	pure TreeItem getTreeItem(TreeModel model, Collection<int> path)
+	lambda TreeItem getTreeItem(TreeModel model, Collection<int> path)
 	{
 		TreeItem item = model;
 		for (int i=0; i<path.count(); i++)
@@ -100,7 +100,7 @@ struct TreeModel extends TreeItem
 	/**
 	 * Set tree item by path
 	 */
-	pure TreeItem setTreeItem(TreeItem parent_item, Collection<int> path, TreeItem item)
+	lambda TreeItem setTreeItem(TreeItem parent_item, Collection<int> path, TreeItem item)
 	{
 		if (path.count() == 1)
 		{
@@ -125,7 +125,7 @@ struct TreeModel extends TreeItem
 	/**
 	 * Add tree item by path
 	 */
-	pure TreeItem addTreeItem(TreeItem parent_item, Collection<int> path, TreeItem item, callback add_item = null)
+	lambda TreeItem addTreeItem(TreeItem parent_item, Collection<int> path, TreeItem item, callback add_item = null)
 	{
 		if (path.count() == 0)
 		{
@@ -168,7 +168,7 @@ struct TreeModel extends TreeItem
 	/**
 	 * Add tree item by path
 	 */
-	pure TreeItem deleteTreeItem(TreeItem parent_item, Collection<int> path)
+	lambda TreeItem deleteTreeItem(TreeItem parent_item, Collection<int> path)
 	{
 		if (path.count() == 1)
 		{
@@ -197,7 +197,7 @@ struct TreeModel extends TreeItem
 	 * @param int y
 	 * @return TreeModel
 	 */
-	pure TreeModel showContextMenu(TreeModel model, bool is_active, int x = 0, int y = 0)
+	lambda TreeModel showContextMenu(TreeModel model, bool is_active, int x = 0, int y = 0)
 	{
 		ContextMenuModel contextmenu = model.contextmenu;
 		
@@ -228,7 +228,7 @@ struct TreeModel extends TreeItem
 	 * @param string path
 	 * @return TreeModel
 	 */
-	pure TreeModel selectItem(TreeModel model, string path)
+	lambda TreeModel selectItem(TreeModel model, string path)
 	{
 		model <= selected <= path;
 		return model;
@@ -241,7 +241,7 @@ struct TreeModel extends TreeItem
 	 * @param TreeModel model
 	 * @return TreeItem
 	 */
-	pure TreeItem getSelectedItem(TreeModel model)
+	lambda TreeItem getSelectedItem(TreeModel model)
 	{
 		Collection<int> path = static::splitPath( model.selected );
 		TreeItem item = static::getTreeItem( model, path );

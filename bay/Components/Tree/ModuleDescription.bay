@@ -21,7 +21,7 @@ namespace Core.Components.Tree;
 use Runtime.Exceptions.RuntimeException;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.UI.Interfaces.ComponentInterface;
+use Core.Interfaces.ComponentInterface;
 use Core.UI.Render.RenderContainer;
 
 
@@ -54,6 +54,24 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 		'Core.Components.Dialog': '>=0.1',
 		'Core.UI': '>=0.3',
 	};
+	
+	
+	
+	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		"Core.Components.Tree.Tree",
+		"Core.Components.Tree.TreeDialogModel",
+		"Core.Components.Tree.TreeItem",
+		"Core.Components.Tree.TreeManager",
+		"Core.Components.Tree.TreeModel",
+		"Core.Components.Tree.TreeReloadNodeEvent",
+		"Core.Components.Tree.TreeSelectNodeEvent",
+		"Core.Components.Tree.ModuleDescription",
+	];
 	
 	
 	
@@ -95,30 +113,7 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Vector<string> assetsSyncLoad(RenderContainer container) =>
-		[
-		]
-	;
-	
-	
-	
-	/**
-	 * Returns async loaded files
-	 */			
-	lambda Vector<mixed> assetsAsyncLoad(RenderContainer context) =>
-		[
-			[
-				'@Core/Components/Tree/Tree.js',
-				'@Core/Components/Tree/TreeDialogModel.js',
-				'@Core/Components/Tree/TreeItem.js',
-				'@Core/Components/Tree/TreeManager.js',
-				'@Core/Components/Tree/TreeModel.js',
-				'@Core/Components/Tree/TreeReloadNodeEvent.js',
-				'@Core/Components/Tree/TreeSelectNodeEvent.js',
-				'@Core/Components/Tree/ModuleDescription.js',
-			]
-		]
-	;
+	lambda Vector<string> resources(RenderContainer container) => null;
 	
 	
 	

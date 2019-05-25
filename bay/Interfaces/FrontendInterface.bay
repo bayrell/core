@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
  
-namespace Core.UI.Interfaces;
+namespace Core.Interfaces;
 
 
 interface FrontendInterface

@@ -31,7 +31,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */
-	pure string getName() => "Core.FileSystem.Provider";
+	lambda string getName() => "Core.FileSystem.Provider";
 	
 	
 	
@@ -39,7 +39,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */
-	pure string getModuleVersion() => "0.7.1";
+	lambda string getModuleVersion() => "0.7.1";
 	
 	
 	
@@ -47,7 +47,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns required modules
 	 * @return Map<string, string>
 	 */
-	pure Map<string> requiredModules() =>
+	lambda Map<string> requiredModules() =>
 	{
 		'Runtime': '>=0.2 <1.0',
 	};
@@ -55,9 +55,22 @@ class ModuleDescription implements ModuleDescriptionInterface
 	
 	
 	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		'Core.FileSystem.Provider.FileSystemProvider',
+		'Core.FileSystem.Provider.FileSystemProviderFactory',
+		'Core.FileSystem.Provider.ModuleDescription',
+	];
+	
+	
+	
+	/**
 	 * Returns enities
 	 */
-	pure Collection<Dict> entities() => null;
+	lambda Collection<Dict> entities() => null;
 	
 	
 	

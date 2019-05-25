@@ -35,7 +35,7 @@ struct ApiRequest extends CoreStruct
 	 * @param ApiRequest req
 	 * @return ApiRequest
 	 */
-	pure ApiRequest assignRequest(ApiRequest req, Request request)
+	lambda ApiRequest assignRequest(ApiRequest req, Request request)
 	{
 		if (request == null)
 			return;

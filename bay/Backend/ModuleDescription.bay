@@ -24,7 +24,7 @@ use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
 use Core.Backend.ApiRoute;
 use Core.Backend.BackendAppDriver;
-use Core.UI.Interfaces.RoutesDeclaringInterface;
+use Core.Interfaces.RoutesDeclaringInterface;
 
 
 class ModuleDescription implements ModuleDescriptionInterface, RoutesDeclaringInterface
@@ -35,7 +35,7 @@ class ModuleDescription implements ModuleDescriptionInterface, RoutesDeclaringIn
 	 * Returns module name
 	 * @return string
 	 */
-	pure string getName() => "Core.Backend";
+	lambda string getName() => "Core.Backend";
 	
 	
 	
@@ -43,7 +43,7 @@ class ModuleDescription implements ModuleDescriptionInterface, RoutesDeclaringIn
 	 * Returns module name
 	 * @return string
 	 */
-	pure string getModuleVersion() => "0.1.2";
+	lambda string getModuleVersion() => "0.1.2";
 	
 	
 	
@@ -51,7 +51,7 @@ class ModuleDescription implements ModuleDescriptionInterface, RoutesDeclaringIn
 	 * Returns required modules
 	 * @return Map<string, string>
 	 */
-	pure Map<string> requiredModules() =>
+	lambda Map<string> requiredModules() =>
 	{
 		'Runtime': '>=0.3',
 	};
@@ -59,9 +59,22 @@ class ModuleDescription implements ModuleDescriptionInterface, RoutesDeclaringIn
 	
 	
 	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		"Core.Backend.ApiRoute",
+		"Core.Backend.BackendAppDriver",
+		"Core.Backend.ModuleDescription",
+	];
+	
+	
+	
+	/**
 	 * Returns enities
 	 */
-	pure Collection<Dict> entities() => null;
+	lambda Collection<Dict> entities() => null;
 	
 	
 	

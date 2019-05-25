@@ -20,17 +20,13 @@ namespace Core.UI;
 
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.UI.Drivers.CssDriver;
-use Core.UI.Drivers.WebDriver;
-use Core.UI.Interfaces.AssetsInterface;
-use Core.UI.Interfaces.FrontendInterface;
+use Core.Interfaces.AssetsInterface;
 use Core.UI.Render.RenderContainer;
 
 
 class ModuleDescription implements 
 	ModuleDescriptionInterface,
-	AssetsInterface,
-	FrontendInterface
+	AssetsInterface
 {
 
 	
@@ -52,12 +48,66 @@ class ModuleDescription implements
 	
 	/**
 	 * Returns required modules
-	 * @return Map<string>
+	 * @return Dict<string>
 	 */
-	lambda Map<string> requiredModules() =>
+	lambda Dict<string> requiredModules() =>
 	{
 		'Runtime': '>=0.3',
+		'Core.Interfaces': '*',
+		'Core.Http': '*',
 	};
+	
+	
+	
+	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		"Core.UI.UIController",
+		"Core.UI.Annotations.ControllerAnnotation",
+		"Core.UI.Annotations.RouteInfo",
+		"Core.UI.Events.CommandEvent",
+		"Core.UI.Events.ComponentEvent",
+		"Core.UI.Events.ModelChange",
+		"Core.UI.Events.MountEvent",
+		"Core.UI.Events.UpdateStateEvent",
+		"Core.UI.Events.UserEvent.UserEvent",
+		"Core.UI.Render.CoreManager",
+		"Core.UI.Render.CoreRoute",
+		"Core.UI.Render.CoreView",
+		"Core.UI.Render.RenderContainer",
+		"Core.UI.Render.RenderHelper",
+		"Core.UI.Render.WebContainer",
+		"Core.UI.Assets",
+		"Core.UI.Animations.FadeIn",
+		"Core.UI.Animations.FadeOut",
+		"Core.UI.Annotations.BindModel",
+		"Core.UI.Annotations.BindValue",
+		"Core.UI.Annotations.Event",
+		"Core.UI.Annotations.EventAsync",
+		"Core.UI.Annotations.SignalOut",
+		"Core.UI.Events.KeyboardEvent.KeyboardEvent",
+		"Core.UI.Events.MouseEvent.MouseEvent",
+		"Core.UI.Events.UserEvent.BlurEvent",
+		"Core.UI.Events.UserEvent.ChangeEvent",
+		"Core.UI.Events.UserEvent.FocusEvent",
+		"Core.UI.Render.CoreLayout",
+		"Core.UI.Events.KeyboardEvent.KeyDownEvent",
+		"Core.UI.Events.KeyboardEvent.KeyPressEvent",
+		"Core.UI.Events.KeyboardEvent.KeyUpEvent",
+		"Core.UI.Events.MouseEvent.MouseClickEvent",
+		"Core.UI.Events.MouseEvent.MouseContextMenuEvent",
+		"Core.UI.Events.MouseEvent.MouseDoubleClickEvent",
+		"Core.UI.Events.MouseEvent.MouseDownEvent",
+		"Core.UI.Events.MouseEvent.MouseEnterEvent",
+		"Core.UI.Events.MouseEvent.MouseLeaveEvent",
+		"Core.UI.Events.MouseEvent.MouseMoveEvent",
+		"Core.UI.Events.MouseEvent.MouseOutEvent",
+		"Core.UI.Events.MouseEvent.MouseOverEvent",
+		"Core.UI.Events.MouseEvent.MouseUpEvent",
+	];
 	
 	
 	
@@ -79,120 +129,7 @@ class ModuleDescription implements
 	/**
 	 * Returns sync loaded files
 	 */		
-	lambda Vector<string> assetsSyncLoad(RenderContainer context) =>
-		[
-		]
-	;
-	
-	
-	
-	/**
-	 * Returns async loaded files
-	 */			
-	lambda Vector<mixed> assetsAsyncLoad(RenderContainer context) =>
-		[
-			[
-				"@Runtime/rs.js",
-				"@Runtime/re.js",
-				"@Runtime/rtl.js",
-				"@Runtime/Collection.js",
-				"@Runtime/Container.js",
-				"@Runtime/CoreObject.js",
-				"@Runtime/Dict.js",
-				"@Runtime/Emitter.js",
-				"@Runtime/RuntimeConstant.js",
-				"@Runtime/RuntimeUtils.js",
-				"@Runtime/Exceptions/RuntimeException.js",
-				"@Runtime/Interfaces/CloneableInterface.js",
-				"@Runtime/Interfaces/ContextInterface.js",
-				"@Runtime/Interfaces/FactoryInterface.js",
-				"@Runtime/Interfaces/ModuleDescriptionInterface.js",
-				"@Runtime/Interfaces/SerializeInterface.js",
-				"@Runtime/Interfaces/StringInterface.js",
-				"@Runtime/Interfaces/SubscribeInterface.js",
-			],
-			[
-				"@Runtime/AsyncTask.js",
-				"@Runtime/AsyncThread.js",
-				"@Runtime/Context.js",
-				"@Runtime/ContextObject.js",
-				"@Runtime/CoreStruct.js",
-				"@Runtime/CoreEvent.js",
-				"@Runtime/Map.js",
-				"@Runtime/Maybe.js",
-				"@Runtime/ModuleDescription.js",
-				"@Runtime/Reference.js",
-				"@Runtime/Vector.js",
-				"@Runtime/Exceptions/IndexOutOfRange.js",
-				"@Runtime/Exceptions/KeyNotFound.js",
-				"@Runtime/Exceptions/UnknownError.js",
-			],
-			[
-				"@Runtime/DateTime.js",
-				"@Runtime/IntrospectionInfo.js",
-				"@Runtime/UIStruct.js",
-			],
-			[
-				"@Core/Http/ApiRequest.js",
-				"@Core/Http/ApiResult.js",
-				"@Core/Http/Cookie.js",
-				"@Core/Http/Request.js",
-				"@Core/Http/Response.js",			
-				"@Core/UI/UIController.js",
-				"@Core/UI/Annotations/ControllerAnnotation.js",
-				"@Core/UI/Annotations/RouteInfo.js",
-				"@Core/UI/Events/CommandEvent.js",
-				"@Core/UI/Events/ComponentEvent.js",
-				"@Core/UI/Events/ModelChange.js",
-				"@Core/UI/Events/MountEvent.js",
-				"@Core/UI/Events/UpdateStateEvent.js",
-				"@Core/UI/Events/UserEvent/UserEvent.js",
-				"@Core/UI/Interfaces/ApiDeclaringInterface.js",
-				"@Core/UI/Interfaces/AssetsInterface.js",
-				"@Core/UI/Interfaces/FrontendInterface.js",
-				"@Core/UI/Interfaces/RoutesDeclaringInterface.js",
-				"@Core/UI/Interfaces/RoutesInterface.js",
-				"@Core/UI/Render/CoreManager.js",
-				"@Core/UI/Render/CoreRoute.js",
-				"@Core/UI/Render/CoreView.js",
-				"@Core/UI/Render/RenderContainer.js",
-				"@Core/UI/Render/RenderHelper.js",
-				"@Core/UI/Render/WebContainer.js",
-			],
-			[
-				"@Core/Http/JsonResponse.js",
-				"@Core/UI/Assets.js",
-				"@Core/UI/Animations/FadeIn.js",
-				"@Core/UI/Animations/FadeOut.js",
-				"@Core/UI/Annotations/BindModel.js",
-				"@Core/UI/Annotations/BindValue.js",
-				"@Core/UI/Annotations/Event.js",
-				"@Core/UI/Annotations/EventAsync.js",
-				"@Core/UI/Annotations/SignalOut.js",
-				"@Core/UI/Events/KeyboardEvent/KeyboardEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseEvent.js",
-				"@Core/UI/Events/UserEvent/BlurEvent.js",
-				"@Core/UI/Events/UserEvent/ChangeEvent.js",
-				"@Core/UI/Events/UserEvent/FocusEvent.js",
-				"@Core/UI/Render/CoreLayout.js",
-			],
-			[
-				"@Core/UI/Events/KeyboardEvent/KeyDownEvent.js",
-				"@Core/UI/Events/KeyboardEvent/KeyPressEvent.js",
-				"@Core/UI/Events/KeyboardEvent/KeyUpEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseClickEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseContextMenuEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseDoubleClickEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseDownEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseEnterEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseLeaveEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseMoveEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseOutEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseOverEvent.js",
-				"@Core/UI/Events/MouseEvent/MouseUpEvent.js",
-			]
-		]
-	;
+	lambda Vector<string> resources(RenderContainer context) => null;
 	
 	
 	

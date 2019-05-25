@@ -20,12 +20,10 @@ namespace Core.Http;
 
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
-use Core.UI.Drivers.CssDriver;
-use Core.UI.Drivers.WebDriver;
-use Core.UI.Interfaces.FrontendInterface;
+use Core.Interfaces.AssetsInterface;
 
 
-class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
+class ModuleDescription implements ModuleDescriptionInterface, AssetsInterface
 {
 
 	
@@ -33,9 +31,7 @@ class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getName(){
-		return "Core.Http";
-	}
+	lambda string getName() => "Core.Http";
 	
 	
 	
@@ -43,10 +39,65 @@ class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getModuleVersion()
+	lambda string getModuleVersion() => "0.7.0";
+	
+	
+	
+	/**
+	 * Returns required modules
+	 * @return Map<string>
+	 */
+	lambda Map<string> requiredModules() => 
 	{
-		return "0.7.0";
-	}
+		'Runtime': '>=0.3',
+		'Core.Interfaces': '*',
+	};
+	
+	
+	
+	/**
+	 * Returns module files load order
+	 * @return Collection<string>
+	 */
+	lambda Collection<string> getModuleFiles() => 
+	[
+		"Core.Http.ApiRequest",
+		"Core.Http.ApiResult",
+		"Core.Http.Cookie",
+		"Core.Http.Request",
+		"Core.Http.Response",
+		"Core.Http.JsonResponse",
+		"Core.Http.ModuleDescription",
+	];
+	
+	
+	
+	/**
+	 * Returns enities
+	 */		
+	lambda Collection<Dict> entities() => null;
+	
+	
+	
+	/**
+	 * Returns required assets
+	 * @return Collection<string>
+	 */	
+	lambda Collection<string> assets(RenderContainer container) => null;
+	
+	
+	
+	/**
+	 * Returns sync loaded files
+	 */		
+	lambda Collection<string> resources(RenderContainer container) => null;
+	
+	
+	
+	/**
+	 * Init render container
+	 */
+	lambda RenderContainer initContainer(RenderContainer container) => container;
 	
 	
 	
@@ -69,19 +120,6 @@ class ModuleDescription implements ModuleDescriptionInterface, FrontendInterface
 		/* Register Drivers */
 		/*context.registerDriver("driver.web.core", new WebDriver( context ));*/
 		
-	}
-	
-	
-	
-	/**
-	 * Returns required modules
-	 * @return Map<string, string>
-	 */	
-	public static Map<string, string> getRequiredModules(ContextInterface context)
-	{
-		return {
-			'Runtime': '>=0.3',
-		};
 	}
 	
 	

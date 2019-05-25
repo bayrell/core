@@ -16,10 +16,12 @@
  *  limitations under the License.
  */
  
-namespace Core.UI.Interfaces;
+namespace Core.Interfaces;
+
+use Runtime.Interfaces.ContextInterface;
 
 
-interface RoutesDeclaringInterface
+interface ApiDeclaringInterface
 {
 
 	

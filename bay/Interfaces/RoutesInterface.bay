@@ -16,13 +16,27 @@
  *  limitations under the License.
  */
  
-namespace Core.UI.Interfaces;
+namespace Core.Interfaces;
 
-use Runtime.Interfaces.ContextInterface;
+use Core.Http.Request;
+use Core.UI.Render.WebContainer;
 
 
-interface ApiDeclaringInterface
+interface RoutesInterface
 {
+	
+	
+	/**
+	 * Before call method
+	 */
+	public static WebContainer before(WebContainer container, string name);
+	
 
+	
+	/**
+	 * Before call method
+	 */
+	public static WebContainer after(WebContainer container, string name);
+	
 	
 }

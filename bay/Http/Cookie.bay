@@ -39,7 +39,7 @@ struct Cookie extends CoreStruct
 	 * @param Cookie c
 	 * @return int
 	 */
-	pure int getExpireTimestamp(Cookie c)
+	lambda int getExpireTimestamp(Cookie c)
 	{
 		if (c.expire == null) return 0;
 		return c.expire.getTimestamp();
