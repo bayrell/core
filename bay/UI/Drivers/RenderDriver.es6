@@ -191,6 +191,8 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		
 		if (is_new)
 		{
+			console.log("Create manager ", key_manager, " ", ui.name);
+			
 			/* Clear old link */
 			if (new_manager != null)
 			{
@@ -971,7 +973,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				manager.destroyManager();
 				this.managers[key] = null;
 				delete this.managers[key];
-				/* console.log("Remove manager ", key); */
+				console.log("Remove manager ", key);
 			}
 		}
 	}

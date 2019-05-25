@@ -19,7 +19,10 @@
 namespace Core.UI.Render;
 
 use Runtime.CoreStruct;
+use Runtime.RuntimeUtils;
 use Runtime.Interfaces.StringInterface;
+use Core.UI.Interfaces.AssetsInterface;
+use Core.UI.Interfaces.ComponentInterface;
 use Core.UI.Render.RenderContainer;
 
 
@@ -339,22 +342,53 @@ static class RenderHelper
 	 * @param string class_name
 	 * @return Collection<string>
 	 */
-	protected static void _getRequiredComponents
+	protected static void _getAssets
 	(
 		Vector<string> res,
 		Map<string> cache,
-		string class_name
+		Collection<string> modules,
+		RenderContainer container
 	)
 	{
-		Collection<string> components = ( method(class_name, "components") )();
-		for (int i=0; i<components.count(); i++)
+		if (modules != null)
 		{
-			string class_name = components.item(i);
-			if (cache.get(class_name, false) == false)
+			for (int i=0; i<modules.count(); i++)
 			{
-				cache.set(class_name, true);
-				static::_getRequiredComponents(res, cache, class_name);
-				res.push(class_name);
+				string module_item = modules.item(i);
+				Vector<string> interfaces = RuntimeUtils::getInterfaces(module_item);
+				bool is_assets = interfaces.indexOf( classof AssetsInterface ) != -1;
+				bool is_components = interfaces.indexOf( classof ComponentInterface ) != -1;
+				if (not is_assets and not is_components)
+				{
+					continue;
+				}
+				
+				if (is_components or is_assets)
+				{
+					if (cache.get(module_item, false) == false)
+					{
+						cache.set(module_item, true);
+						if (is_components)
+						{
+							Dict<string> sub_modules = ( method(module_item, "requiredModules") )();
+							if (sub_modules != null)
+							{
+								Collection<string> sub_modules = sub_modules.keys();
+								sub_modules = sub_modules.map(
+									string (string module_name){ return module_name ~ ".ModuleDescription"; }
+								);
+								static::_getAssets(res, cache, sub_modules, v);
+							}
+						}
+						
+						Dict<string> sub_assets = ( method(module_item, "assets") )(container);
+						if (sub_assets != null)
+						{
+							static::_getAssets(res, cache, sub_assets, container);
+						}
+						res.push(module_item);
+					}
+				}
 			}
 		}
 	}
@@ -362,81 +396,16 @@ static class RenderHelper
 	
 	
 	/**
-	 * Returns all components
-	 * @param Collection<string> views
+	 * Returns all assets and modules
+	 * @param Collection<string> modules
 	 * @return Collection<string>
 	 */
-	pure Collection<string> getAllComponents(Collection<string> views)
+	pure Collection<string> getAssets(Collection<string> modules, RenderContainer container)
 	{
-		/* Add components from views */
+		/* Add modules */
 		Vector<string> res = new Vector();
 		Map<string> cache = new Map();
-		for (int i=0; i<views.count(); i++)
-		{
-			string class_name = views.item(i);
-			cache.set(class_name, true);
-			Collection<string> arr = static::_getRequiredComponents(res, cache, class_name);
-			res.push(class_name);
-		}
-		res = res.removeDublicatesIm();
-		return res.toCollection();
-	}
-	
-	
-	
-	/**
-	 * Returns required assets
-	 * @param string assets_class_name
-	 * @return Collection<string>
-	 */
-	protected static void _getRequiredAssets
-	(
-		Vector<string> res,
-		Map<string> cache,
-		string assets_class_name,
-		RenderContainer container = null
-	)
-	{
-		Collection<string> assets = ( method(assets_class_name, "getRequiredAssets") )(container);
-		for (int i=0; i<assets.count(); i++)
-		{
-			string assets_name = assets.item(i);
-			if (cache.get(assets_name, false) == false)
-			{
-				cache.set(assets_name, true);
-				static::_getRequiredAssets(res, cache, assets_name, container);
-				res.push(assets_name);
-			}
-		}
-	}
-	
-	
-	
-	/**
-	 * Returns assets by views
-	 * @param Collection<string> views
-	 * @return Collection<string>
-	 */
-	pure Collection<string> loadAssetsFromComponents(Collection<string> components, RenderContainer container = null)
-	{
-		/* Add assets from components */
-		Vector<string> res = new Vector();
-		if (components == null) return res;
-		Map<string> cache = new Map();
-		
-		for (int i=0; i<components.count(); i++)
-		{
-			string class_name = components.item(i);
-			Collection<string> assets = ( method(class_name, "assets") )();
-			for (int j=0; j<assets.count(); j++)
-			{
-				string assets_name = assets.item(j);
-				cache.set(assets_name, true);
-				static::_getRequiredAssets(res, cache, assets_name, container);
-				res.push(assets_name);
-			}
-		}
-		
+		static::_getAssets(res, cache, modules, container);
 		res = res.removeDublicatesIm();
 		return res.toCollection();
 	}
@@ -506,7 +475,8 @@ static class RenderHelper
 		for (int i=0; i<components.count(); i++)
 		{
 			string component_name = components.item(i);
-			string css = ( method(component_name, "css") )(css_vars);
+			string view_name = ( method(component_name, "componentViewName") )(css_vars);
+			string css = ( method(view_name, "css") )(css_vars);
 			res.push(css);
 		}
 		

@@ -18,23 +18,17 @@
  
 namespace Core.UI.Interfaces;
 
+use Core.UI.Render.RenderContainer;
+
 
 interface ComponentInterface
 {
-	
 	
 	/**
 	 * Returns module name
 	 * @return string
 	 */
 	pure string getName();
-	
-	
-	
-	/**
-	 * Returns assets name
-	 */
-	pure string componentAssetsName();
 	
 	
 	
@@ -56,5 +50,34 @@ interface ComponentInterface
 	 * Returns model name
 	 */
 	pure string componentViewName();
+	
+	
+	
+	/**
+	 * Returns required assets
+	 * @return Collection<string>
+	 */	
+	lambda Collection<string> assets(RenderContainer container);
+	
+	
+	
+	/**
+	 * Returns sync loaded files
+	 */		
+	lambda Collection<string> assetsSyncLoad(RenderContainer container);
+	
+	
+	
+	/**
+	 * Returns async loaded files
+	 */			
+	lambda Collection<mixed> assetsAsyncLoad(RenderContainer container);
+	
+	
+	
+	/**
+	 * Init render container
+	 */
+	lambda RenderContainer initContainer(RenderContainer container);
 	
 }

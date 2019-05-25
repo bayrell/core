@@ -24,31 +24,31 @@ use Core.UI.Render.RenderContainer;
 interface AssetsInterface
 {
 	
-	
 	/**
 	 * Returns required assets
-	 * @return Vector<string>
+	 * @return Collection<string>
 	 */	
-	public static Vector<string> getRequiredAssets(RenderContainer context);
+	lambda Collection<string> assets(RenderContainer container);
 	
 	
 	
 	/**
 	 * Returns sync loaded files
 	 */		
-	public static Vector<string> assetsSyncLoad(RenderContainer context);
+	lambda Collection<string> assetsSyncLoad(RenderContainer container);
 	
 	
 	
 	/**
 	 * Returns async loaded files
 	 */			
-	public static Vector<mixed> assetsAsyncLoad(RenderContainer context);
+	lambda Collection<mixed> assetsAsyncLoad(RenderContainer container);
 	
 	
 	
 	/**
 	 * Init render container
 	 */
-	public static RenderContainer initContainer(RenderContainer container);
+	lambda RenderContainer initContainer(RenderContainer container);
+	
 }

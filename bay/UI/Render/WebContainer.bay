@@ -20,6 +20,7 @@ namespace Core.UI.Render;
 
 use Runtime.CoreStruct;
 use Core.UI.Annotations.RouteInfo;
+use Core.UI.Interfaces.ComponentInterface;
 use Core.Http.Request;
 use Core.Http.Response;
 use Core.Http.Session;
@@ -62,10 +63,22 @@ struct WebContainer extends CoreStruct
 		
 		if (layout_model != null)
 		{
-			Vector<string> arr = [ render_result.view_class ];
+			Collection<string> arr = [ render_result.view_class ];
 			if (render_result.layout_class != "") arr.push(render_result.layout_class);
-			Vector<string> components = RenderHelper::getAllComponents(arr);
-			Vector<string> assets = RenderHelper::loadAssetsFromComponents(components, layout_model);
+			
+			/* Get modules name */
+			arr = arr.map(
+				string (string class_name){ return (method (class_name, "moduleDescription"))(); }
+			);
+			Collection<string> assets = RenderHelper::getAssets(arr, layout_model);
+			Collection<string> components = assets.filter
+			(
+				bool (string class_name)
+				{
+					bool is_component = rtl::class_implements(class_name, classof ComponentInterface);
+					return is_component;
+				}
+			);
 			layout_model = RenderHelper::initRenderContainer(layout_model);
 			layout_model = layout_model.copy({
 				"assets": assets,

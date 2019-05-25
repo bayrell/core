@@ -20,9 +20,10 @@ namespace Core.FileSystem;
 
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
+use Core.UI.Interfaces.AssetsInterface;
 
 
-class ModuleDescription implements ModuleDescriptionInterface
+class ModuleDescription implements ModuleDescriptionInterface, AssetsInterface
 {
 	
 	
@@ -30,7 +31,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */
-	pure string getName() => "Core.FileSystem";
+	lambda string getName() => "Core.FileSystem";
 	
 	
 	
@@ -38,7 +39,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */	
-	pure string getModuleVersion() => "0.0.1";
+	lambda string getModuleVersion() => "0.0.1";
 	
 	
 	
@@ -46,10 +47,59 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns required modules
 	 * @return Map<string, string>
 	 */
-	pure Map<string> requiredModules() =>
+	lambda Map<string> requiredModules() =>
 	{
 		'Runtime': '*',
 	};
+	
+	
+	
+	/**
+	 * Returns enities
+	 */
+	lambda Collection<Dict> entities() => null;
+	
+	
+	
+	/**
+	 * Returns required assets
+	 * @return Map<string, string>
+	 */	
+	lambda Collection<string> assets(RenderContainer context) => null;
+	
+	
+	
+	/**
+	 * Returns sync loaded files
+	 */		
+	lambda Collection<string> assetsSyncLoad(RenderContainer context) =>
+		[
+		]
+	;
+	
+	
+	
+	/**
+	 * Returns async loaded files
+	 */			
+	lambda Collection<mixed> assetsAsyncLoad(RenderContainer context) =>
+		[
+			[
+				'@Core/FileSystem/FileIOResult.js',
+				'@Core/FileSystem/FileNode.js',
+				'@Core/FileSystem/FileStat.js',
+				'@Core/FileSystem/FileSystemInterface.js',
+				'@Core/FileSystem/ModuleDescription.js',
+			]
+		]
+	;
+	
+	
+	
+	/**
+	 * Init render container
+	 */
+	lambda RenderContainer initContainer(RenderContainer container) => container;
 	
 	
 	

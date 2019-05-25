@@ -29,37 +29,9 @@ struct Tabs extends CoreView
 {
 	
 	/**
-	 * Returns manager name
+	 * Returns module name
 	 */
-	lambda string managerName() => classof TabsManager;
-	
-	
-	
-	/**
-	 * Returns model name
-	 */
-	lambda string modelName() => classof TabsModel;
-	
-	
-	
-	/**
-	 * Required Assets
-	 */
-	lambda Collection<string> assets() =>
-		[
-			classof TabsAssets,
-		]
-	;
-	
-	
-	
-	/**
-	 * Required components
-	 */
-	lambda Collection<string> components() =>
-		[
-		]
-	;
+	lambda string moduleName() => "Core.Components.Tabs";
 	
 	
 	

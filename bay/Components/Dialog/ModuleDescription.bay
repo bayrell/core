@@ -19,34 +19,111 @@
 namespace Core.Components.Dialog;
 
 use Runtime.Exceptions.RuntimeException;
-use Runtime.Interfaces.AssetsInterface;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
+use Core.UI.Interfaces.ComponentInterface;
+use Core.UI.Render.RenderContainer;
 
 
-class ModuleDescription implements ModuleDescriptionInterface
+class ModuleDescription implements 
+	ModuleDescriptionInterface, 
+	ComponentInterface
 {
-
 	
 	/**
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getName()
-	{
-		return "Core.Components.Dialog";
-	}
-	
+	lambda string getName() => "Core.Components.Dialog";
 	
 	
 	/**
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getModuleVersion()
+	lambda string getModuleVersion() => "0.1.2";
+	
+	
+	
+	/**
+	 * Returns required modules
+	 * @return Map<string>
+	 */	
+	lambda Map<string> requiredModules() =>
 	{
-		return "0.1.2";
-	}
+		'Core.UI': '>=0.3',
+		'Core.Components.Button': '*',
+	};
+	
+	
+	
+	/**
+	 * Returns enities
+	 */
+	lambda Collection<Dict> entities() => null;
+	
+	
+	
+	/**
+	 * Returns view name
+	 */
+	lambda string componentViewName()  => "Core.Components.Dialog.Dialog";
+	
+	
+	
+	/**
+	 * Returns manager name
+	 */
+	lambda string componentManagerName() => "Core.Components.Dialog.DialogManager";
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	lambda string componentModelName()  => "Core.Components.Dialog.DialogModel";
+	
+	
+	
+	/**
+	 * Returns required assets
+	 * @return Collection<string>
+	 */	
+	lambda Collection<string> assets(RenderContainer container) => null;
+	
+	
+	
+	/**
+	 * Returns sync loaded files
+	 */		
+	lambda Vector<string> assetsSyncLoad(RenderContainer container) =>
+		[
+		]
+	;
+	
+	
+	
+	/**
+	 * Returns async loaded files
+	 */			
+	lambda Vector<mixed> assetsAsyncLoad(RenderContainer container) =>
+		[
+			[
+				'@Core/Components/Dialog/Dialog.js',
+				'@Core/Components/Dialog/DialogManager.js',
+				'@Core/Components/Dialog/DialogModel.js',
+				'@Core/Components/Dialog/DialogResultEvent.js',
+				'@Core/Components/Dialog/ModuleDescription.js',
+			]
+		]
+	;
+	
+	
+	
+	/**
+	 * Init render container
+	 */
+	lambda RenderContainer initContainer(RenderContainer container) => container;
 	
 	
 	
@@ -75,53 +152,6 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * @param Map<mixed> config
 	 */
 	public static void onReadConfig(ContextInterface context, Map<mixed> config){}
-	
-	
-	
-	/**
-	 * Returns routes
-	 * @return Vector<string>
-	 */	
-	public static Vector<string> getApi(ContextInterface context)
-	{
-		return null;
-	}
-	
-	
-	
-	/**
-	 * Returns routes
-	 * @return Vector<string>
-	 */	
-	public static Vector<string> getRoutes(ContextInterface context)
-	{
-		return [
-		];
-	}
-	
-	
-	
-	/**
-	 * Returns required assets
-	 * @return Map<string, string>
-	 */	
-	public static Vector<string> getRequiredAssets(ContextInterface context)
-	{
-		return null;
-	}
-	
-	
-	
-	/**
-	 * Returns required modules
-	 * @return Map<string, string>
-	 */	
-	public static Map<string, string> getRequiredModules(ContextInterface context)
-	{
-		return {
-			'Core.UI': '>=0.3',
-		};
-	}
 	
 	
 }

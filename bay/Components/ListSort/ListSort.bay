@@ -20,9 +20,6 @@ namespace Core.Components.ListSort;
 
 use Core.UI.Render.CoreView;
 use Core.UI.Render.RenderHelper;
-use Core.Components.ListSortAssets;
-use Core.Components.ListSortManager;
-use Core.Components.ListSortModel;
 use Runtime.RuntimeUtils;
 
 
@@ -31,37 +28,9 @@ struct ListSort extends CoreView
 	
 	
 	/**
-	 * Returns manager name
+	 * Returns module name
 	 */
-	lambda string managerName() => classof ListSortManager;
-	
-	
-	
-	/**
-	 * Returns model name
-	 */
-	lambda string modelName() => classof ListSortModel;
-	
-	
-	
-	/**
-	 * Required Assets
-	 */
-	lambda Collection<string> assets() =>
-		[
-			classof ListSortAssets,
-		]
-	;
-	
-	
-	
-	/**
-	 * Required components
-	 */
-	lambda Collection<string> components() =>
-		[
-		]
-	;
+	lambda string moduleName() => "Core.Components.ListSort";
 	
 	
 	

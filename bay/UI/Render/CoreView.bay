@@ -26,5 +26,38 @@ use Core.UI.Render.WebContainer;
 struct CoreView extends CoreStruct
 {
 	
+	/**
+	 * Returns module name
+	 */
+	lambda string moduleName() => "";
+	
+	
+	
+	/**
+	 * Returns module description
+	 */
+	lambda string moduleDescription() => static::moduleName() ~ ".ModuleDescription";
+	
+	
+	
+	/**
+	 * Returns manager name
+	 */
+	lambda string managerName()
+	{
+		/*rtl::dump( static::getCurrentClassName() );*/
+		return ( method( static::moduleDescription(), "componentManagerName" ))();
+	}
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	lambda string modelName()
+	{
+		/*rtl::dump( static::getCurrentClassName() );*/
+		return ( method( static::moduleDescription(), "componentModelName" ))();
+	}
 	
 }

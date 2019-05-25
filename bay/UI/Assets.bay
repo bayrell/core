@@ -29,13 +29,16 @@ class Assets implements AssetsInterface
 	
 	/**
 	 * Returns required assets
-	 * @return Map<string, string>
+	 * @return Collection<string>
 	 */	
-	public static Vector<string> getRequiredAssets(RenderContainer context)
-	{
-		return [
-		];
-	}
+	pure Collection<string> assets() => null;
+	
+	
+	
+	/**
+	 * Required components
+	 */
+	pure Collection<string> components() => null;
 	
 	
 	

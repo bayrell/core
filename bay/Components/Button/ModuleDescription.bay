@@ -19,23 +19,20 @@
 namespace Core.Components.Button;
 
 use Runtime.Exceptions.RuntimeException;
-use Runtime.Interfaces.AssetsInterface;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
+use Core.UI.Interfaces.ComponentInterface;
+use Core.UI.Render.RenderContainer;
 
 
-class ModuleDescription implements ModuleDescriptionInterface
+class ModuleDescription implements ModuleDescriptionInterface, ComponentInterface
 {
-
 	
 	/**
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getName()
-	{
-		return "Core.Components.Button";
-	}
+	lambda string getName() => "Core.Components.Button";
 	
 	
 	
@@ -43,10 +40,87 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */
-	public static string getModuleVersion()
+	lambda string getModuleVersion() => "0.1.2";
+	
+	
+	
+	/**
+	 * Returns required modules
+	 * @return Map<string>
+	 */
+	lambda Map<string> requiredModules() => 
 	{
-		return "0.1.2";
-	}
+		'Core.UI': '>=0.3',
+	};
+	
+	
+	
+	/**
+	 * Returns enities
+	 */
+	lambda Collection<Dict> entities() => null;
+	
+	
+	
+	/**
+	 * Returns view name
+	 */
+	lambda string componentViewName()  => "Core.Components.Button.Button";
+	
+	
+	
+	/**
+	 * Returns manager name
+	 */
+	lambda string componentManagerName() => "Core.Components.Button.ButtonManager";
+	
+	
+	
+	/**
+	 * Returns model name
+	 */
+	lambda string componentModelName()  => "Core.Components.Button.ButtonModel";
+	
+	
+	
+	/**
+	 * Returns required assets
+	 * @return Collection<string>
+	 */	
+	lambda Collection<string> assets(RenderContainer container) => null;
+	
+	
+	
+	/**
+	 * Returns sync loaded files
+	 */		
+	lambda Collection<string> assetsSyncLoad(RenderContainer container) =>
+		[
+		]
+	;
+	
+	
+	
+	/**
+	 * Returns async loaded files
+	 */			
+	lambda Collection<mixed> assetsAsyncLoad(RenderContainer container) =>
+		[
+			[
+				'@Core/Components/Button/Button.js',
+				'@Core/Components/Button/ButtonManager.js',
+				'@Core/Components/Button/ButtonModel.js',
+				'@Core/Components/Button/ModuleDescription.js',
+			]
+		]
+	;
+	
+	
+	
+	/**
+	 * Init render container
+	 */
+	lambda RenderContainer initContainer(RenderContainer container) => container;
 	
 	
 	
@@ -75,53 +149,5 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * @param Map<mixed> config
 	 */
 	public static void onReadConfig(ContextInterface context, Map<mixed> config){}
-	
-	
-	
-	/**
-	 * Returns routes
-	 * @return Vector<string>
-	 */	
-	public static Vector<string> getApi(ContextInterface context)
-	{
-		return null;
-	}
-	
-	
-	
-	/**
-	 * Returns routes
-	 * @return Vector<string>
-	 */	
-	public static Vector<string> getRoutes(ContextInterface context)
-	{
-		return [
-		];
-	}
-	
-	
-	
-	/**
-	 * Returns required assets
-	 * @return Map<string, string>
-	 */	
-	public static Vector<string> getRequiredAssets(ContextInterface context)
-	{
-		return null;
-	}
-	
-	
-	
-	/**
-	 * Returns required modules
-	 * @return Map<string, string>
-	 */	
-	public static Map<string, string> getRequiredModules(ContextInterface context)
-	{
-		return {
-			'Core.UI': '>=0.3',
-		};
-	}
-	
 	
 }

@@ -33,16 +33,9 @@ class Tree extends CoreView
 {
 	
 	/**
-	 * Returns manager name
+	 * Returns module name
 	 */
-	lambda string managerName() => classof TreeManager;
-	
-	
-	
-	/**
-	 * Returns model name
-	 */
-	lambda string modelName() => classof TreeModel;
+	lambda string moduleName() => "Core.Components.Tree";
 	
 	
 	

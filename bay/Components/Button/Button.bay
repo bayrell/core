@@ -21,47 +21,17 @@ namespace Core.Components.Button;
 use Runtime.RuntimeUtils;
 use Core.UI.Render.CoreView;
 use Core.UI.Render.RenderHelper;
-use Core.Components.Button.Button;
-use Core.Components.Button.ButtonAssets;
-use Core.Components.Button.ButtonManager;
+use Core.UI.Interfaces.ComponentInterface;
 use Core.Components.Button.ButtonModel;
 
 
 class Button extends CoreView
 {
-	
+
 	/**
-	 * Returns manager name
+	 * Returns module name
 	 */
-	lambda string managerName() => classof ButtonManager;
-	
-	
-	
-	/**
-	 * Returns model name
-	 */
-	lambda string modelName() => classof ButtonModel;
-	
-	
-	
-	/**
-	 * Required Assets
-	 */
-	lambda Collection<string> assets() =>
-		[
-			classof ButtonAssets,
-		]
-	;
-	
-	
-	
-	/**
-	 * Required components
-	 */
-	lambda Collection<string> components() =>
-		[
-		]
-	;
+	lambda string moduleName() => "Core.Components.Button";
 	
 	
 	
