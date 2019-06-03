@@ -163,6 +163,9 @@ class BackendAppDriver extends ContextObject
 		routes.each(
 			void (string class_name) use (routes_info)
 			{
+				if (class_name == "")
+					return;
+			
 				Vector<string> interfaces = RuntimeUtils::getInterfaces(class_name);
 				if (interfaces == null)
 					return;
@@ -234,12 +237,10 @@ class BackendAppDriver extends ContextObject
 		}
 		
 		/* Should create render */
-		if (container.route_info.view_class != "" and container.route_info.layout_class != "")
+		if (container.route_info.render == true)
 		{
 			container <= render <= new RenderResult
 			{
-				"view_class": container.route_info.view_class,
-				"layout_class": container.route_info.layout_class,
 				"layout_model": new RenderContainer{},
 			};
 		}
@@ -251,7 +252,6 @@ class BackendAppDriver extends ContextObject
 		/* Return result */
 		return container;
 	}
-	
 	
 	
 	

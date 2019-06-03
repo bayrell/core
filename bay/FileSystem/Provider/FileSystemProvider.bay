@@ -18,7 +18,7 @@
 
 namespace Core.FileSystem.Provider;
 
-use Runtime.ContextObject;
+use Runtime.CoreStruct;
 use Core.FileSystem.FileIOResult;
 use Core.FileSystem.FileNode;
 use Core.FileSystem.FileSystemInterface;
@@ -33,7 +33,7 @@ var pathModule = require('path');
 #endswitch
 
 
-class FileSystemProvider extends ContextObject implements FileSystemInterface
+struct FileSystemProvider extends CoreStruct
 {
 	
 	
@@ -43,7 +43,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string basedir
 	 * @return Vector<string> res - Result
 	 */
-	public Vector<string> getDirectoryListing(string basedir="")
+	public static async Vector<string> getDirectoryListing
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string basedir=""
+	)
 	{
 		#switch
 		#case ifcode PHP then
@@ -72,7 +77,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string basedir
 	 * @param Vector<string> res - Result
 	 */
-	public Vector<string> readDirectoryRecursive(string basedir="")
+	public static async Vector<string> readDirectoryRecursive
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string basedir=""
+	)
 	{
 		Vector<string> res = new Vector();
 		Vector<string> arr = this.getDirectoryListing(basedir);
@@ -98,7 +108,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string basedir
 	 * @param Vector<string> res - Result
 	 */
-	public Vector<string> getFilesRecursive(string basedir="")
+	public static async Vector<string> getFilesRecursive
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string basedir=""
+	)
 	{
 		Vector<string> res = new Vector();
 		Vector<string> arr = this.getDirectoryListing(basedir);
@@ -129,7 +144,13 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string charset
 	 * @return string
 	 */
-	public string readFile(string filepath="", string charset="utf8")
+	public static async string readFile
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string filepath="",
+		string charset="utf8"
+	)
 	{
 		#switch
 		#case ifcode PHP then
@@ -148,7 +169,14 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string content
 	 * @param string charset
 	 */
-	public void saveFile(string filepath="", string content="", string charset="utf8")
+	public static async void saveFile
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string filepath="",
+		string content="",
+		string charset="utf8"
+	)
 	{
 		#switch
 		#case ifcode PHP then
@@ -166,7 +194,13 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string mode
 	 * @return FileInterface
 	 */
-	public FileInterface openFile(string filepath="", string mode="")
+	public static async FileInterface openFile
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string filepath="",
+		string mode=""
+	)
 	{
 	}
 	
@@ -177,7 +211,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string dirpath
 	 * @param boolean create_parent. Default is true
 	 */
-	public void fileExists(string filepath="")
+	public static async void fileExists
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string filepath=""
+	)
 	{
 		#switch
 		#case ifcode PHP then
@@ -196,7 +235,13 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string dirpath
 	 * @param boolean create_parent. Default is true
 	 */
-	public void makeDir(string dirpath="", bool create_parent=false)
+	public static async void makeDir
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string dirpath="",
+		bool create_parent=false
+	)
 	{
 		#switch
 		#case ifcode PHP then
@@ -218,7 +263,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string path
 	 * @param boolean 
 	 */
-	public void isDir(string path)
+	public static async void isDir
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string path
+	)
 	{
 		#switch
 		#case ifcode PHP then
@@ -235,7 +285,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string path
 	 * @param boolean 
 	 */
-	public void isFile(string path)
+	public static async void isFile
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string path
+	)
 	{
 		if (not this.fileExists(path)) return false;
 		return not this.isDir(path);
@@ -250,7 +305,14 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param Dict options
 	 * @return bool
 	 */
-	public async bool createNode(string filepath, string kind, Dict options = null)
+	public static async bool createNode
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string filepath,
+		string kind,
+		Dict options = null
+	)
 	{
 		bool res = false;
 		bool clear = false;
@@ -294,7 +356,14 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string new_name
 	 * @return bool
 	 */
-	public async bool renameNode(string folderpath, string old_name, string new_name)
+	public static async bool renameNode
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string folderpath,
+		string old_name,
+		string new_nam
+	)
 	{
 		bool res = false;
 		
@@ -316,7 +385,12 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param string path
 	 * @return bool
 	 */
-	public async bool deleteNode(string path)
+	public static async bool deleteNode
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string path
+	)
 	{
 		bool res = false;
 		
@@ -338,7 +412,14 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param int count
 	 * @return FileIOResult
 	 */
-	public async FileIOResult readBlock(string filepath, int offset, int count = -1)
+	public static async FileIOResult readBlock
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string filepath,
+		int offset,
+		int count = -1
+	)
 	{
 		string content = "";
 		Collection<byte> bytes = null;
@@ -386,7 +467,15 @@ class FileSystemProvider extends ContextObject implements FileSystemInterface
 	 * @param int count
 	 * @return FileIOResult
 	 */
-	public async FileIOResult writeBlock(string filepath, Collection<byte> bytes, int offset, int count = -1)
+	public static async FileIOResult writeBlock
+	(
+		ContextInterface context,
+		FileSystemProvider fs,
+		string filepath,
+		Collection<byte> bytes,
+		int offset,
+		int count = -1
+	)
 	{
 		if (count == -1) count = 1048576;
 		

@@ -33,13 +33,6 @@ class Tree extends CoreView
 {
 	
 	/**
-	 * Returns module name
-	 */
-	lambda string moduleName() => "Core.Components.Tree";
-	
-	
-	
-	/**
 	 * Required Assets
 	 */
 	lambda Collection<string> assets() =>

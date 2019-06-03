@@ -51,6 +51,7 @@ class ModuleDescription implements ModuleDescriptionInterface, ComponentInterfac
 	 */	
 	lambda Map<string> requiredModules() =>
 	{
+		'Core.Components.ContextMenu': '>=0.1',
 		'Core.Components.Dialog': '>=0.1',
 		'Core.UI': '>=0.3',
 	};

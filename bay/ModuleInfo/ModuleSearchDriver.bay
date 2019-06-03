@@ -1,0 +1,108 @@
+/*!
+ *  Bayrell Development Console
+ *
+ *  (c) Copyright 2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace BayrellLang.Compiler;
+
+use Runtime.Interfaces.ContextInterface;
+use Runtime.ContextObject;
+
+
+class ModuleSearchDriver extends ContextObject
+{
+	
+	protected Vector<string> search_path = "";
+	
+	
+	void constructor(ContextInterface context)
+	{
+		parent(context);
+	}
+	
+	
+	/**
+	 * Add search module path
+	 * @param string path
+	 */
+	void addPath(string path)
+	{
+		this.search_path.push(path);
+	}
+	
+	
+	
+	/**
+	 * Find module
+	 * @param string module_name
+	 */
+	async string findModule(string module_name)
+	{
+		for (int i=0; i<this.search_path.count(); i++)
+		{
+			string s = await this.findModuleByPath(this.search_path.item(i), module_name);
+			if (s != "")
+			{
+				return s;
+			}
+		}
+		
+		return "";
+	}
+	
+	
+	
+	/**
+	 * Find module by path
+	 * @param string search_path
+	 * @param string module_name
+	 */
+	async string findModuleByPath(string search_path, string module_name)
+	{
+		FileSystemProvider fs = this.context().getProvider("default.fs");
+		
+		Collection<string> arr = rs::explode(".", module_name);
+		string lib_name = arr.item(0);
+		bool flag = false;
+		
+		flag = await fs::fileExists(this.context(), fs, search_path ~ "/" ~ lib_name ~ "/ModuleDescription.bay");
+		if (flag)
+		{
+			return search_path ~ "/" ~ lib_name;
+		}
+		
+		flag = await fs::fileExists(this.context(), fs, search_path ~ "/" ~ lib_name ~ "/bay/ModuleDescription.bay");
+		if (flag)
+		{
+			return search_path ~ "/" ~ lib_name ~ "/bay";
+		}
+		
+		flag = await fs::fileExists(this.context(), fs, search_path ~ "/" ~ module_name ~ "/ModuleDescription.bay");
+		if (flag)
+		{
+			return search_path ~ "/" ~ module_name;
+		}
+		
+		flag = await fs::fileExists(this.context(), fs, search_path ~ "/" ~ module_name ~ "/bay/ModuleDescription.bay");
+		if (flag)
+		{
+			return search_path ~ "/" ~ lib_name ~ "/bay";
+		}
+		
+		return false;
+	}
+	
+}

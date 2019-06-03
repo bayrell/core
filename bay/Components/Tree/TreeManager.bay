@@ -49,7 +49,10 @@ class TreeManager extends CoreManager
 	 */
 	public async void selectNode(Collection<int> path)
 	{
-		
+		string select_path = rs::implode(".", path);
+		this.updateModel({
+			"selected": select_path,
+		});
 	}
 	
 	
@@ -79,7 +82,13 @@ class TreeManager extends CoreManager
 	 */
 	public async void openNode(Collection<int> path)
 	{
-		
+		NavigatorItem item = TreeModel::getTreeItem(this.model, path);
+		item = item.copy({
+			"is_open": not item.is_open,
+			"is_reload": false,
+		});
+		/* Update model */
+		this.setModel( TreeModel::setTreeItem(this.model, path, item) );
 	}
 	
 	
@@ -177,9 +186,6 @@ class TreeManager extends CoreManager
 	{
 		/* Set new value */
 		string tree_data_path = event.ui.props.get("data-path");
-		this.updateModel({
-			"selected": tree_data_path,
-		});
 		
 		Collection<int> path = TreeModel::splitPath( tree_data_path );
 		this.signalOut( new TreeSelectNodeEvent{ "path": path } );
