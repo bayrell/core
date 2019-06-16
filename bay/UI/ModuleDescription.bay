@@ -34,7 +34,7 @@ class ModuleDescription implements
 	 * Returns module name
 	 * @return string
 	 */
-	lambda string getName() => "Core.UI";
+	lambda string getModuleName() => "Core.UI";
 	
 	
 	
@@ -42,7 +42,7 @@ class ModuleDescription implements
 	 * Returns module name
 	 * @return string
 	 */
-	lambda string getModuleVersion() => "0.7.0";
+	lambda string getModuleVersion() => "0.7.3";
 	
 	
 	
@@ -66,8 +66,10 @@ class ModuleDescription implements
 	lambda Collection<string> getModuleFiles() => 
 	[
 		"Core.UI.UIController",
+		"Core.UI.Annotations.ApiInstance",
 		"Core.UI.Annotations.ControllerAnnotation",
 		"Core.UI.Annotations.RouteInfo",
+		"Core.UI.Annotations.RoutesInstance",
 		"Core.UI.Events.CommandEvent",
 		"Core.UI.Events.ComponentEvent",
 		"Core.UI.Events.ModelChange",
@@ -141,12 +143,9 @@ class ModuleDescription implements
 	
 	
 	/**
-	 * Init context
-	 * @param ContextInterface context
+	 * Get lambda filters
 	 */
-	public static void initContext(ContextInterface context)
-	{
-	}
+	lambda Collection<LambdaFilter> lambdaFilters() => null;
 	
 	
 	
@@ -154,19 +153,22 @@ class ModuleDescription implements
 	 * Called then module registed in context
 	 * @param ContextInterface context
 	 */
-	public static void onRegister(ContextInterface context)
-	{
-		/* Register Drivers */
-	}
+	public static void onRegister(ContextInterface context){}
 	
 	
 	
 	/**
 	 * Called then context read config
-	 * @param ContextInterface context
 	 * @param Map<mixed> config
 	 */
-	public static void onReadConfig(ContextInterface context, Map<mixed> config){
-	}
+	public static void onReadConfig(ContextInterface context, Map<mixed> config){}
+	
+	
+	
+	/**
+	 * Init context
+	 * @param ContextInterface context
+	 */
+	public static void onInitContext(ContextInterface context){}
 	
 }

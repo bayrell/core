@@ -897,7 +897,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	 */
 	run(selector, view, model)
 	{
-		model = Runtime.RuntimeUtils.json_decode( model );
+		model = Runtime.RuntimeUtils.json_decode( atob(model) );
 		
 		this.view = view;
 		this.selector = selector;
@@ -999,6 +999,6 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 }
 
 
-
+window['context'] = Runtime.RuntimeUtils.registerGlobalContext();
 window['RenderDriver'] = new Core.UI.Drivers.RenderDriver();
 window['RenderDriver'].run('#root', document.getElementById('view').value, document.getElementById('model').value);

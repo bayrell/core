@@ -19,14 +19,14 @@
 namespace Core.UI.Render;
 
 use Runtime.CoreStruct;
-use Core.UI.Render.RenderContainer;
+use Core.UI.Render.LayoutModel;
 
 
 struct RenderResult extends CoreStruct
 {
 	string layout_class = "";
 	string view_class = "";
-	RenderContainer layout_model = null;
+	LayoutModel layout_model = null;
 	CoreStruct view_model = null;
 }
 

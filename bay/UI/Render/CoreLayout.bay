@@ -18,16 +18,23 @@
 
 namespace Core.UI.Render;
 
-
 use Runtime.CoreStruct;
+use Runtime.RuntimeUtils;
 use Core.UI.Assets;
-use Core.UI.Render.CoreLayoutModel;
+use Core.UI.Render.LayoutModel;
 use Core.UI.Render.CoreView;
 use Core.UI.Render.RenderHelper;
 
 
 struct CoreLayout extends CoreView
 {
+	
+	/**
+	 * Returns module name
+	 */
+	lambda string moduleName() => "Core.UI";
+	
+	
 	
 	/**
 	 * Required Assets
@@ -66,7 +73,7 @@ struct CoreLayout extends CoreView
 	/**
 	 * Render head
 	 */
-	lambda Template head(CoreLayoutModel data) =>
+	lambda Template head(LayoutModel data) =>
 		return 
 			<meta name='Content-Type' content='text/html; charset=utf-8'/>
 			<title>@{ data.title }</title>
@@ -75,44 +82,49 @@ struct CoreLayout extends CoreView
 	
 	
 	/**
-	 * Render assets in header
+	 * Patch modules
 	 */
-	lambda Template assetsHeader(CoreLayoutModel data)
+	lambda Collection<string> patchAssets(LayoutModel data, Collection<string> arr)
 	{
-		Vector<UIStruct> res = new Vector();
-		
-		/* Add assets */
-		Collection<string> css = RenderHelper::loadSyncResources(data.assets);
-		for (int i=0; i<css.count(); i++)
-		{
-			res.push(
-				new UIStruct{
-					"kind": UIStruct::TYPE_ELEMENT,
-					"name": "link",
-					"props": {
-						"rel": "stylesheet",
-						"href": css.item(i),
-					},
+		arr = arr.map
+		(
+			string (string name) use (data)
+			{
+				if (name[0] == "@")
+				{
+					int pos = rs::strpos(name, "/");
+					string module_name = rs::substr(name, 1, pos - 1);
+					string path = rs::substr(name, pos);
+					name = "/assets/" ~ module_name ~ path;
 				}
-			);
-		}
-		
-		/* Add components css */
-		string css = RenderHelper::getCSSFromComponents(data.components, data.css_vars);
-		res.push(
-			new UIStruct{
-				"kind": UIStruct::TYPE_ELEMENT,
-				"name": "style",
-				"props": {
-					"type": "text/css",
-				},
-				"children": [
-					rtl::normalizeUI(css),
-				],
+				return name;
 			}
 		);
+		return arr;
+	}
+	
+	
+	
+	/**
+	 * Render assets in header
+	 */
+	lambda Template assetsHeader(LayoutModel data)
+	{
+		Collection<string> resources = RenderHelper::loadResources(data.assets);
+		Collection<string> css_arr = resources.filter
+		(
+			string (string name) => rs::extname(name) == "css"
+		);
+		css_arr = static::patchAssets(data, css_arr);
+		css_arr = css_arr.map( Template (string css) => <link rel='stylesheet' href={ css } />  );
 		
-		return res.toCollection();
+		string css = static::css(data.css_vars);
+		css ~= RenderHelper::getCSSFromComponents(data.components, data.css_vars);
+		
+		return <>
+			{ css_arr }
+			<style type='text/css'>@raw{ css }</style>
+		</>;
 	}
 	
 	
@@ -120,32 +132,18 @@ struct CoreLayout extends CoreView
 	/**
 	 * Render assets in body
 	 */
-	lambda Template assetsBody(CoreLayoutModel data)
+	lambda Template assetsBody(LayoutModel data)
 	{
-		Collection<string> js = RenderHelper::loadAsyncResources(data.assets);
-		Vector<UIStruct> res = new Vector();
-		for (int i=0; i<js.count(); i++)
-		{
-			res.push(
-				new UIStruct{
-					"kind": UIStruct::TYPE_ELEMENT,
-					"name": "script",
-					"props": {
-						"src": js.item(i),
-					},
-				}
-			);
-		}
-		res.push(
-			new UIStruct{
-				"kind": UIStruct::TYPE_ELEMENT,
-				"name": "script",
-				"props": {
-					"src": "/assets/Core/UI/Drivers/RenderDriver.js",
-				},
-			}
+		Collection<string> resources = RenderHelper::loadResources(data.assets);
+		Collection<string> js_arr = resources.filter
+		(
+			string (string name) => rs::extname(name) == "js"
 		);
-		return res.toCollection();
+		js_arr = js_arr.pushIm("@Core.UI/es6/Drivers/RenderDriver.js");
+		js_arr = js_arr.pushIm("@Core.UI/es6/Drivers/ApiBusDriver.js");
+		js_arr = static::patchAssets(data, js_arr);
+		js_arr = js_arr.map( Template (string js) => <script src={ js }></script> );
+		return js_arr;
 	}
 	
 	
@@ -153,14 +151,14 @@ struct CoreLayout extends CoreView
 	/**
 	 * Content render
 	 */
-	lambda Template content(CoreLayoutModel data) => return data.content;
+	lambda Template content(LayoutModel data) => return data.content;
 	
 	
 	
 	/**
 	 * Component render
 	 */
-	lambda Template render(CoreLayoutModel data) =>
+	lambda Template render(LayoutModel data) =>
 		return <!DOCTYPE html>
 			<html>
 			<head>
@@ -170,7 +168,10 @@ struct CoreLayout extends CoreView
 			<body>
 				<div id='root'>@raw{ static::content( data ) }</div>
 				<input id='view' value={ data.view } style="display: none;" />
-				<input id='model' value={ rtl::json_encode(data.model) } style="display: none;" />
+				<input id='model' 
+					value={ RuntimeUtils::base64_encode(rtl::json_encode(data.model)) } 
+					style="display: none;" 
+				/>
 				<div id='scripts'>
 					{ static::assetsBody( data ) }
 				</div>

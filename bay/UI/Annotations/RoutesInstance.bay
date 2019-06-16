@@ -16,35 +16,12 @@
  *  limitations under the License.
  */
  
-namespace Core.Components.Navigator;
+namespace Core.UI.Annotations;
 
-use Core.Components.ContextMenu.ContextMenu;
-use Core.Components.ContextMenu.ContextMenuItem;
-use Core.Components.Navigator.NavigatorAssets;
-use Core.Components.Navigator.NavigatorItem;
-use Core.Components.Navigator.NavigatorManager;
-use Core.Components.Navigator.NavigatorModel;
-use Core.Components.Tree.Tree;
-use Core.Components.Tree.TreeModel;
+use Runtime.CoreStruct;
 
 
-struct Navigator extends Tree
+struct RoutesInstance extends CoreStruct
 {
-	
-	/**
-	 * Returns module name
-	 */
-	lambda string moduleName() => "Core.Components.Navigator";
-	
-	
-	
-	/**
-	 * Component css
-	 */
-	lambda string css(Dict<string> vars) => 
-		@css{
-		}
-	;
-	
-	
+	public string name = "";	
 }

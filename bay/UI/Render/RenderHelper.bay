@@ -103,7 +103,6 @@ static class RenderHelper
 	
 	
 	
-	
 	/**
 	 * Returns attrs
 	 */
@@ -339,11 +338,11 @@ static class RenderHelper
 	
 	
 	/**
-	 * Returns required components
+	 * Returns required modules
 	 * @param string class_name
 	 * @return Collection<string>
 	 */
-	protected static void _getAssets
+	protected static void _getModules
 	(
 		Vector<string> res,
 		Map<string> cache,
@@ -356,8 +355,8 @@ static class RenderHelper
 		
 		for (int i=0; i<modules.count(); i++)
 		{
-			string module_item = modules.item(i);
-			Vector<string> interfaces = RuntimeUtils::getInterfaces(module_item);
+			string module_name = modules.item(i);
+			Vector<string> interfaces = RuntimeUtils::getInterfaces(module_name);
 			bool is_assets = interfaces.indexOf( classof AssetsInterface ) != -1;
 			bool is_components = interfaces.indexOf( classof ComponentInterface ) != -1;
 			bool is_module = interfaces.indexOf( classof ModuleDescriptionInterface ) != -1;
@@ -367,31 +366,32 @@ static class RenderHelper
 				continue;
 			}
 			
-			if (cache.get(module_item, false) == false)
+			if (cache.get(module_name, false) == false)
 			{
-				cache.set(module_item, true);
+				cache.set(module_name, true);
 				if (is_module)
 				{
-					Dict<string> sub_modules = ( method(module_item, "requiredModules") )();
+					Dict<string> sub_modules = ( method(module_name, "requiredModules") )();
 					if (sub_modules != null)
 					{
 						Collection<string> sub_modules = sub_modules.keys();
 						sub_modules = sub_modules.map(
-							string (string module_name){ return module_name ~ ".ModuleDescription"; }
+							string (string module_name) =>
+								rs::replace("/", ".", module_name ~ ".ModuleDescription")
 						);
-						static::_getAssets(res, cache, sub_modules, container);
+						static::_getModules(res, cache, sub_modules, container);
 					}
 				}
 				
 				if (is_assets or is_components)
 				{
-					Dict<string> sub_assets = ( method(module_item, "assets") )(container);
+					Dict<string> sub_assets = ( method(module_name, "assets") )(container);
 					if (sub_assets != null)
 					{
-						static::_getAssets(res, cache, sub_assets, container);
+						static::_getModules(res, cache, sub_assets, container);
 					}
 				}
-				res.push(module_item);
+				res.push(module_name);
 			}
 			
 		}
@@ -405,12 +405,12 @@ static class RenderHelper
 	 * @param Collection<string> modules
 	 * @return Collection<string>
 	 */
-	lambda Collection<string> getAssets(Collection<string> modules, RenderContainer container)
+	lambda Collection<string> getModules(Collection<string> modules, RenderContainer container)
 	{
 		/* Add modules */
 		Vector<string> res = new Vector();
 		Map<string> cache = new Map();
-		static::_getAssets(res, cache, modules, container);
+		static::_getModules(res, cache, modules, container);
 		res = res.removeDublicatesIm();
 		return res.toCollection();
 	}
@@ -443,8 +443,24 @@ static class RenderHelper
 			Collection<string> r = ( method(class_name, "getModuleFiles") )(null);
 			if (r != null)
 			{
+				string module_name = (method (class_name, "getModuleName"))();
+				
+				/* Get parent module */
+				int pos = rs::strpos(module_name, "/");
+				string parent_module_name = module_name;
+				if (pos >= 0) parent_module_name = rs::substr(module_name, 0, pos);
+				
+				/* Patch by parent module name */
 				r = r.map(
-					string (string item) => "@" ~ rs::replace(".", "/", item) ~ ".js"
+					string (string item) use (parent_module_name) 
+					{
+						if (rs::strpos(item, parent_module_name) == 0)
+						{
+							item = rs::substr(item, rs::strlen(parent_module_name));
+							item = rs::replace(".", "/", item);
+						}
+						return "@" ~ parent_module_name ~ "/es6" ~ item ~ ".js";
+					}
 				);
 				res = static::addUniqueItems(res, r);
 			}

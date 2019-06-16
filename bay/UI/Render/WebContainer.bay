@@ -19,13 +19,15 @@
 namespace Core.UI.Render;
 
 use Runtime.CoreStruct;
+use Runtime.Interfaces.ModuleDescriptionInterface;
+use Core.Interfaces.AssetsInterface;
 use Core.Interfaces.ComponentInterface;
 use Core.Http.Request;
 use Core.Http.Response;
 use Core.Http.Session;
 use Core.Http.WebFile;
 use Core.UI.Annotations.RouteInfo;
-use Core.UI.Render.RenderContainer;
+use Core.UI.Render.LayoutModel;
 use Core.UI.Render.RenderHelper;
 use Core.UI.Render.RenderResult;
 
@@ -42,98 +44,119 @@ struct WebContainer extends CoreStruct
 	
 	
 	/**
-	 * Render web container and return RenderContainer
+	 * Render view
 	 */
-	lambda RenderContainer render(WebContainer container)
+	public static WebContainer renderView(ContextInterface context, WebContainer container)
 	{
 		RenderResult render_result = container.render;
 		if (render_result == null)
 		{
-			return null;
+			return container;
 		}
 		
-		RenderContainer layout_model = render_result.layout_model;
+		LayoutModel layout_model = render_result.layout_model;
 		if (layout_model == null)
 		{
-			layout_model = new RenderContainer();
+			layout_model = new LayoutModel();
 		}
 		
 		/* Render view */
 		string content = RenderHelper::render( render_result.view_class, render_result.view_model );
 		
-		if (layout_model != null)
-		{
-			Collection<string> arr = [ render_result.view_class ];
-			if (render_result.layout_class != "") arr.push(render_result.layout_class);
-			
-			/* Get modules name */
-			arr = arr.map(
-				string (string class_name){ return (method (class_name, "moduleDescription"))(); }
-			);
-			Collection<string> assets = RenderHelper::getAssets(arr, layout_model);
-			Collection<string> components = assets.filter
-			(
-				bool (string class_name)
-				{
-					bool is_component = rtl::class_implements(class_name, classof ComponentInterface);
-					return is_component;
-				}
-			);
-			
-			layout_model = RenderHelper::initRenderContainer(layout_model);
-			layout_model = layout_model.copy({
-				"assets": assets,
-				"components": components,
-				"content": content,
-				"view": render_result.view_class,
-				"layout": render_result.layout_class,
-				"model": render_result.view_model,
-			});
-		}
+		/* Get modules name */
+		Collection<string> arr = [ render_result.view_class ];
+		if (render_result.layout_class != "") arr.push(render_result.layout_class);
+		arr = arr.map(
+			string (string class_name){ return (method (class_name, "moduleDescription"))(); }
+		);
 		
-		return layout_model;
+		/* Get all assets and components */
+		Collection<string> modules = RenderHelper::getModules(arr, layout_model);
+		Collection<string> assets = modules.filter
+		(
+			bool (string class_name)
+			{
+				bool is_assets = 
+					rtl::class_implements(class_name, classof AssetsInterface) or
+					rtl::class_implements(class_name, classof ModuleDescriptionInterface) or
+					rtl::class_implements(class_name, classof ComponentInterface)
+				;
+				return is_assets;
+			}
+		);
+		Collection<string> components = modules.filter
+		(
+			bool (string class_name)
+			{
+				bool is_component = rtl::class_implements(class_name, classof ComponentInterface);
+				return is_component;
+			}
+		);
+		
+		/* Init layout model */
+		layout_model = RenderHelper::initRenderContainer(layout_model);
+		layout_model = layout_model.copy({
+			"modules": modules,
+			"assets": assets,
+			"components": components,
+			"content": content,
+		});
+		
+		container <= render <= layout_model <= layout_model;
+		return container;
 	}
-	
 	
 	
 	
 	/**
-	 * Returns assets
-	 * @param string layout_class_name
-	 * @param CoreLayoutModel layout_data
-	 * @param string view_class_name
-	 * @param CoreStruct view_data
-	 * @return Response
+	 * Render layout
 	 */
-	lambda Response responsePage
-	(
-		string layout_class_name, RenderContainer layout_data, 
-		string view_class_name, CoreStruct view_data
-	)
+	public static WebContainer renderLayout(ContextInterface context, WebContainer container)
 	{
-		/* Render view */
-		string content = RenderHelper::render( view_class_name, view_data );
-		
-		/* Render layout */
-		if (layout_class_name != "" and layout_data != null and layout_data instanceof RenderContainer)
+		if (container.render == null)
 		{
-			Vector<string> components = RenderHelper::getAllComponents([layout_class_name, view_class_name]);
-			Vector<string> assets = RenderHelper::loadAssetsFromComponents(components, layout_data);
-			layout_data = RenderHelper::initRenderContainer(layout_data);
-			layout_data = layout_data.copy({
-				"assets": assets,
-				"components": components,
-				"content": content,
-				"view": view_class_name,
-				"model": view_data,
-			});
-			content = RenderHelper::render( layout_class_name, layout_data );
+			return container;
 		}
 		
-		/* Return response */
-		return new Response({ "content": content });
+		if (container.render.layout_class == "" or container.render.layout_model == null)
+		{
+			return container;
+		}
+		
+		LayoutModel layout_model = container.render.layout_model.copy({
+			"view": container.render.view_class,
+			"model": container.render.view_model,
+		});
+		container <= render <= layout_model <= layout_model;
+		
+		content = RenderHelper::render( container.render.layout_class, container.render.layout_model );
+		container <= response <= new Response{ "content": content };
+		
+		return container;
 	}
 	
+	
+	
+	/**
+	 * Render container
+	 */
+	public static async WebContainer response(ContextInterface context, WebContainer container)
+	{
+		if (container.response != null)
+		{
+			return container;
+		}
+		
+		if (container.render == null)
+		{
+			return container;
+		}
+		
+		container = static::renderView(context, container);
+		container = static::renderLayout(context, container);
+		
+		return container;
+	}
 	
 	
 }

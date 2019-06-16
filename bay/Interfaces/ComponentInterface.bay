@@ -28,7 +28,7 @@ interface ComponentInterface
 	 * Returns module name
 	 * @return string
 	 */
-	lambda string getName();
+	lambda string getModuleName();
 	
 	
 	

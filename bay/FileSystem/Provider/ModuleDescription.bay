@@ -18,6 +18,7 @@
 
 namespace Core.FileSystem.Provider;
 
+use Runtime.Provider;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
 use Core.FileSystem.Provider.FileSystemProvider;
@@ -31,7 +32,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */
-	lambda string getName() => "Core.FileSystem.Provider";
+	lambda string getModuleName() => "Core.FileSystem.Provider";
 	
 	
 	
@@ -39,7 +40,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 * Returns module name
 	 * @return string
 	 */
-	lambda string getModuleVersion() => "0.7.1";
+	lambda string getModuleVersion() => "0.7.3";
 	
 	
 	
@@ -50,6 +51,7 @@ class ModuleDescription implements ModuleDescriptionInterface
 	lambda Map<string> requiredModules() =>
 	{
 		'Runtime': '>=0.2 <1.0',
+		'Core.FileSystem': '*',
 	};
 	
 	
@@ -70,15 +72,10 @@ class ModuleDescription implements ModuleDescriptionInterface
 	/**
 	 * Returns enities
 	 */
-	lambda Collection<Dict> entities() => null;
-	
-	
-	
-	/**
-	 * Init context
-	 * @param ContextInterface context
-	 */
-	public static void initContext(ContextInterface context){}
+	lambda Collection<CoreStruct> entities() => 
+	[
+		new Provider{"name": "default.fs", "value": classof FileSystemProvider},
+	];
 	
 	
 	
@@ -88,9 +85,16 @@ class ModuleDescription implements ModuleDescriptionInterface
 	 */
 	public static void onRegister(ContextInterface context)
 	{
-		context.registerProvider("default.fs", new FileSystemProvider{});
 	}
 	
+	
+	
+	/**
+	 * Init context
+	 * @param ContextInterface context
+	 */
+	public static void onInitContext(ContextInterface context){}
+
 	
 	
 	/**

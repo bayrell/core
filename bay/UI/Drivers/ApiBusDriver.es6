@@ -21,6 +21,15 @@ Core.UI.Drivers.ApiBusDriver = class
 {
 	
 	/**
+	 * Init provider
+	 */
+	static init(context, obj)
+	{
+		return obj;
+	}
+	
+	
+	/**
 	 * Convert data to Native for ajax POST request
 	 * @params serializable data
 	 * @return Vector
@@ -29,6 +38,7 @@ Core.UI.Drivers.ApiBusDriver = class
 	{
 		var res = [];
 		var json = Runtime.RuntimeUtils.json_encode(data);
+		json = btoa(json);
 		res.push({"key": "DATA", "val": json});
 		return res;
 	}
@@ -207,4 +217,7 @@ Core.UI.Drivers.ApiBusDriver = class
 
 
 var context = Runtime.RuntimeUtils.getContext();
-context.registerDriver("core.ui.bus", new Core.UI.Drivers.ApiBusDriver());
+context._providers.set("core.ui.bus", new Runtime.Provider(new Runtime.Map({
+	"name": "core.ui.bus",
+	"value": "Core.UI.Drivers.ApiBusDriver",
+})));

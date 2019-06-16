@@ -36,6 +36,14 @@ var pathModule = require('path');
 struct FileSystemProvider extends CoreStruct
 {
 	
+	/**
+	 * Init FileSystemProvider
+	 */
+	static FileSystemProvider init(ContextInterface context, FileSystemProvider provider)
+	{
+		return provider;
+	}
+	
 	
 	
 	/**
@@ -245,7 +253,7 @@ struct FileSystemProvider extends CoreStruct
 	{
 		#switch
 		#case ifcode PHP then
-		if (file_exists($dirpath))
+		if (!file_exists($dirpath))
 		{
 			mkdir($dirpath, 0755, true);
 		}

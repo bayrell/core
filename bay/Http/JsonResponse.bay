@@ -27,7 +27,7 @@ use Core.Http.Response;
 struct JsonResponse extends Response
 {
 	
-	public Dict<primitive> data = null;
+	public Dict<primitive> data = new Dict<string>();
 	
 	
 	/**

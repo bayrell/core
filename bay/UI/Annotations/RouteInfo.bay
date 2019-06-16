@@ -67,7 +67,7 @@ struct RouteInfo extends CoreStruct
 			this.assignValue("params", null);
 		}
 		
-		this.assignValue("uri_match", uri_match);
+		this.assignValue("uri_match", "^" ~ uri_match ~ "$");
 	}
 	
 	

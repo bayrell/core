@@ -15,14 +15,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-namespace Core.Components.ContextMenu;
 
-use Core.UI.Render.CoreView;
+namespace Core.UI.Render;
 
 
-class ContextMenuItem extends CoreView
+use Runtime.CoreStruct;
+
+
+struct LayoutModel extends CoreStruct
 {
-	
-	
+	public string title = "";
+	public string meta_description = "";
+	public string meta_keywords = "";
+	public string content = "";
+	public string view = "";
+	public CoreStruct model = null;
+	public Collection<string> assets = null;
+	public Collection<string> components = null;
+	public Collection<string> modules = null;
+	public Collection<string> modules_path = null;
+	public Dict<string> css_vars = new Dict<string>();
 }

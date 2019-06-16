@@ -27,7 +27,7 @@ struct Response extends CoreStruct
 	public int http_code = 200;
 	public string content = "";
 	public Dict<Cookie> cookies = null;
-	public Dict<string> headers = null;
+	public Dict<string> headers = new Dict<string>();
 	
 	
 	/**

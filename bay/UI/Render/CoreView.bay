@@ -36,7 +36,7 @@ struct CoreView extends CoreStruct
 	/**
 	 * Returns module description
 	 */
-	lambda string moduleDescription() => static::getCurrentNamespace() ~ ".ModuleDescription";
+	lambda string moduleDescription() => static::moduleName() ~ ".ModuleDescription";
 	
 	
 	

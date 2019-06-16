@@ -15,26 +15,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+ 
+namespace Core.UI.Annotations;
 
-namespace Core.FileSystem.Provider;
-
-use Runtime.CoreObject;
-use Runtime.ContextObject;
-use Runtime.Interfaces.ContextInterface;
-use Runtime.Interfaces.FactoryInterface;
-use Core.FileSystem.Provider.FileSystemProvider;
+use Runtime.CoreStruct;
 
 
-class FileSystemProviderFactory extends ContextObject implements FactoryInterface
+struct ApiInstance extends CoreStruct
 {
-	
-	/**
-	 * Returns new Instance
-	 */
-	public FileSystemProvider newInstance(ContextInterface context = null, Map<mixed> params = null)
-	{	
-		FileSystemProvider obj = new FileSystemProvider(context);
-		return obj;
-	}
-
+	public string name = "";	
 }
