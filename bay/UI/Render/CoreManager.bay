@@ -23,7 +23,8 @@ use Runtime.Emitter;
 use Runtime.Reference;
 use Runtime.RuntimeUtils;
 use Runtime.Interfaces.ContextInterface;
-use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Annotations.AnnotationEvent;
+use Core.UI.Annotations.BindModel;
 use Core.UI.Events.ModelChange;
 
 
@@ -35,8 +36,19 @@ class CoreManager extends ContextObject
 	public bool _model_updated_by_driver = true;
 	public Emitter signal_in = new Emitter();
 	public Emitter signal_out = new Emitter();
-	public string parent_controller_name = "";
+	public Emitter annotations_emitter = null;
 	public CoreManager parent_manager = null;
+	public UIStruct ui = null;
+	
+	
+	
+	/**
+	 * Returns parent controller name
+	 */
+	public string getParentControllerName()
+	{
+		return this.ui.controller;
+	}
 	
 	
 	
@@ -126,8 +138,17 @@ class CoreManager extends ContextObject
 	/**
 	 * Set parent manager
 	 */
-	public void setParentManager(CoreManager parent_manager, string parent_controller_name)
+	public void setParentManager(CoreManager parent_manager, UIStruct ui)
 	{
+		/* Remove old annotations */
+		if (this.annotations_emitter != null)
+		{
+			this.signal_out.removeEmitter( this.annotations_emitter );
+			this.annotations_emitter = null;
+		}
+		
+		
+		/*
 		if (this.parent_controller_name != "" and this.parent_manager != null)
 		{
 			UIControl controller = this.parent_manager.takeValue(this.parent_controller_name, null);
@@ -137,10 +158,12 @@ class CoreManager extends ContextObject
 				this.signal_out.removeEmitter( controller.signal_out );
 			}
 		}
+		*/
 		
-		this.parent_controller_name = parent_controller_name;
+		this.ui = ui;
 		this.parent_manager = parent_manager;
 		
+		/*
 		if (parent_manager != null and parent_controller_name != "")
 		{
 			UIControl parent_controller = parent_manager.takeValue(parent_controller_name, null);
@@ -149,6 +172,30 @@ class CoreManager extends ContextObject
 				parent_controller.signal_in.addEmitter( this.signal_in );
 				this.signal_out.addEmitter( parent_controller.signal_out );
 			}
+		}
+		*/
+		
+		/* Build annotations */
+		Vector<CoreStruct> annotations = new Vector();
+		if (ui.annotations != null)
+		{
+			annotations = ui.annotations.toVector();
+		}
+		if (ui.bind != "")
+		{
+			annotations.push( new BindModel{ "model": ui.bind } );
+		}
+		
+		/* Add annotations to signal out */
+		if (annotations != null and annotations.count() > 0)
+		{
+			this.annotations_emitter = new Emitter();
+			for (int i=0; i<annotations.count(); i++)
+			{
+				CoreAnnotation annotation = annotations.item(i);
+				annotation::addEmitter(this.parent_manager, this.annotations_emitter, ui, annotation);
+			}
+			this.signal_out.addEmitter( this.annotations_emitter );
 		}
 		
 	}

@@ -18,41 +18,73 @@
  
 namespace Core.UI.Annotations;
 
-use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Annotations.AnnotationEvent;
 use Core.UI.Events.ModelChange;
+use Core.UI.Events.UserEvent.ChangeEvent;
 
 
-struct BindModel extends ControllerAnnotation
+struct BindModel extends AnnotationEvent
 {
 	
 	string model = "";
 	
 	
+	
 	/**
-	 * Init controller
+	 * OnEvent
 	 */
-	static void initController
-	(
-		UIController controller, CoreManager manager, 
-		ControllerAnnotation annotation, string controller_name
-	)
+	Collection<string> events()
 	{
-		controller.addSignalOut( static::onChangeModel(manager, annotation), [classof ModelChange] );
+		return [
+			classof ModelChange,
+			classof ChangeEvent
+		];
 	}
 	
 	
 	
 	/**
-	 * On change
+	 * OnEvent
 	 */
-	static fun onChangeModel(CoreManager manager, Controller annotation) => 
-		void (ModelChange event)
+	static void onEvent(CoreManager manager, UIEvent e)
+	{
+		if (e.event instanceof ChangeEvent)
 		{
 			Map map = new Map();
-			map.set(annotation.model, event.model);
+			map.set(e.annotation.model, e.event.value);
 			
 			/* Set new value */
 			manager.updateModel(map);
 		}
+		if (e.event instanceof ModelChange)
+		{
+			Map map = new Map();
+			map.set(e.annotation.model, e.event.model);
+			
+			/* Set new value */
+			manager.updateModel(map);
+		}
+		
+		/*
+		if (e.event instanceof ValueChange)
+		{
+			Map map = new Map();
+			map.set(e.annotation.model, e.event.model.takeValue("value", null));
+			
+			manager.updateModel(map);
+		}
+		*/
+	}
+	
+	
+	
+	/**
+	 * Add Emitter
+	 */
+	static void addEmitter(CoreManager manager, Emitter emitter, UIStruct ui, AnnotationEvent annotation)
+	{
+		emitter.addMethod(static::onEventFactory(manager, ui, annotation), [classof ModelChange, classof ChangeEvent]);
+	}
+	
 	
 }

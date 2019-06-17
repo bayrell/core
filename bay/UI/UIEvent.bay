@@ -1,7 +1,7 @@
 /*!
  *  Bayrell Core Library
  *
- *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,23 +15,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
-namespace Core.UI.Annotations;
 
+namespace Core.UI;
+
+use Runtime.CoreEvent;
 use Runtime.CoreStruct;
-use Core.UI.UIController;
+use Runtime.Emitter;
+use Runtime.Reference;
+use Runtime.UIStruct;
+use Core.UI.Annotations.AnnotationEvent;
+use Core.UI.Render.CoreManager;
 
 
-struct ControllerAnnotation extends CoreStruct
+class UIEvent<CoreEvent> extends CoreStruct
 {
-	
-	
-	/**
-	 * Init controller
-	 */
-	static void initController(CoreManager manager, ControllerAnnotation annotation, UIController controller)
-	{
-	}
-	
-	
+	public assignable Reference ref = null;
+	public assignable AnnotationEvent annotation = null;
+	public assignable CoreEvent event = null;
+	public assignable UIStruct ui = null;
 }

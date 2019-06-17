@@ -18,17 +18,15 @@
  
 namespace Core.UI.Annotations;
 
-use Core.UI.Annotations.AnnotationEvent;
-use Core.UI.Events.UserEvent.ChangeEvent;
+use Runtime.Interfaces.ContextInterface;
+use Runtime.CoreStruct;
+use Core.UI.Render.CoreManager;
+use Core.UI.UIController;
+use Core.UI.UIEvent;
 
 
-struct Event extends AnnotationEvent
+struct AnnotationEvent extends CoreStruct
 {
-	
-	string event = "";
-	string method_name = "";
-	bool cancel = false;
-	bool preventDefault = false;
 	
 	
 	/**
@@ -37,7 +35,6 @@ struct Event extends AnnotationEvent
 	Collection<string> events()
 	{
 		return [
-			this.event,
 		];
 	}
 	
@@ -48,12 +45,27 @@ struct Event extends AnnotationEvent
 	 */
 	static void onEvent(CoreManager manager, UIEvent e)
 	{
-		if (e.annotation.cancel) e.event.cancel();
-		else if (e.annotation.preventDefault) e.event.preventDefault();
-		callback f = method (manager, e.annotation.method_name);
-		f(e);
 	}
 	
+	
+	
+	/**
+	 * Factory onEvent
+	 */
+	static fun onEventFactory(CoreManager manager, UIStruct ui, AnnotationEvent annotation) =>
+		void (CoreEvent event)
+		{
+			UIEvent<CoreEvent> ui_event = new UIEvent(
+				{
+					"annotation": annotation,
+					"event": event,
+					"ui": ui,
+				}
+			);
+			static::onEvent(manager, ui_event);
+		}
+		
+		
 	
 	
 	/**
@@ -61,7 +73,31 @@ struct Event extends AnnotationEvent
 	 */
 	static void addEmitter(CoreManager manager, Emitter emitter, UIStruct ui, AnnotationEvent annotation)
 	{
-		emitter.addMethod(static::onEventFactory(manager, ui, annotation), [annotation.event]);
+	}
+	
+	
+	
+	/**
+	 * Dispatch Event
+	 */
+	static void dispatch
+	(
+		CoreManager manager,
+		UIStruct ui,
+		AnnotationEvent annotation,
+		CoreEvent event,
+		Reference ref = null
+	)
+	{
+		UIEvent<CoreEvent> ui_event = new UIEvent(
+			{
+				"annotation": annotation,
+				"event": event,
+				"ref": ref,
+				"ui": ui,
+			}
+		);
+		static::onEvent(manager, ui_event);
 	}
 	
 }

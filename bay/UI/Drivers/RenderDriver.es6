@@ -46,11 +46,13 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 		this.view = null;
 		this.model = null;
 		this.animation_id = null;
+		/*
 		this.control = new Core.UI.UIController();
 		this.control.signal_out.addMethod(
 			this.modelChanged.bind(this), 
 			new Runtime.Collection("Core.UI.Events.ModelChange")
 		);
+		*/
 		this.managers = {};
 		this.managers_hash = {};
 		this.remove_keys = [];
@@ -76,7 +78,7 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	 */
 	modelChanged(e)
 	{
-		this.model = e.model;
+		this.model = e.event.model;
 		this.is_initializing = false;
 		this.runAnimation();
 	}
@@ -196,12 +198,12 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 			/* Clear old link */
 			if (new_manager != null)
 			{
-				new_manager.setParentManager(null, ""); /* Clear controller */
+				new_manager.setParentManager(null, ""); /* Clear parent_manager */
 			}
 			
 			/* Create new manager */
 			new_manager = Runtime.rtl.newInstance(manager_name);
-			new_manager.setParentManager(parent_manager, ui.controller); /* Create link through controller */
+			new_manager.setParentManager(parent_manager, ui); /* Set new parent manager */
 			
 			this.managers[key_manager] = new_manager;
 			
@@ -277,6 +279,25 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 	
 	
 	/**
+	 * Build annotations
+	 */
+	buildAnnotations(ui)
+	{
+		var annotations = new Runtime.Vector();
+		if (ui.annotations != null)
+		{
+			annotations = ui.annotations.toVector();
+		}
+		if (ui.bind != "")
+		{
+			annotations.push( new Core.UI.Annotations.BindModel(new Runtime.Dict({ "model": ui.bind })) );
+		}
+		return annotations;
+	}
+	
+	
+	
+	/**
 	 * Update element props
 	 */
 	updateElemProps(elem, item)
@@ -299,7 +320,89 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 				this.warning("Manager for item '" + key_path + "' not found in ", elem);
 			}
 			
-			if (ui.controller != "" && manager != null)
+			if (ui.reference != "" && manager != null)
+			{
+				if (manager[ui.reference] == null) manager[ui.reference] = new Runtime.Reference(elem);
+				else manager[ui.reference].ref = elem;
+			}
+			
+			var annotations = this.buildAnnotations(ui);
+			if (annotations != null && manager != null && annotations.count() > 0)
+			{
+				for (var i=0; i<annotations.count(); i++)
+				{
+					var annotation = annotations.item(i);
+					var events = annotation.events();
+					for (var j=0; j<events.count(); j++)
+					{
+						var class_name = events.item(j);
+						/*console.log(class_name);*/
+						var f = Runtime.rtl.find_class(class_name);
+						if (f)
+						{
+							var event_name = f.ES6_EVENT_NAME;
+							if (event_name == undefined)
+							{
+								/* Send mount Event */
+								if (class_name == "Core.UI.Events.MountEvent")
+								{
+									var ref = new Runtime.Reference(elem);
+									
+									/* Send event */
+									annotation.constructor.dispatch
+									(
+										manager,
+										ui,
+										annotation,
+										new Core.UI.Events.MountEvent(new Runtime.Dict({
+											"elem": elem,
+											"ui": ui,
+										})),
+										ref
+									);
+									
+								}
+								/*
+								console.log(item);
+								console.log(class_name);
+								console.log(manager);
+								*/
+							}
+							else if (event_name != "")
+							{
+								//console.log(event_name, annotation.method_name);
+								elem.addEventListener(
+									event_name, 
+									(function (ui, annotation, elem) { return function (e) 
+									{
+										var event = Core.UI.Events.UserEvent.UserEvent.fromEvent(e);
+										var ref = new Runtime.Reference(elem);
+										
+										/* Send event */
+										annotation.constructor.dispatch
+										(
+											manager,
+											ui,
+											annotation,
+											event,
+											ref
+										);
+										
+										if (event.es6_event.defaultPrevented)
+										{
+											return false;
+										}
+									} })(ui, annotation, elem)
+								);
+								
+							}
+							
+						}
+					}
+				}
+			}
+			
+			if (false && ui.controller != "" && manager != null)
 			{
 				controller = manager.takeValue(ui.controller);
 				if (controller == null)
@@ -353,6 +456,9 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 					
 				}
 			}
+			
+			
+			
 		}
 		
 		if (different_key)
@@ -942,7 +1048,14 @@ Core.UI.Drivers.RenderDriver = class extends Core.UI.Render.CoreManager
 					"name": this.view,
 					"kind": Runtime.UIStruct.TYPE_COMPONENT,
 					"model": this.model,
-					"controller": "control",
+					"annotations": new Runtime.Collection(
+						new Core.UI.Annotations.Event(
+							new Runtime.Dict({
+								"event": "Core.UI.Events.ModelChange",
+								"method_name": "modelChanged",
+							})
+						)
+					),
 				})
 			)
 		);

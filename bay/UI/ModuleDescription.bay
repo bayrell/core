@@ -65,9 +65,10 @@ class ModuleDescription implements
 	 */
 	lambda Collection<string> getModuleFiles() => 
 	[
-		"Core.UI.UIController",
+		/*"Core.UI.UIController",*/
+		"Core.UI.UIEvent",
+		"Core.UI.Annotations.AnnotationEvent",
 		"Core.UI.Annotations.ApiInstance",
-		"Core.UI.Annotations.ControllerAnnotation",
 		"Core.UI.Annotations.RouteInfo",
 		"Core.UI.Annotations.RoutesInstance",
 		"Core.UI.Events.CommandEvent",
@@ -83,13 +84,13 @@ class ModuleDescription implements
 		"Core.UI.Render.RenderHelper",
 		"Core.UI.Render.WebContainer",
 		"Core.UI.Assets",
-		"Core.UI.Animations.FadeIn",
-		"Core.UI.Animations.FadeOut",
+		/*"Core.UI.Animations.FadeIn",*/
+		/*"Core.UI.Animations.FadeOut",*/
 		"Core.UI.Annotations.BindModel",
-		"Core.UI.Annotations.BindValue",
+		/*"Core.UI.Annotations.BindValue",*/
 		"Core.UI.Annotations.Event",
 		"Core.UI.Annotations.EventAsync",
-		"Core.UI.Annotations.SignalOut",
+		/*"Core.UI.Annotations.SignalOut",*/
 		"Core.UI.Events.KeyboardEvent.KeyboardEvent",
 		"Core.UI.Events.MouseEvent.MouseEvent",
 		"Core.UI.Events.UserEvent.BlurEvent",

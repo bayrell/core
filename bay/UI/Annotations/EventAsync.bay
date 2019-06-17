@@ -18,11 +18,11 @@
  
 namespace Core.UI.Annotations;
 
-use Core.UI.Annotations.ControllerAnnotation;
+use Core.UI.Annotations.AnnotationEvent;
 use Core.UI.Events.UserEvent.ChangeEvent;
 
 
-struct EventAsync extends ControllerAnnotation
+struct EventAsync extends AnnotationEvent
 {
 	
 	string event = "";
@@ -32,30 +32,36 @@ struct EventAsync extends ControllerAnnotation
 	
 	
 	/**
-	 * Init controller
+	 * OnEvent
 	 */
-	static void initController
-	(
-		UIController controller, CoreManager manager,
-		ControllerAnnotation annotation, string controller_name
-	)
+	Collection<string> events()
 	{
-		controller.addSignalOut( static::onEvent(manager, annotation), [annotation.event] );
+		return [
+			this.event,
+		];
 	}
 	
 	
 	
 	/**
-	 * On change
+	 * OnEvent
 	 */
-	static fun onEvent(CoreManager manager, Controller annotation) => 
-		void (CoreEvent event)
-		{
-			if (annotation.cancel) event.cancel();
-			else if (annotation.preventDefault) event.preventDefault();
-			event = event.copy();
-			callback f = rtl::methodAwait(manager, annotation.method_name);
-			f(event);
-		}
+	static void onEvent(CoreManager manager, UIEvent e)
+	{
+		if (e.annotation.cancel) e.event.cancel();
+		else if (e.annotation.preventDefault) e.event.preventDefault();
+		callback f = rtl::methodAwait(manager, e.annotation.method_name);
+		f(e);
+	}
+	
+	
+	
+	/**
+	 * Add Emitter
+	 */
+	static void addEmitter(CoreManager manager, Emitter emitter, UIStruct ui, AnnotationEvent annotation)
+	{
+		emitter.addMethod(static::onEventFactory(manager, ui, annotation), [annotation.event]);
+	}
 	
 }
